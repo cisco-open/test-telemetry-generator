@@ -1,0 +1,63 @@
+plugins {
+    id 'java'
+    id 'java-library'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs "example-definitions", "config"
+        }
+    }
+}
+
+group="io.opentelemetry.contrib"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api group: 'jakarta.el', name: 'jakarta.el-api', version: '4.0.0'
+    api group: 'org.glassfish', name: 'jakarta.el', version: '4.0.2'
+    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
+    api group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
+    api group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    api group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.2'
+    api group: 'io.opentelemetry', name: 'opentelemetry-proto', version: '1.6.0-alpha'
+    api group: 'com.google.guava', name: 'guava', version: 'r05'
+    api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    api group: 'commons-cli', name: 'commons-cli', version: '1.5.0'
+    api group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
+    api group: 'com.github.f4b6a3', name: 'uuid-creator', version: '4.3.1'
+    api group: 'io.grpc', name: 'grpc-protobuf', version: '1.44.0'
+    api group: 'io.grpc', name: 'grpc-stub', version: '1.44.0'
+    api group: 'io.grpc', name: 'grpc-netty', version: '1.44.0'
+    api group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.48.Final'
+    api group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
+
+    implementation group: 'org.testng', name: 'testng', version: '7.5'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+}
+
+test {
+    useTestNG()
+}
+
+task fatJar(type: Jar) {
+    classifier("all")
+    manifest {
+        attributes 'Main-Class': 'io.opentelemetry.contrib.generator.telemetry.cli.CLIProcessor'
+    }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.opentelemetry.contrib.generator.telemetry.cli.CLIProcessor'
+    }
+    finalizedBy fatJar
+}

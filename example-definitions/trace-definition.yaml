@@ -1,0 +1,166 @@
+traceCompletionTimeoutSecs: 120
+rootSpans:
+  - name: "healthCheck"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    attributes:
+      type: 'roundRobin(["REST"])'
+      url: 'roundRobin(["/healthcheck"])'
+    payloadCount: 20
+    copyCount: 10
+    payloadFrequencySeconds: 15
+  - name: "searchAccountsRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: request
+    childSpans: ["searchAccountsHTTPRequest", "searchAccountsProcessing"]
+    payloadCount: 5
+    copyCount: 3
+  - name: "getAccountDetails"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: request
+    childSpans: ["getAccountDetailsHTTPRequest", "getAccountDetailsProcessing"]
+    payloadCount: 10
+    copyCount: 5
+  - name: "updateAccountDetails"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: request
+    childSpans: ["updateAccountDetailsHTTPRequest", "updateAccountDetailsProcessing", "updateAccountDetailsQueue"]
+    payloadCount: 7
+    payloadFrequencySeconds: 90
+    spanErrorEndsTrace: true
+  - name: "deleteAccount"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: request
+    childSpans: ["deleteAccountHTTPRequest", "deleteAccountProcessing", "deleteAccountQueue"]
+    payloadCount: 5
+    payloadFrequencySeconds: 20
+  - name: "createNewAccount"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: request
+    childSpans: ["createAccountHTTPRequest", "createAccountProcessing", "validateAccountDetails"]
+    payloadCount: 10
+    copyCount: 3
+    payloadFrequencySeconds: 15
+childSpans:
+  - name: "searchAccountsHTTPRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    attributes:
+      request.incoming.host.ip: 'IPv4Sequence("154.2.55.33")'
+      request.incoming.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "searchAccountsProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    childSpans: ["searchAccountsQuery"]
+  - name: "searchAccountsQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: database_backend
+  - name: "getAccountDetailsHTTPRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    attributes:
+      request.incoming.host.ip: 'IPv4Sequence("131.54.24.4")'
+      request.incoming.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "getAccountDetailsProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    childSpans: ["checkAccountDetailsCache", "getAccountDetailsQuery"]
+  - name: "checkAccountDetailsCache"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+  - name: "getAccountDetailsQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: database_backend
+    errorFrequency: 4
+  - name: "updateAccountDetailsHTTPRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    spanStartTimePct: 5
+    spanEndTimePct: 100
+    attributes:
+      request.incoming.host.ip: 'IPv4Sequence("212.34.243.23")'
+      request.incoming.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "updateAccountDetailsProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    errorFrequency: 10
+    spanStartTimePct: 10
+    spanEndTimePct: 50
+    childSpans: ["updateAccountDetailsQuery"]
+  - name: "updateAccountDetailsQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: database_backend
+    errorFrequency: 15
+    spanStartTimePct: 20
+    spanEndTimePct: 45
+  - name: "updateAccountDetailsQueue"
+    spanKind: SPAN_KIND_PRODUCER
+    reportingResource: messaging_backend
+    spanStartTimePct: 55
+    spanEndTimePct: 120
+    attributes:
+      messaging.backend.topic: 'counter("data.account_update.v1-partition-")'
+  - name: "deleteAccountHTTPRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    attributes:
+      request.incoming.host.ip: 'IPv4Sequence("112.31.21.32")'
+      request.incoming.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "deleteAccountProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    childSpans: ["deactivateAccountCentral", "deleteAccountQuery"]
+  - name: "deactivateAccountCentral"
+    spanKind: SPAN_KIND_CLIENT
+    reportingResource: service_instance
+    errorFrequency: 7
+  - name: "deleteAccountQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: database_backend
+  - name: "deleteAccountQueue"
+    spanKind: SPAN_KIND_PRODUCER
+    reportingResource: messaging_backend
+    attributes:
+      messaging.backend.topic: 'counter("data.account_delete.v1-partition-1")'
+  - name: "createAccountHTTPRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    attributes:
+      request.incoming.host.ip: 'IPv4Sequence("143.43.76.65")'
+      request.incoming.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "createAccountProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    childSpans: ["createAccountCentral", "activateAccountCentral", "createAccountQueue", "checkCreatedAccountQueue", "createAccountQuery"]
+  - name: "createAccountCentral"
+    spanKind: SPAN_KIND_CLIENT
+    reportingResource: service_instance
+    errorFrequency: 10
+  - name: "activateAccountCentral"
+    spanKind: SPAN_KIND_CLIENT
+    reportingResource: service_instance
+    childSpans: ["activateAccountAuthCentral"]
+  - name: "activateAccountAuthCentral"
+    spanKind: SPAN_KIND_CLIENT
+    reportingResource: service_instance
+    attributes:
+      account.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "createAccountQueue"
+    spanKind: SPAN_KIND_PRODUCER
+    reportingResource: messaging_backend
+    attributes:
+      messaging.backend.topic: 'counter("data.account_create.v1-partition-3")'
+  - name: "checkCreatedAccountQueue"
+    spanKind: SPAN_KIND_CONSUMER
+    reportingResource: messaging_backend
+    errorFrequency: 5
+    attributes:
+      messaging.backend.topic: 'counter("data.account_created.v1-partition-2")'
+  - name: "createAccountQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: database_backend
+    errorFrequency: 8
+  - name: "validateAccountDetails"
+    spanKind: SPAN_KIND_CLIENT
+    reportingResource: service_instance
+    childSpans: ["getAccountDetailsProcessing"]

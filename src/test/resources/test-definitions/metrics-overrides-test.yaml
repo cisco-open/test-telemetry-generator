@@ -1,0 +1,39 @@
+payloadFrequencySeconds: 10
+payloadCount: 10
+metrics:
+  - name: system.network.in.kb.sec
+    unit: kBy/s
+    otelType: summary
+    valueFunction: 'geometricSequenceSummary(1, 3, "+5120", 5)'
+    isDouble: true
+    quantiles: [0, 50, 100]
+    reportingEntities: [network_interface, container, machine]
+    payloadFrequencySeconds: 15
+    attributes:
+      system.internal.ip: 'IPv4Sequence("10.134.1.34")'
+  - name: system.network.out.kb.sec
+    unit: kBy/s
+    otelType: summary
+    valueFunction: 'randomSummary(1, 10, "*400", 7)'
+    isDouble: true
+    quantiles: [0, 50, 100]
+    reportingEntities: [network_interface, container, machine]
+    payloadCount: 5
+    attributes:
+      system.internal.ip: 'IPv4Sequence("10.121.17.65")'
+      network.device.type: 'roundRobin(["ethernet", "wired", "wireless"])'
+  - name: filesystem.used
+    unit: MBy
+    otelType: sum
+    aggregationTemporality: delta
+    valueFunction: 'logarithmicSequence(30, 1, "*1024")'
+    isDouble: true
+    reportingEntities: [disk, aws_rds, aws_ebs, node, container, machine, pod]
+    payloadFrequencySeconds: 20
+    payloadCount: 15
+  - name: memory.used
+    unit: MBy
+    otelType: sum
+    aggregationTemporality: delta
+    valueFunction: 'controlledRandom(3072, 10240, "")'
+    reportingEntities: [aws_rds, node, container, machine, pod]

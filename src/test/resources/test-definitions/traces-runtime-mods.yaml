@@ -1,0 +1,50 @@
+traceCompletionTimeoutSecs: 120
+rootSpans:
+  - name: "healthCheck"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    attributes:
+      type: 'roundRobin(["REST"])'
+      url: 'roundRobin(["/healthcheck"])'
+    payloadCount: 10
+    copyCount: 20
+    payloadFrequencySeconds: 30
+  - name: "deleteAccount"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: request
+    childSpans: ["deleteAccountHTTPRequest", "deleteAccountProcessing", "deleteAccountQueue"]
+    payloadCount: 10
+    payloadFrequencySeconds: 30
+childSpans:
+  - name: "deleteAccountHTTPRequest"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: http_backend
+    spanStartTimePct: 5
+    spanEndTimePct: 75
+    attributes:
+      request.incoming.host.ip: 'IPv4Sequence("112.31.21.32")'
+      request.incoming.auth.type: 'roundRobin(["MFA", "LDAP", "OAuth", "SSO"])'
+  - name: "deleteAccountProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    spanStartTimePct: 10
+    spanEndTimePct: 70
+    childSpans: ["deactivateAccountCentral", "deleteAccountQuery"]
+  - name: "deactivateAccountCentral"
+    spanKind: SPAN_KIND_CLIENT
+    reportingResource: service_instance
+    spanStartTimePct: 15
+    spanEndTimePct: 50
+    errorFrequency: 7
+  - name: "deleteAccountQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: database_backend
+    spanStartTimePct: 50
+    spanEndTimePct: 75
+  - name: "deleteAccountQueue"
+    spanKind: SPAN_KIND_PRODUCER
+    reportingResource: messaging_backend
+    spanStartTimePct: 75
+    spanEndTimePct: 100
+    attributes:
+      messaging.backend.topic: 'counter("data.account_delete.v1-partition-1")'
