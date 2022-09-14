@@ -13,26 +13,27 @@ import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
+import io.opentelemetry.sdk.trace.IdGenerator;
 import jakarta.el.ELProcessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class SpansGenerator {
 
     private final RootSpanDefinition traceTree;
     private final String groupName;
-    private final int groupOffset;
     private final String requestID;
     private final ELProcessor jelProcessor;
     private ByteString[] traceIds;
     private long[] startTimes;
     private long[] endTimes;
+    private ByteString[][] spanIds;
     @Getter
     private int currentPostCount;
     @Getter
@@ -42,7 +43,6 @@ public class SpansGenerator {
         this.traceTree = traceTree;
         this.groupName = groupName;
         this.requestID = requestID;
-        groupOffset = Integer.parseInt(groupName.split("::group::")[1]);
         jelProcessor = JELProvider.getJelProcessor();
         currentPostCount = 0;
         currentTreePart = 0;
@@ -51,7 +51,7 @@ public class SpansGenerator {
     public ExportTraceServiceRequest getTraces() {
         log.debug(requestID + ": Received get traces request for " + groupName);
         if (currentTreePart == 0) {
-            initTimesAndTraceId();
+            initTimesAndIds();
             currentPostCount++;
         }
         Map<String, List<List<Span>>> spanCopiesByResource = getSpanCopiesByResource();
@@ -70,7 +70,7 @@ public class SpansGenerator {
                         .addInstrumentationLibrarySpans(InstrumentationLibrarySpans.newBuilder()
                                 .setInstrumentationLibrary(InstrumentationLibrary.newBuilder()
                                         .setName("@opentelemetry/test-telemetry-generator")
-                                        .setVersion("22.5.0")
+                                        .setVersion("22.9.0")
                                         .build())
                                 .addAllSpans(spans)
                                 .build())
@@ -118,18 +118,19 @@ public class SpansGenerator {
         return spanCopiesByResource;
     }
 
-    private void initTimesAndTraceId() {
-        traceIds = new ByteString[traceTree.getCopyCount()];
-        for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
-            traceIds[copyIndex] = getId(traceTree.getName(), copyIndex, true);
-        }
+    private void initTimesAndIds() {
+        traceIds = getTraceIds(traceTree.getCopyCount());
         int spansSize = traceTree.getTreeNodesPostOrder().size();
         startTimes = new long[spansSize];
         endTimes = new long[spansSize];
+        spanIds = new ByteString[spansSize][traceTree.getCopyCount()];
         long baseTime = System.currentTimeMillis();
         for (var spanIndex=0; spanIndex<spansSize; spanIndex++) {
             startTimes[spanIndex] = baseTime + traceTree.getTreeNodesPostOrder().get(spanIndex).getStartTimeMillisOffset();
             endTimes[spanIndex] = baseTime + traceTree.getTreeNodesPostOrder().get(spanIndex).getEndTimeMillisOffset();
+            for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
+                spanIds[spanIndex][copyIndex] = getId(false);
+            }
         }
     }
 
@@ -168,12 +169,15 @@ public class SpansGenerator {
     private List<Span> getSpanCopies(Span span, SpanDefinition spanDefinition) {
         List<Span> spanCopies = new ArrayList<>();
         Span.Builder eachCopy;
+        int spanIndex = traceTree.getSpansIndexMap().get(spanDefinition.getName());
+        int parentNodeIndex = spanDefinition.getParentNodes().containsKey(traceTree.getName()) ?
+                traceTree.getSpansIndexMap().get(spanDefinition.getParentNodes().get(traceTree.getName()).getName()) : -1;
         for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
             eachCopy = Span.newBuilder(span)
                     .setTraceId(traceIds[copyIndex])
-                    .setSpanId(getId(span.getName(), copyIndex, false));
-            if (spanDefinition.getParentNodes().containsKey(traceTree.getName())) {
-                eachCopy.setParentSpanId(getId(spanDefinition.getParentNodes().get(traceTree.getName()).getName(), copyIndex, false));
+                    .setSpanId(spanIds[spanIndex][copyIndex]);
+            if (parentNodeIndex != -1) {
+                eachCopy.setParentSpanId(spanIds[parentNodeIndex][copyIndex]);
             }
             spanCopies.add(eachCopy.build());
         }
@@ -201,12 +205,17 @@ public class SpansGenerator {
         return traceTree.getSpanErrorEndsTrace() ? 2 : 1;
     }
 
-    private ByteString getId(String spanName, int copyIndex, boolean isTrace) {
-        int actualCopyIndex = (groupOffset * traceTree.getCopyCount()) + copyIndex;
-        String name = isTrace ?
-                "trace-" + spanName + "_" + actualCopyIndex + "_" + currentPostCount :
-                spanName + "_" + actualCopyIndex + "_" + currentPostCount;
-        return ByteString.copyFromUtf8(UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8)).toString());
+    private ByteString[] getTraceIds(int count) {
+        ByteString[] traceIds = new ByteString[count];
+        IntStream.range(0, count).forEach(i -> {
+            traceIds[i] = getId(true);
+        });
+        return traceIds;
+    }
+
+    private ByteString getId(boolean isTrace) {
+        String idString = isTrace ? IdGenerator.random().generateTraceId() : IdGenerator.random().generateSpanId();
+        return ByteString.copyFrom(Base64.getEncoder().encode(idString.getBytes()));
     }
 
 }
