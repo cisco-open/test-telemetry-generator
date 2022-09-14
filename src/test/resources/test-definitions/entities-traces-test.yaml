@@ -1,0 +1,83 @@
+entities:
+  - name: service
+    count: 4
+    childrenDistribution:
+      service_instance: 'distribution(1, 0, 0)'
+      business_transaction: 'distribution(1, 0, 0)'
+      service_endpoint: 'distribution(1, 0, 0)'
+    attributes:
+      service.name: '"service-".concat(alphanumericSequence("alerting-test"))'
+      service.namespace: 'counter("svcnamespace")'
+  - name: service_instance
+    count: 40
+    childrenDistribution:
+      instance_endpoint: 'distribution(1, 0, 0)'
+    attributes:
+      service.instance.id: 'counter("alerting-svc-instance")'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
+    runtimeModifications:
+      - entityModificationType: CHURN
+        modificationFrequencyMinutes: 2
+        modificationQuantity: 25
+        endAfterMinutes: 8
+      - entityModificationType: ADD
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 10
+        endAfterMinutes: 8
+  - name: business_transaction
+    count: 4
+    attributes:
+      bt.name: '"bt-".concat(alphanumericSequence("trx"))'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
+  - name: service_endpoint
+    count: 4
+    attributes:
+      endpoint.name: 'counter("alerting-svc-endpoint")'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
+  - name: instance_endpoint
+    count: 4
+    attributes:
+      endpoint.name: 'counter("alerting-instance-endpoint")'
+    attributeOperations:
+      - 'copyFromParent("service_instance", "service.namespace")'
+      - 'copyFromParent("service_instance", "service.name")'
+      - 'copyFromParent("service_instance", "service.instance.id")'
+  - name: http_backend
+    count: 4
+    attributes:
+      backend.name: 'roundRobin(["alerting-svc-backend"])'
+      http.host: 'IPv4Sequence("198.134.1.11")'
+      http.port: 'roundRobin(["80", "8000", "8080"])'
+    runtimeModifications:
+      - entityModificationType: REMOVE
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 3
+        endAfterMinutes: 8
+      - entityModificationType: ADD
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 5
+        endAfterMinutes: 6
+  - name: request
+    count: 3
+    attributes:
+      type: 'roundRobin(["HTTP", "JMS", "HTTPS"])'
+      async: 'roundRobin(["true", "false"])'
+  - name: database_backend
+    count: 3
+    attributes:
+      backend.name: '"database_backend-".concat(alphanumericSequence("coushin"))'
+  - name: messaging_backend
+    count: 3
+    attributes:
+      backend.name: '"messaging_backend-".concat(alphanumericSequence("msgy"))'
+  - name: custom_backend
+    count: 3
+    attributes:
+      type: 'roundRobin(["messaging_backend", "database_backend", "http_backend"])'
+      backend.name: '"custom_backend-".concat(alphanumericSequence("msgy"))'

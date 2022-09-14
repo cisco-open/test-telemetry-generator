@@ -1,0 +1,26 @@
+globalPayloadFrequencySeconds: 30
+logs:
+  - name: k8slogs
+    attributes:
+      log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
+    severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "DEBUG"], [1, 2, 3])'
+    payloadFrequencySeconds: 20
+    payloadCount: 10
+    copyCount: 1000
+    reportingEntitiesCounts:
+      container: 10
+      pod: 10
+  - name: logevents1
+    severityOrderFunction: 'severityDistributionCount(["ERROR", "WARN", "DEBUG"], [1, 1, 4])'
+    payloadFrequencySeconds: 20
+    payloadCount: 2
+    copyCount: 200
+    reportingEntitiesCounts:
+      node: 30
+  - name: logevents2
+    severityOrderFunction: 'severityDistributionPercentage(["INFO", "TRACE"], [20, 80])'
+    payloadFrequencySeconds: 10
+    payloadCount: 5
+    reportingEntitiesCounts:
+      ec2: 4
+      container: 150
