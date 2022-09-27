@@ -36,13 +36,13 @@ public class HTTPPayloadHandler implements PayloadHandler {
     private final HTTPClient httpClient;
     @Getter
     @Setter
-    private String metricsURL = "/data/v1beta/metrics";
+    private String metricsURL = "";
     @Getter
     @Setter
-    private String logsURL = "/data/v1beta/logs";
+    private String logsURL = "";
     @Getter
     @Setter
-    private String tracesURL = "/data/v1beta/trace";
+    private String tracesURL = "";
     @Getter
     private boolean lastRequestSuccess;
 
