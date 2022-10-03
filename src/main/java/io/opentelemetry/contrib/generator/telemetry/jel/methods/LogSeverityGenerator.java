@@ -70,6 +70,7 @@ public class LogSeverityGenerator {
      * @param percentages corresponding list of percentages
      * @return severity
      */
+    @SuppressWarnings("unused")
     public static String severityDistributionPercentage(String requestID, String logName, List<String> severity, List<Long> percentages) {
         int totalPayloadCount = GeneratorsStateProvider.getLogGeneratorState(requestID).getGeneratorThreadMap()
                 .get(logName).getLogDefinition().getPayloadCount();

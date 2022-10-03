@@ -75,8 +75,6 @@ public class TestAllGenerators {
         int metricPayloadCount = 10;
         int logsPayloadCount = 20;
         int expectedMetricPackets = METRIC_REPORTING_ENTITIES_COUNT * metricPayloadCount;
-        //Add packets for aggregating, non-reporting entities
-            expectedMetricPackets = expectedMetricPackets + 600;
         int expectedLogsPackets = LOG_REPORTING_ENTITIES_COUNT * logsPayloadCount;
         int expectedSpanPackets = 11518;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedMetricPackets, "Mismatch in expected metric packets count");

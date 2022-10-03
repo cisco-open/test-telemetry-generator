@@ -223,9 +223,7 @@ public class SpansGenerator {
 
     private ByteString[] getTraceIds(int count) {
         ByteString[] traceIds = new ByteString[count];
-        IntStream.range(0, count).forEach(i -> {
-            traceIds[i] = getId(true);
-        });
+        IntStream.range(0, count).forEach(i -> traceIds[i] = getId(true));
         return traceIds;
     }
 

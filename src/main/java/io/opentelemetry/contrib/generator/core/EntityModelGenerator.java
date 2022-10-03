@@ -207,6 +207,7 @@ public class EntityModelGenerator {
         entityModel.get(parentType).forEach(parentEntity -> parentEntity.setChildrenByType(new HashMap<>()));
     }
 
+    @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
     private void setParentToChildren(GeneratorEntity parent, String childrenType, int childStartIndex, int childEndIndex) {
         List<GeneratorEntity> children = entityModel.get(childrenType).subList(childStartIndex, childEndIndex);
         if (!parent.getChildrenByType().containsKey(childrenType) || parent.getChildrenByType().get(childrenType) == null) {
@@ -262,6 +263,7 @@ public class EntityModelGenerator {
      * @param parentType - Entity type of the parent from which to copy the attribute
      * @param attribute - Name/Key of the attribute to copy
      */
+    @SuppressWarnings("unused")
     public static void copyFromParent(String parentType, String attribute) {
         for (GeneratorEntity eachEntity: entityModel.get(EntityModelExpressions.expressionsGlobalKey.split(":")[1]).stream()
                 .filter(entity -> entity.getParentsByType()!=null)
@@ -288,6 +290,7 @@ public class EntityModelGenerator {
      * @param targetAttribute - Name of the attribute to be set in the current entity
      * @param suffixExpression - Expression to be evaluated for the suffix to the parent attribute value
      */
+    @SuppressWarnings("unused")
     public static void modifyFromParent(String parentType, String sourceAttribute, String targetAttribute, String suffixExpression) {
         for (GeneratorEntity eachEntity: entityModel.get(EntityModelExpressions.expressionsGlobalKey.split(":")[1])) {
             Optional<KeyValue> parentAttribute = eachEntity.getParentsByType().get(parentType).get(0)

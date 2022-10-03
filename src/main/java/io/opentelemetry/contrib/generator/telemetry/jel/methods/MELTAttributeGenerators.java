@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions} will not work.
  * @see ELProcessor
  */
+@SuppressWarnings("unused")
 public class MELTAttributeGenerators {
 
     private static final ConcurrentHashMap<String, Integer> counters = new ConcurrentHashMap<>();
