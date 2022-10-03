@@ -32,6 +32,7 @@ import java.util.stream.IntStream;
  * in a standalone context to process the expressions, all the implementing methods have to be public static.
  * @see ELProcessor
  */
+@SuppressWarnings("unused")
 public class MetricValueGenerators {
 
     private static final ELProcessor jelProcessor = new ELProcessor();

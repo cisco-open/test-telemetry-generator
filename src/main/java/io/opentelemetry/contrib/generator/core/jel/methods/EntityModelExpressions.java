@@ -34,6 +34,7 @@ import static io.opentelemetry.contrib.generator.telemetry.misc.Constants.ENV_AL
  * in a standalone context to process the expressions, all the implementing methods have to be public static.
  * @see ELProcessor
  */
+@SuppressWarnings("unused")
 public class EntityModelExpressions {
 
     private static final ConcurrentHashMap<String, Integer> counters = new ConcurrentHashMap<>();

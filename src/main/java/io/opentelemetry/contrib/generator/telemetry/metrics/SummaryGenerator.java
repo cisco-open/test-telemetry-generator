@@ -71,6 +71,7 @@ public class SummaryGenerator {
     private List<Object> getCountValues(MetricDefinition metricDefinition) {
         Object value = jelProcessor.eval(metricDefinition.getValueFunction());
         if (value instanceof List) {
+            //noinspection unchecked
             return (List<Object>) value;
         }
         log.warn("Non summary variant used in valueFunction for summary metric '" + metricDefinition.getName() + "' " +
