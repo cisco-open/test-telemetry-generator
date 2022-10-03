@@ -59,12 +59,9 @@ public class TestMetricsGenerator {
     public void testPayloadAndPacketCounts() {
         //Check payload count = payload count * each of 8 types of entities
         int payloadCount = 8 * PAYLOAD_COUNT;
-        //Add payloads for aggregating, non-reporting entities
-        payloadCount = payloadCount + 19;
         Assert.assertEquals(testStore.getMetricPayloads().size(), payloadCount, "Mismatch in payload count");
         //Check packet count = payload count * number of entities
         int expectedPacketCount = REPORTING_ENTITIES_COUNT * PAYLOAD_COUNT;
-        expectedPacketCount = expectedPacketCount + 600;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedPacketCount, "Mismatch in resource metrics packet count");
         //Check metric count for each metric = number of reporting entities * number of payloads
     }

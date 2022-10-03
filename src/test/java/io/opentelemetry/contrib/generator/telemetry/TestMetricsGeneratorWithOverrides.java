@@ -64,14 +64,11 @@ public class TestMetricsGeneratorWithOverrides {
         int AWS_EBS_PAYLOADS = 15;
         int payloadCount = NW_IFC_PAYLOADS + CONTAINER_PAYLOADS + MACHINE_PAYLOADS + NODE_PAYLOADS + POD_PAYLOADS +
                 DISK_PAYLOADS + AWS_RDS_PAYLOADS + AWS_EBS_PAYLOADS;
-        //Add payloads for aggregating, non-reporting entities
-        payloadCount = payloadCount + 19;
         Assert.assertEquals(testStore.getMetricPayloads().size(), payloadCount, "Mismatch in payload count");
         //Check packet count = payload count * number of entities
         int expectedPacketCount = (NW_IFC_PAYLOADS * NETWORK_INTERFACE_COUNT) + (CONTAINER_PAYLOADS * CONTAINER_COUNT) +
                 (MACHINE_PAYLOADS * MACHINE_COUNT) + (NODE_PAYLOADS * NODE_COUNT) + (POD_PAYLOADS * POD_COUNT) +
                 (DISK_PAYLOADS * DISK_COUNT) + (AWS_RDS_PAYLOADS * AWS_RDS_COUNT) + (AWS_EBS_PAYLOADS * AWS_EBS_COUNT);
-        expectedPacketCount = expectedPacketCount + 600;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedPacketCount, "Mismatch in resource metrics packet count");
         //Check metric count for each metric = number of reporting entities * number of payloads
     }
