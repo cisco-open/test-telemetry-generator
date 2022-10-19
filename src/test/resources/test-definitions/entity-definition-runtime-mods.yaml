@@ -150,10 +150,10 @@ entities:
   - name: container
     count: 150
     attributes:
-      container.id: 'alphanumericSequence("ix1").concat("wr1f79").concat(alphanumericSequence("i0q")).concat("1v0dka4appd07oc11v0dka4appd07oc11v0dka4appd07oc1peak")'
+      container.id: 'alphanumericSequence("ix1").concat("wr1f79").concat(alphanumericSequence("i0q")).concat("1citrusv12307oc1peak")'
       container.id.short: 'alphanumericSequence("ix1").concat("wr1f79").concat(alphanumericSequence("i0q"))'
       container.name: 'alphanumericSequence("tamo").concat(".container")'
-      container.image.name: '"dtr.corp.appdynamics.com/".concat(roundRobin(["cps", "dpp", "dis", "fmm"])).concat("/").concat(alphanumericSequence("a1sat34x"))'
+      container.image.name: '"hub.docker.com/".concat(roundRobin(["nginx", "mysql", "ubuntu"])).concat("/").concat(alphanumericSequence("a1sat34x"))'
     attributeOperations:
       - 'copyFromParent("pod", "k8s.namespace.name")'
       - 'copyFromParent("pod", "k8s.pod.name")'
@@ -171,7 +171,7 @@ entities:
     count: 30
     attributes:
       loadbalancer.name: 'alphanumericSequence("qu3").concat(".loadbalancer")'
-      loadbalancer.dnsname: '"appd".concat(alphanumericSequence("oc")).concat(".com")'
+      loadbalancer.dnsname: '"lb".concat(alphanumericSequence("oc")).concat(".com")'
       loadbalancer.type: 'roundRobin(["clb", "nlb", "alb"])'
   - name: aws_rds
     count: 50
