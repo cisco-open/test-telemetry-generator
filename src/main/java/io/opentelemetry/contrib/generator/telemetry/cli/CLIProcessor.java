@@ -22,7 +22,7 @@ import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.TelemetryGenerator;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.auth.BasicAuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.grpc.GRPCPayloadHandler;
-import io.opentelemetry.contrib.generator.telemetry.transport.implementations.http.HTTPPayloadHandler;
+import io.opentelemetry.contrib.generator.telemetry.transport.implementations.http.RESTPayloadHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +113,7 @@ public class CLIProcessor {
                     "must be provided in environment target YAML");
         }
         if (!nonNullRestURL.isBlank()) {
-            return new HTTPPayloadHandler(nonNullRestURL,
+            return new RESTPayloadHandler(nonNullRestURL,
                     new BasicAuthHandler(targetEnvironmentDetails.getUsername(), targetEnvironmentDetails.getPassword()));
         }
         int gRPCPort;
