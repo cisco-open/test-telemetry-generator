@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry.transport.implementations.http;
+package io.opentelemetry.contrib.generator.telemetry.transport.implementations;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

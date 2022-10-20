@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry.transport.implementations.http;
+package io.opentelemetry.contrib.generator.telemetry.transport.implementations.rest;
 
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
-import io.opentelemetry.contrib.generator.telemetry.transport.implementations.auth.AuthHandler;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.AuthHandler;
 import com.google.protobuf.GeneratedMessageV3;
+import io.opentelemetry.contrib.generator.telemetry.transport.implementations.HTTPClient;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import lombok.Getter;
@@ -31,7 +32,7 @@ import javax.ws.rs.core.HttpHeaders;
 @Slf4j
 public class RESTPayloadHandler implements PayloadHandler {
 
-    private final String VANITY_URL;
+    private final String ENDPOINT_URL;
     private final AuthHandler authHandler;
     private final HTTPClient httpClient;
     @Getter
@@ -46,25 +47,25 @@ public class RESTPayloadHandler implements PayloadHandler {
     @Getter
     private boolean lastRequestSuccess;
 
-    public RESTPayloadHandler(String vanityURL, AuthHandler authHandler) {
-        this.VANITY_URL = vanityURL;
+    public RESTPayloadHandler(String endpointURL, AuthHandler authHandler) {
+        this.ENDPOINT_URL = endpointURL;
         httpClient = new HTTPClient();
         this.authHandler = authHandler;
     }
 
     @Override
     public boolean postPayload(GeneratedMessageV3 message) {
-        if (StringUtils.defaultString(VANITY_URL).isBlank() || authHandler == null) {
+        if (StringUtils.defaultString(ENDPOINT_URL).isBlank() || authHandler == null) {
             log.error("Missing URL or access token");
             return false;
         }
         String URL;
         if (message instanceof ExportMetricsServiceRequest) {
-            URL = VANITY_URL + metricsURL;
+            URL = ENDPOINT_URL + metricsURL;
         } else if (message instanceof ExportLogsServiceRequest) {
-            URL = VANITY_URL + logsURL;
+            URL = ENDPOINT_URL + logsURL;
         } else {
-            URL = VANITY_URL + tracesURL;
+            URL = ENDPOINT_URL + tracesURL;
         }
         httpClient.postBytes(URL, getHeadersPostData(), message.toByteArray());
         lastRequestSuccess = httpClient.isLastRequestSuccess();

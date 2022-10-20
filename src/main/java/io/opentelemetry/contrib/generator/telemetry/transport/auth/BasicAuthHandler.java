@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry.transport.implementations.auth;
+package io.opentelemetry.contrib.generator.telemetry.transport.auth;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
