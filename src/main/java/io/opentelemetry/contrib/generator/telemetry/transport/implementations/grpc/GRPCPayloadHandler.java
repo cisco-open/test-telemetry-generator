@@ -17,7 +17,7 @@
 package io.opentelemetry.contrib.generator.telemetry.transport.implementations.grpc;
 
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
-import io.opentelemetry.contrib.generator.telemetry.transport.implementations.auth.AuthHandler;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.AuthHandler;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.*;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;

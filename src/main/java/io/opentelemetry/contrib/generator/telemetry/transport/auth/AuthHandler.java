@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry.transport.implementations.auth;
+package io.opentelemetry.contrib.generator.telemetry.transport.auth;
 
 public interface AuthHandler {
 
