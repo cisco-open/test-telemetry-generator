@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.ws.rs.core.HttpHeaders;
 
 @Slf4j
-public class HTTPPayloadHandler implements PayloadHandler {
+public class RESTPayloadHandler implements PayloadHandler {
 
     private final String VANITY_URL;
     private final AuthHandler authHandler;
@@ -46,7 +46,7 @@ public class HTTPPayloadHandler implements PayloadHandler {
     @Getter
     private boolean lastRequestSuccess;
 
-    public HTTPPayloadHandler(String vanityURL, AuthHandler authHandler) {
+    public RESTPayloadHandler(String vanityURL, AuthHandler authHandler) {
         this.VANITY_URL = vanityURL;
         httpClient = new HTTPClient();
         this.authHandler = authHandler;
