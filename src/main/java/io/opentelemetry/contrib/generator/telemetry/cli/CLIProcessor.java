@@ -79,7 +79,7 @@ public class CLIProcessor {
                 .desc("Path to the trace definition YAML")
                 .hasArg()
                 .build();
-        Option cisTargetYAML = Option.builder("t")
+        Option targetEnvYAML = Option.builder("t")
                 .argName("target")
                 .desc("Path to the YAML containing details of the environment to target")
                 .hasArg()
@@ -90,15 +90,15 @@ public class CLIProcessor {
         options.addOption(metricDefinition);
         options.addOption(logsDefinition);
         options.addOption(traceDefinition);
-        options.addOption(cisTargetYAML);
+        options.addOption(targetEnvYAML);
 
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("test-telemetry-generator-all.jar", options, true);
         return options;
     }
 
-    private static PayloadHandler getPayloadHandler(String cisTargetYAML) {
-        TargetEnvironmentDetails targetEnvironmentDetails = getCISTargetDetails(cisTargetYAML);
+    private static PayloadHandler getPayloadHandler(String targetEnvYAML) {
+        TargetEnvironmentDetails targetEnvironmentDetails = getTargetEnvDetails(targetEnvYAML);
         if (StringUtils.defaultString(targetEnvironmentDetails.getUsername()).isBlank()) {
             throw new GeneratorException("Missing username in environment target YAML");
         }
@@ -126,17 +126,17 @@ public class CLIProcessor {
                 new BasicAuthHandler(targetEnvironmentDetails.getUsername(), targetEnvironmentDetails.getPassword()));
     }
 
-    private static TargetEnvironmentDetails getCISTargetDetails(String cisTargetYAML) {
-        File yamlFile = new File(cisTargetYAML);
+    private static TargetEnvironmentDetails getTargetEnvDetails(String targetEnvYAML) {
+        File yamlFile = new File(targetEnvYAML);
         if (!(yamlFile.exists() && yamlFile.canRead())) {
-            throw new GeneratorException("Unable to read provided CIS target YAML file " + cisTargetYAML);
+            throw new GeneratorException("Unable to read provided target environment YAML file " + targetEnvYAML);
         }
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
             return mapper.readValue(yamlFile, TargetEnvironmentDetails.class);
         } catch (IOException e) {
-            throw new GeneratorException("Failed to parse CIS target details YAML " + cisTargetYAML + " due to " + e.getMessage());
+            throw new GeneratorException("Failed to parse target environment details YAML " + targetEnvYAML + " due to " + e.getMessage());
         }
     }
 

@@ -93,7 +93,7 @@ public class LogGeneratorThread implements Runnable {
                 if (logGeneratorState.getTransportStorage() != null) {
                     logGeneratorState.getTransportStorage().store(logDefinition.getId(), reportingEntity.getKey(), resourceLogs, responseStatus);
                 }
-                log.debug(requestID + ": Complete payload for entity: " + reportingEntity + " in event Definition" + logDefinition.getId() + ": " + resourceLogs);
+                log.debug(requestID + ": Complete payload for entity: " + reportingEntity + " in log Definition" + logDefinition.getId() + ": " + resourceLogs);
                 resourceLogsList.clear();
             }
             currentPayloadCount++;

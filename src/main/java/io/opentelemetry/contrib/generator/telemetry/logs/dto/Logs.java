@@ -40,12 +40,12 @@ public class Logs {
         }
         maxPostSeconds = 0;
         totalPayloadCount = 0;
-        int eventIndex = 0;
+        int logIndex = 0;
 
         for (LogDefinition eachLog: logs) {
-            maxPostSeconds = Math.max(maxPostSeconds, eachLog.validate(requestID, allEntityTypes, globalPayloadFrequencySeconds, eventIndex));
+            maxPostSeconds = Math.max(maxPostSeconds, eachLog.validate(requestID, allEntityTypes, globalPayloadFrequencySeconds, logIndex));
             totalPayloadCount += eachLog.getPayloadCount();
-            eventIndex++;
+            logIndex++;
         }
     }
 }

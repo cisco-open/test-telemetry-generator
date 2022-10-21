@@ -40,8 +40,8 @@ public class LogDefinition {
     @JsonIgnore
     private String id;
 
-    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds, int eventIndex) {
-        id = "log_by_OTel_DataGen_" + eventIndex;
+    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds, int logIndex) {
+        id = "log_by_ttg_" + logIndex;
         if (copyCount == null || copyCount < 1) {
             copyCount = 1;
         }

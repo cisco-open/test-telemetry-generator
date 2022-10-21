@@ -71,6 +71,6 @@ public class TestLogsGenerator {
         int logEvents1_Count = NODE_COUNT * POST_COUNT_LOG_LOG_1;
         int logEvents2_Count = (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;
         Assert.assertEquals(testStore.getLogsPacketCount(), k8sEvents_Count + logEvents1_Count + logEvents2_Count,
-                "Mismatch in events count");
+                "Mismatch in logs count");
     }
 }
