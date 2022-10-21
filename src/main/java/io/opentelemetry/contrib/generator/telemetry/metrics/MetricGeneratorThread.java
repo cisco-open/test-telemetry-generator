@@ -25,10 +25,10 @@ import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
-import io.opentelemetry.proto.common.v1.InstrumentationLibrary;
-import io.opentelemetry.proto.metrics.v1.InstrumentationLibraryMetrics;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.metrics.v1.Metric;
 import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
+import io.opentelemetry.proto.metrics.v1.ScopeMetrics;
 import io.opentelemetry.proto.resource.v1.Resource;
 import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,8 +84,8 @@ public class MetricGeneratorThread implements Runnable {
             for (Resource eachResource: entities) {
                 resourceMetric = ResourceMetrics.newBuilder()
                         .setResource(eachResource)
-                        .addInstrumentationLibraryMetrics(InstrumentationLibraryMetrics.newBuilder()
-                                .setInstrumentationLibrary(InstrumentationLibrary.newBuilder()
+                        .addScopeMetrics(ScopeMetrics.newBuilder()
+                                .setScope(InstrumentationScope.newBuilder()
                                         .setName("@opentelemetry/test-telemetry-generator")
                                         .setVersion("22.9.0")
                                         .build())

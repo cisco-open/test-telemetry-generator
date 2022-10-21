@@ -16,36 +16,31 @@
 
 globalPayloadFrequencySeconds: 30
 logs:
-  - name: k8slogs_node
-    payloadCount: 10
+  - payloadCount: 10
     attributes:
       log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
     severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "WARN"], [1, 2, 3])'
     reportingEntitiesCounts:
       node: 50
-  - name: k8slogs_pod
-    payloadCount: 10
+  - payloadCount: 10
     attributes:
       log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
     severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "WARN"], [1, 2, 3])'
     reportingEntitiesCounts:
       pod: 150
-  - name: k8slogs_container
-    payloadCount: 10
+  - payloadCount: 10
     attributes:
       log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
     severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "WARN"], [1, 2, 3])'
     reportingEntitiesCounts:
       container: 150
-  - name: k8slogs_machine
-    payloadCount: 10
+  - payloadCount: 10
     attributes:
       log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
     severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "WARN"], [1, 2, 3])'
     reportingEntitiesCounts:
       machine: 100
-  - name: logevents1
-    payloadCount: 10
+  - payloadCount: 10
     severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "WARN", "DEBUG"], [5, 1, 1, 4])'
     reportingEntitiesCounts:
       node: 50

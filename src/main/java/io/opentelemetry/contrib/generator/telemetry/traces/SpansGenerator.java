@@ -24,11 +24,8 @@ import io.opentelemetry.contrib.generator.telemetry.traces.dto.RootSpanDefinitio
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.SpanDefinition;
 import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
-import io.opentelemetry.proto.common.v1.InstrumentationLibrary;
-import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
-import io.opentelemetry.proto.trace.v1.ResourceSpans;
-import io.opentelemetry.proto.trace.v1.Span;
-import io.opentelemetry.proto.trace.v1.Status;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
+import io.opentelemetry.proto.trace.v1.*;
 import io.opentelemetry.sdk.trace.IdGenerator;
 import jakarta.el.ELProcessor;
 import lombok.Getter;
@@ -83,8 +80,8 @@ public class SpansGenerator {
                 List<Span> spans = eachSpanGroup.getValue().stream().map(list -> list.get(copyIndexFinal)).collect(Collectors.toList());
                 resourceSpans = ResourceSpans.newBuilder()
                         .setResource(validEntities.get(resourceIndex).getOTelResource())
-                        .addInstrumentationLibrarySpans(InstrumentationLibrarySpans.newBuilder()
-                                .setInstrumentationLibrary(InstrumentationLibrary.newBuilder()
+                        .addScopeSpans(ScopeSpans.newBuilder()
+                                .setScope(InstrumentationScope.newBuilder()
                                         .setName("@opentelemetry/test-telemetry-generator")
                                         .setVersion("22.9.0")
                                         .build())
