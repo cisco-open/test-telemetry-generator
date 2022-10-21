@@ -40,7 +40,7 @@ public class LogDefinition {
 
     public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds) {
         if (StringUtils.defaultString(name).isBlank()) {
-            name = "log_by_vodka_" + ThreadLocalRandom.current().nextInt();
+            name = "log_by_ttg_" + ThreadLocalRandom.current().nextInt();
             log.warn("Name not found for log. Using " + name);
         }
         if (copyCount == null || copyCount < 1) {
