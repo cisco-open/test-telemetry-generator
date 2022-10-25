@@ -87,7 +87,7 @@ public class MetricGeneratorThread implements Runnable {
                         .addScopeMetrics(ScopeMetrics.newBuilder()
                                 .setScope(InstrumentationScope.newBuilder()
                                         .setName("@opentelemetry/test-telemetry-generator")
-                                        .setVersion("22.9.0")
+                                        .setVersion("22.10.0")
                                         .build())
                                 .addAllMetrics(otelMetrics)
                                 .build())

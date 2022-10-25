@@ -83,7 +83,7 @@ public class SpansGenerator {
                         .addScopeSpans(ScopeSpans.newBuilder()
                                 .setScope(InstrumentationScope.newBuilder()
                                         .setName("@opentelemetry/test-telemetry-generator")
-                                        .setVersion("22.9.0")
+                                        .setVersion("22.10.0")
                                         .build())
                                 .addAllSpans(spans)
                                 .build())

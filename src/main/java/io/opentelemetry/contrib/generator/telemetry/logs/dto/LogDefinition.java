@@ -48,7 +48,7 @@ public class LogDefinition {
         validateMandatoryFields();
         validateEntityTypesCount(allEntityTypes);
         addRequestIDAndLogNameToValueFunction(requestID);
-        attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "event", id, attributes);
+        attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", id, attributes);
         return validatePayloadFrequency(globalPayloadFrequencySeconds);
     }
 
