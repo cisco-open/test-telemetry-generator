@@ -16,6 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry.logs.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import lombok.Data;
@@ -30,38 +31,36 @@ import java.util.concurrent.ThreadLocalRandom;
 @Data
 public class LogDefinition {
 
-    private String name;
     private String severityOrderFunction;
     private Map<String, Integer> reportingEntitiesCounts;
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
     private Integer copyCount;
     private Map<String, Object> attributes;
+    @JsonIgnore
+    private String id;
 
-    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds) {
-        if (StringUtils.defaultString(name).isBlank()) {
-            name = "log_by_ttg_" + ThreadLocalRandom.current().nextInt();
-            log.warn("Name not found for log. Using " + name);
-        }
+    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds, int logIndex) {
+        id = "log_by_ttg_" + logIndex;
         if (copyCount == null || copyCount < 1) {
             copyCount = 1;
         }
         validateMandatoryFields();
         validateEntityTypesCount(allEntityTypes);
         addRequestIDAndLogNameToValueFunction(requestID);
-        attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", name, attributes);
+        attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", id, attributes);
         return validatePayloadFrequency(globalPayloadFrequencySeconds);
     }
 
     private void validateMandatoryFields() {
         if (payloadCount == null || payloadCount < 1) {
-            throw new GeneratorException("Payload count cannot be less than 1. Update the value in log " + name);
+            throw new GeneratorException("Payload count cannot be less than 1. Update the value in log " + this);
         }
         if (MapUtils.emptyIfNull(reportingEntitiesCounts).isEmpty()) {
-            throw new GeneratorException("Mandatory field 'reportingResourcesCount' not provided in log definition YAML for log " + name);
+            throw new GeneratorException("Mandatory field 'reportingResourcesCount' not provided in log definition YAML for log " + this);
         }
         if (StringUtils.defaultString(severityOrderFunction).isBlank()) {
-            throw new GeneratorException("Mandatory field 'severityFrequency' not provided in log definition YAML for log " + name);
+            throw new GeneratorException("Mandatory field 'severityFrequency' not provided in log definition YAML for log " + this);
         }
         validateAttributes();
     }
@@ -71,11 +70,11 @@ public class LogDefinition {
             if(globalPostFrequencySeconds == null) {
                 List<Integer> freqList = Arrays.asList(15, 30, 45, 60, 75, 90);
                 payloadFrequencySeconds = freqList.get(ThreadLocalRandom.current().nextInt(freqList.size()));
-                log.warn("Invalid/No value of 'payloadFrequencySeconds' found for log " + name +
+                log.warn("Invalid/No value of 'payloadFrequencySeconds' found for log " + this +
                         ". Setting a value randomly = " + payloadFrequencySeconds + " as 'globalPayloadFrequencySeconds' value is missing.");
             } else {
                 payloadFrequencySeconds = globalPostFrequencySeconds;
-                log.warn("Invalid/No value of 'payloadFrequencySeconds' found for log " + name +
+                log.warn("Invalid/No value of 'payloadFrequencySeconds' found for log " + this +
                         ". Setting the value as specified in 'globalPayloadFrequencySeconds' = " + globalPostFrequencySeconds);
             }
         }
@@ -112,10 +111,10 @@ public class LogDefinition {
             }
             if (!allEntityTypes.contains(eachEntity.getKey().trim())){
                 throw new GeneratorException("Invalid entity type (" + eachEntity.getKey() + ") found in log definition YAML " +
-                        "for log " + name);
+                        "for log " + this);
             }
             if (eachEntity.getValue() == null || eachEntity.getValue() < 1){
-                log.warn("Unexpected value of reporting entity count found for " + eachEntity.getKey() + ". Updating value to 1 for log " + name);
+                log.warn("Unexpected value of reporting entity count found for " + eachEntity.getKey() + ". Updating value to 1 for log " + this);
                 entityCount.put(eachEntity.getKey().trim(), 1);
             }
             else entityCount.put(eachEntity.getKey().trim(), eachEntity.getValue());
@@ -127,7 +126,7 @@ public class LogDefinition {
         List<String> valueFunctions = Arrays.asList("severityDistributionCount", "severityDistributionPercentage", "severityDistributionCountIndex");
         for (String eachValueFx: valueFunctions) {
             severityOrderFunction = severityOrderFunction.replace(eachValueFx + "(",
-                    eachValueFx + "(\"" + requestID + "\", \"" + name + "\", ");
+                    eachValueFx + "(\"" + requestID + "\", \"" + id + "\", ");
         }
     }
 
@@ -137,7 +136,7 @@ public class LogDefinition {
 
     @Override
     public int hashCode() {
-        return this.name.hashCode();
+        return this.id.hashCode();
     }
 
     @Override
@@ -146,7 +145,7 @@ public class LogDefinition {
             return true;
         }
         if (logDefinition instanceof LogDefinition) {
-            return this.name.equals(((LogDefinition) logDefinition).getName());
+            return this.id.equals(((LogDefinition) logDefinition).getId());
         }
         return false;
     }

@@ -26,9 +26,9 @@ import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.common.v1.AnyValue;
-import io.opentelemetry.proto.common.v1.InstrumentationLibrary;
-import io.opentelemetry.proto.logs.v1.InstrumentationLibraryLogs;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.logs.v1.ResourceLogs;
+import io.opentelemetry.proto.logs.v1.ScopeLogs;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.logs.v1.LogRecord;
 import jakarta.el.ELProcessor;
@@ -64,9 +64,9 @@ public class LogGeneratorThread implements Runnable {
 
     @Override
     public void run() {
-        log.debug(requestID + ": Log generator thread invoked for Log Definition type: " + logDefinition.getName());
+        log.debug(requestID + ": Log generator thread invoked for Log Definition type: " + logDefinition);
         if (logGeneratorState.isGenerateData() &&
-                logGeneratorState.getThreadPayloadCounts().get(logDefinition.getName()) < logDefinition.getPayloadCount()) {
+                logGeneratorState.getThreadPayloadCounts().get(logDefinition.getId()) < logDefinition.getPayloadCount()) {
             List<ResourceLogs> resourceLogsList = new ArrayList<>();
             ResourceLogs resourceLog;
             LogRecord logRecord = getLog(logDefinition);
@@ -77,12 +77,12 @@ public class LogGeneratorThread implements Runnable {
                 for (Resource eachResource: postToEntities) {
                     resourceLog = ResourceLogs.newBuilder()
                             .setResource(eachResource)
-                            .addInstrumentationLibraryLogs(InstrumentationLibraryLogs.newBuilder()
-                                    .setInstrumentationLibrary(InstrumentationLibrary.newBuilder()
+                            .addScopeLogs(ScopeLogs.newBuilder()
+                                    .setScope(InstrumentationScope.newBuilder()
                                             .setName("@opentelemetry/vodka-exporter")
-                                            .setVersion("22.9.0")
+                                            .setVersion("22.10.0")
                                             .build())
-                                    .addAllLogs(otelLogs)
+                                    .addAllLogRecords(otelLogs)
                                     .build())
                             .build();
                     resourceLogsList.add(resourceLog);
@@ -91,21 +91,22 @@ public class LogGeneratorThread implements Runnable {
                 ExportLogsServiceRequest resourceLogs = ExportLogsServiceRequest.newBuilder().addAllResourceLogs(resourceLogsList).build();
                 boolean responseStatus = payloadHandler.postPayload(resourceLogs);
                 if (logGeneratorState.getTransportStorage() != null) {
-                    logGeneratorState.getTransportStorage().store(logDefinition.getName(), reportingEntity.getKey(), resourceLogs, responseStatus);
+                    logGeneratorState.getTransportStorage().store(logDefinition.getId(), reportingEntity.getKey(), resourceLogs, responseStatus);
                 }
-                log.debug(requestID + ": Complete payload for entity: " + reportingEntity + " in event Definition" + logDefinition.getName() + ": " + resourceLogs);
+                log.debug(requestID + ": Complete payload for entity: " + reportingEntity + " in log Definition" + logDefinition.getId() + ": " + resourceLogs);
                 resourceLogsList.clear();
             }
             currentPayloadCount++;
-            logGeneratorState.getThreadPayloadCounts().put(logDefinition.getName(), currentPayloadCount);
+            logGeneratorState.getThreadPayloadCounts().put(logDefinition.getId(), currentPayloadCount);
         }
     }
 
     private LogRecord getLog(LogDefinition logDefinition) {
+        long nanoTime = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
         String severity = jelProcessor.eval(logDefinition.getSeverityOrderFunction()).toString();
         return LogRecord.newBuilder()
-                .setName(logDefinition.getName())
-                .setTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis()))
+                .setTimeUnixNano(nanoTime)
+                .setObservedTimeUnixNano(nanoTime)
                 .setSeverityText(severity)
                 .addAllAttributes(GeneratorUtils.getEvaluatedAttributes(jelProcessor, logDefinition.getAttributes()))
                 .setBody(AnyValue.newBuilder().setStringValue(LogMessageProvider.getLogMessage(severity)).build())

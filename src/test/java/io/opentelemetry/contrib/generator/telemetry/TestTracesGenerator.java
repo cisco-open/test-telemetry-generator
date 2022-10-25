@@ -20,8 +20,8 @@ import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.helpers.TestPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
-import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
+import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -169,8 +169,8 @@ public class TestTracesGenerator {
         int index = 0;
         while (updateAccountTrace == null || deleteAccountTrace == null) {
             ExportTraceServiceRequest currentTrace = testStore.getTracePayloads().get(index);
-            Set<String> spanNames = currentTrace.getResourceSpansList().stream().map(ResourceSpans::getInstrumentationLibrarySpansList)
-                    .flatMap(List::stream).map(InstrumentationLibrarySpans::getSpansList).flatMap(List::stream)
+            Set<String> spanNames = currentTrace.getResourceSpansList().stream().map(ResourceSpans::getScopeSpansList)
+                    .flatMap(List::stream).map(ScopeSpans::getSpansList).flatMap(List::stream)
                     .map(Span::getName).collect(Collectors.toSet());
             if (spanNames.contains("updateAccountDetails")) {
                 updateAccountTrace = currentTrace;
@@ -238,9 +238,9 @@ public class TestTracesGenerator {
 
     private long[] getSpanStartTimeEndTime(ExportTraceServiceRequest trace, String spanName) {
         Span span = trace.getResourceSpansList().stream()
-                .map(ResourceSpans::getInstrumentationLibrarySpansList)
+                .map(ResourceSpans::getScopeSpansList)
                 .flatMap(List::stream)
-                .map(InstrumentationLibrarySpans::getSpansList)
+                .map(ScopeSpans::getSpansList)
                 .flatMap(List::stream)
                 .filter(eachSpan -> eachSpan.getName().equals(spanName))
                 .findAny().get();
