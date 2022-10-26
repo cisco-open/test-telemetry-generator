@@ -39,10 +39,10 @@ public class CLIProcessor {
 
         CommandLineParser cliParser = new DefaultParser();
         CommandLine line = cliParser.parse(getOptions(), args);
-        if (!(line.hasOption("m") || line.hasOption("l") || line.hasOption("t"))) {
+        if (!(line.hasOption("m") || line.hasOption("l") || line.hasOption("s"))) {
             throw new GeneratorException("One of metricDefinition, logDefinition or traceDefinition must be provided");
         }
-        PayloadHandler payloadHandler = getPayloadHandler(line.getOptionValue("c"));
+        PayloadHandler payloadHandler = getPayloadHandler(line.getOptionValue("t"));
         GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("e"));
         if (line.hasOption("m")) {
             inputBuilder.withMetricDefinitionYAML(line.getOptionValue("m"));
@@ -50,8 +50,8 @@ public class CLIProcessor {
         if (line.hasOption("l")) {
             inputBuilder.withLogDefinitionYAML(line.getOptionValue("l"));
         }
-        if (line.hasOption("t")) {
-            inputBuilder.withTraceDefinitionYAML(line.getOptionValue("t"));
+        if (line.hasOption("s")) {
+            inputBuilder.withTraceDefinitionYAML(line.getOptionValue("s"));
         }
         TelemetryGenerator generator = new TelemetryGenerator(inputBuilder.build(), payloadHandler);
         generator.runGenerator();
