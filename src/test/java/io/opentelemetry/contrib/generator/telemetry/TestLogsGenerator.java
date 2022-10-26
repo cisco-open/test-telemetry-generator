@@ -67,16 +67,10 @@ public class TestLogsGenerator {
     @Test
     public void testLogsCounts() {
         //Check total log count for each log = number of reporting entities * number of payloads defined per log definition
-        int COPY_COUNT_K8S_LOG = 1000;
-        int k8sLogs_Count = (POD_COUNT + CONTAINER_COUNT_K8S) * POST_COUNT_K8S_LOG * COPY_COUNT_K8S_LOG;
-        Assert.assertEquals(testStore.getLogsCount().get("k8slogs").get(), k8sLogs_Count,
-                "Mismatch in logs count for log k8slogs");
-        int COPY_COUNT_LOG_LOG_1 = 200;
-        int logEvents1_Count = NODE_COUNT * POST_COUNT_LOG_LOG_1 * COPY_COUNT_LOG_LOG_1;
-        Assert.assertEquals(testStore.getLogsCount().get("logevents1").get(), logEvents1_Count,
-                "Mismatch in logs count for log logevents1");
+        int k8sEvents_Count = (POD_COUNT + CONTAINER_COUNT_K8S) * POST_COUNT_K8S_LOG;
+        int logEvents1_Count = NODE_COUNT * POST_COUNT_LOG_LOG_1;
         int logEvents2_Count = (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;
-        Assert.assertEquals(testStore.getLogsCount().get("logevents2").get(), logEvents2_Count,
-                "Mismatch in logs count for log logevents2");
+        Assert.assertEquals(testStore.getLogsPacketCount(), k8sEvents_Count + logEvents1_Count + logEvents2_Count,
+                "Mismatch in logs count");
     }
 }

@@ -36,8 +36,8 @@ public class LogSeverityGenerator {
     /**
      * Provides a severity value from the specified severity list based on the frequency specified for each severity.
      * Fo eg: severityDistributionCount(["Normal", "Severe", "Warning"], [25, 5, 10])
-     * In this case, the first 25 events generated will be of Normal severity, followed by 5 Severe events and
-     * finally 10 Warning events. The cycle repeats itself in the same order.
+     * In this case, the first 25 logs generated will be of Normal severity, followed by 5 Severe logs and
+     * finally 10 Warning logs. The cycle repeats itself in the same order.
      * @param requestID internal ID for each running generator instance
      * @param logName name of the log in log definition
      * @param severity list severities
@@ -62,7 +62,7 @@ public class LogSeverityGenerator {
     /**
      * Provides a severity value from the specified severity list based on the percentages specified for each severity.
      * Fo eg: severityDistributionPercentage(["Normal", "Severe", "Warning"], [20, 70, 10])
-     * In this case, if the payload count equals 10 then, 2 events will be of type Normal, 7 will be of type Severe and 1 will be of type Warning.
+     * In this case, if the payload count equals 10 then, 2 logs will be of type Normal, 7 will be of type Severe and 1 will be of type Warning.
      * Note: The sum of frequency percentages in percentageValue should always be equal to 100.
      * @param requestID internal ID for each running generator instance
      * @param logName name of the log in log definition

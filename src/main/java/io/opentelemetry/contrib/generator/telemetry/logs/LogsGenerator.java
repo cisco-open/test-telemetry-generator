@@ -75,9 +75,9 @@ public class LogsGenerator {
             var logGeneratorThread = new LogGeneratorThread(logDefinition, payloadHandler, requestID);
             generatorState.getExecutorService().scheduleAtFixedRate(logGeneratorThread, 10,
                     logDefinition.getPayloadFrequencySeconds(), TimeUnit.SECONDS);
-            generatorThreadMap.put(logDefinition.getName(), logGeneratorThread);
-            generatorState.getThreadPayloadCounts().put(logDefinition.getName(), 0);
-            log.debug(requestID + ": Scheduled log generator thread for Log Definition " + logDefinition.getName());
+            generatorThreadMap.put(logDefinition.getId(), logGeneratorThread);
+            generatorState.getThreadPayloadCounts().put(logDefinition.getId(), 0);
+            log.debug(requestID + ": Scheduled log generator thread for Log Definition " + logDefinition.getId());
         }
 
 }
