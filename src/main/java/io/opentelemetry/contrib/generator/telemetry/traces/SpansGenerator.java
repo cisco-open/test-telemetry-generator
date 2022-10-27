@@ -225,7 +225,9 @@ public class SpansGenerator {
     }
 
     private ByteString getId(boolean isTrace) {
-        String idString = isTrace ? IdGenerator.random().generateTraceId() : IdGenerator.random().generateSpanId();
+        int beginIndex = isTrace ? 20 : 10;
+        String idString = isTrace ? IdGenerator.random().generateTraceId().substring(beginIndex) :
+                IdGenerator.random().generateSpanId().substring(beginIndex);
         return ByteString.copyFrom(Base64.getEncoder().encode(idString.getBytes()));
     }
 
