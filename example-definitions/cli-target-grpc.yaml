@@ -1,4 +1,4 @@
 username: "your-username"
 password: "your-password"
-gRPCHost: "target-gRPC-host"
-gRPCPort: "target-gRPC-port"
+grpchost: "target-gRPC-host"
+grpcport: "target-gRPC-port"
