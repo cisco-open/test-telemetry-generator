@@ -52,7 +52,7 @@ Collector](https://opentelemetry.io/docs/collector/) running on `localhost` with
 ```yaml
 username: "ignored"
 password: "ignored"
-restURL: "http://localhost:4318/v1/traces
+restURL: "http://localhost:4318/v1/traces"
 ```
 
 Finally, start the test-telemetry-generator:
@@ -69,21 +69,6 @@ If all goes well, you should see test-telemetry-generator printing out some logs
 10:10:08.530 [main] INFO  i.o.c.g.t.t.TracesGenerator - 6jz87jHycn1T7hIE7c7zfKWnsIIBTAwI: Initializing 6 trace generator threads
 ...
 ```
-
-As a next step, you can add metrics and logs as well by downloading some more [example definitions](./example-definitions/):
-
-```shell
-curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/log-definition.yaml
-curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/metric-definition.yaml
-```
-
-Start the test-telemetry-generator:
-
-```shell
-java -jar test-telemetry-generator-otel-proto-0.18.0-fatjar.jar -e entity-definition.yaml -s trace-definition.yaml -t cli-target-rest.yaml -l log-definition.yaml -m metric-definition.yaml
-```
-
-Again, you will see test-telemetry-generator printing out some logs for you and you should also see traces, metrics and logs flowing into your OTLP endpoint.
 
 You now have a working setup from which you can build your own telemetry test environment. Update the definition files to your needs and read the [wiki](https://github.com/cisco-open/test-telemetry-generator/wiki) to learn more.
 
