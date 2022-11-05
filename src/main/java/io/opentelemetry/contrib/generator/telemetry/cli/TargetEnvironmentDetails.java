@@ -21,9 +21,10 @@ import lombok.Data;
 @Data
 public class TargetEnvironmentDetails {
 
-    private String username;
-    private String password;
     private String restURL;
     private String gRPCHost;
     private String gRPCPort;
+    private String auth_mode;
+    private String username;
+    private String password;
 }

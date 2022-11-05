@@ -1,0 +1,2 @@
+auth_mode: "none"
+restURL: "http://localhost:3388"

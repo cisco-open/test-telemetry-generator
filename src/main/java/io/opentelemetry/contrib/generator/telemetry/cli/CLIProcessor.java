@@ -20,7 +20,9 @@ import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.TelemetryGenerator;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.AuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.auth.BasicAuthHandler;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.NoAuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.grpc.GRPCPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.rest.RESTPayloadHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,27 +62,32 @@ public class CLIProcessor {
     private static Options getOptions() {
         Option entityDefinition = Option.builder("e")
                 .argName("entityDefinition")
+                .longOpt("entityDefinition")
                 .desc("Path to the entity definition YAML")
                 .hasArg()
                 .required()
                 .build();
         Option metricDefinition = Option.builder("m")
                 .argName("metricDefinition")
+                .longOpt("metricDefinition")
                 .desc("Path to the metric definition YAML")
                 .hasArg()
                 .build();
         Option logsDefinition = Option.builder("l")
                 .argName("logDefinition")
+                .longOpt("logDefinition")
                 .desc("Path to the log definition YAML")
                 .hasArg()
                 .build();
         Option traceDefinition = Option.builder("s")
                 .argName("spanDefinition")
+                .longOpt("spanDefinition")
                 .desc("Path to the trace definition YAML")
                 .hasArg()
                 .build();
         Option targetEnvYAML = Option.builder("t")
                 .argName("target")
+                .longOpt("target")
                 .desc("Path to the YAML containing details of the environment to target")
                 .hasArg()
                 .required()
@@ -99,12 +106,6 @@ public class CLIProcessor {
 
     private static PayloadHandler getPayloadHandler(String targetEnvYAML) {
         TargetEnvironmentDetails targetEnvironmentDetails = getTargetEnvDetails(targetEnvYAML);
-        if (StringUtils.defaultString(targetEnvironmentDetails.getUsername()).isBlank()) {
-            throw new GeneratorException("Missing username in environment target YAML");
-        }
-        if (StringUtils.defaultString(targetEnvironmentDetails.getPassword()).isBlank()) {
-            throw new GeneratorException("Missing password in environment target YAML");
-        }
         String nonNullRestURL = StringUtils.defaultString(targetEnvironmentDetails.getRestURL());
         String nonNullGRPCHost = StringUtils.defaultString(targetEnvironmentDetails.getGRPCHost());
         String nonNullGRPCPort = StringUtils.defaultString(targetEnvironmentDetails.getGRPCPort());
@@ -112,9 +113,21 @@ public class CLIProcessor {
             throw new GeneratorException("Either restURL (for REST endpoint) or gRPCHost & gRPCPort (for gRPC endpoint) " +
                     "must be provided in environment target YAML");
         }
+        AuthHandler authHandler;
+        if (targetEnvironmentDetails.getAuth_mode().equalsIgnoreCase("NONE")) {
+            authHandler = new NoAuthHandler();
+        } else {
+            if (StringUtils.defaultString(targetEnvironmentDetails.getUsername()).isBlank()) {
+                throw new GeneratorException("Missing username in environment target YAML");
+            }
+            if (StringUtils.defaultString(targetEnvironmentDetails.getPassword()).isBlank()) {
+                throw new GeneratorException("Missing password in environment target YAML");
+            }
+            authHandler = new BasicAuthHandler(targetEnvironmentDetails.getUsername(),
+                    targetEnvironmentDetails.getPassword());
+        }
         if (!nonNullRestURL.isBlank()) {
-            return new RESTPayloadHandler(nonNullRestURL,
-                    new BasicAuthHandler(targetEnvironmentDetails.getUsername(), targetEnvironmentDetails.getPassword()));
+            return new RESTPayloadHandler(nonNullRestURL, authHandler);
         }
         int gRPCPort;
         try {
@@ -122,8 +135,7 @@ public class CLIProcessor {
         } catch (NumberFormatException numberFormatException) {
             throw new GeneratorException("Invalid gRPC port " + nonNullGRPCPort + " provided in environment target YAML");
         }
-        return new GRPCPayloadHandler(nonNullGRPCHost, gRPCPort,
-                new BasicAuthHandler(targetEnvironmentDetails.getUsername(), targetEnvironmentDetails.getPassword()));
+        return new GRPCPayloadHandler(nonNullGRPCHost, gRPCPort, authHandler);
     }
 
     private static TargetEnvironmentDetails getTargetEnvDetails(String targetEnvYAML) {

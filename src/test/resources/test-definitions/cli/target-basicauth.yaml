@@ -1,0 +1,5 @@
+auth_mode: "basic"
+username: "username"
+password: "password"
+grpchost: "localhost"
+grpcport: "3387"
