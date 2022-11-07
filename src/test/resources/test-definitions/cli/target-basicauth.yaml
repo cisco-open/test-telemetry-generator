@@ -1,4 +1,4 @@
-auth_mode: "basic"
+authMode: "basic"
 username: "username"
 password: "password"
 grpchost: "localhost"

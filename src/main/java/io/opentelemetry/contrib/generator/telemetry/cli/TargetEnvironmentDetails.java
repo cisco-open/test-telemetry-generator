@@ -24,7 +24,7 @@ public class TargetEnvironmentDetails {
     private String restURL;
     private String gRPCHost;
     private String gRPCPort;
-    private String auth_mode;
+    private String authMode;
     private String username;
     private String password;
 }

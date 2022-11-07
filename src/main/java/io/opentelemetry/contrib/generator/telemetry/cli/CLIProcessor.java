@@ -114,7 +114,7 @@ public class CLIProcessor {
                     "must be provided in environment target YAML");
         }
         AuthHandler authHandler;
-        if (targetEnvironmentDetails.getAuth_mode().equalsIgnoreCase("NONE")) {
+        if (targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("NONE")) {
             authHandler = new NoAuthHandler();
         } else {
             if (StringUtils.defaultString(targetEnvironmentDetails.getUsername()).isBlank()) {

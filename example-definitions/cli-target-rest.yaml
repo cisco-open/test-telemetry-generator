@@ -1,4 +1,4 @@
-auth_mode: "basic"
+authMode: "basic"
 username: "your-username"
 password: "your-password"
 restURL: "target-rest-URL"

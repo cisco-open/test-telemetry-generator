@@ -1,2 +1,2 @@
-auth_mode: "none"
+authMode: "none"
 restURL: "http://localhost:3388"
