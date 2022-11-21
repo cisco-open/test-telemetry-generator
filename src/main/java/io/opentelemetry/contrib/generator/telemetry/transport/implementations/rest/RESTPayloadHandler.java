@@ -19,6 +19,7 @@ package io.opentelemetry.contrib.generator.telemetry.transport.implementations.r
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.auth.AuthHandler;
 import com.google.protobuf.GeneratedMessageV3;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.NoAuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.HTTPClient;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
@@ -28,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.HttpHeaders;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class RESTPayloadHandler implements PayloadHandler {
@@ -35,6 +38,7 @@ public class RESTPayloadHandler implements PayloadHandler {
     private final String ENDPOINT_URL;
     private final AuthHandler authHandler;
     private final HTTPClient httpClient;
+    private final boolean isAuthEnabled;
     @Getter
     @Setter
     private String metricsURL = "";
@@ -51,6 +55,7 @@ public class RESTPayloadHandler implements PayloadHandler {
         this.ENDPOINT_URL = endpointURL;
         httpClient = new HTTPClient();
         this.authHandler = authHandler;
+        isAuthEnabled = authHandler instanceof NoAuthHandler;
     }
 
     @Override
@@ -73,8 +78,15 @@ public class RESTPayloadHandler implements PayloadHandler {
     }
 
     protected String[] getHeadersPostData() {
-        return new String[] {HttpHeaders.AUTHORIZATION, authHandler.getAuthString(),
-                HttpHeaders.CONTENT_TYPE, "application/x-protobuf",
-                HttpHeaders.ACCEPT, "application/x-protobuf"};
+        List<String> defaultHeaders = new ArrayList<>();
+        defaultHeaders.add(HttpHeaders.CONTENT_TYPE);
+        defaultHeaders.add("application/x-protobuf");
+        defaultHeaders.add(HttpHeaders.ACCEPT);
+        defaultHeaders.add("application/x-protobuf");
+        if (isAuthEnabled) {
+            defaultHeaders.add(HttpHeaders.AUTHORIZATION);
+            defaultHeaders.add(authHandler.getAuthString());
+        }
+        return defaultHeaders.toArray(new String[4]);
     }
 }
