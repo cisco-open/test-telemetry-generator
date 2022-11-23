@@ -20,6 +20,7 @@ import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.auth.AuthHandler;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.*;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.NoAuthHandler;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceResponse;
 import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
@@ -41,6 +42,7 @@ public class GRPCPayloadHandler implements PayloadHandler {
     private final String HOST;
     private final int gRPCPORT;
     private final AuthHandler authHandler;
+    private final boolean isAuthEnabled;
     private ManagedChannel managedChannel;
     private MetricsServiceGrpc.MetricsServiceBlockingStub metricsServiceBlockingStub;
     private LogsServiceGrpc.LogsServiceBlockingStub logsServiceBlockingStub;
@@ -50,6 +52,7 @@ public class GRPCPayloadHandler implements PayloadHandler {
         this.HOST = host;
         this.gRPCPORT = gRPCPort;
         this.authHandler = authHandler;
+        isAuthEnabled = authHandler instanceof NoAuthHandler;
     }
 
     @Override
@@ -113,6 +116,6 @@ public class GRPCPayloadHandler implements PayloadHandler {
     }
 
     protected String[] getHeadersPostData() {
-        return new String[] {HttpHeaders.AUTHORIZATION, authHandler.getAuthString()};
+        return isAuthEnabled ? new String[] {HttpHeaders.AUTHORIZATION, authHandler.getAuthString()} : new String[0];
     }
 }

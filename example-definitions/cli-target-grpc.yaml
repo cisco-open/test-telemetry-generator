@@ -1,3 +1,4 @@
+authMode: "basic"
 username: "your-username"
 password: "your-password"
 grpchost: "target-gRPC-host"

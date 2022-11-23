@@ -1,0 +1,39 @@
+#
+# Copyright 2022 AppDynamics Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+globalPayloadFrequencySeconds: 15
+logs:
+  - attributes:
+      log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
+    severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "DEBUG"], [1, 2, 3])'
+    payloadFrequencySeconds: 20
+    payloadCount: 4
+    copyCount: 10
+    reportingEntitiesCounts:
+      container: 10
+      pod: 10
+  - severityOrderFunction: 'severityDistributionCount(["ERROR", "WARN", "DEBUG"], [1, 1, 4])'
+    payloadFrequencySeconds: 20
+    payloadCount: 2
+    copyCount: 200
+    reportingEntitiesCounts:
+      node: 30
+  - severityOrderFunction: 'severityDistributionPercentage(["INFO", "TRACE"], [20, 80])'
+    payloadFrequencySeconds: 10
+    payloadCount: 4
+    reportingEntitiesCounts:
+      machine: 4
+      container: 150

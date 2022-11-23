@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry.cli;
+package io.opentelemetry.contrib.generator.telemetry.transport.auth;
 
-import lombok.Data;
+public class NoAuthHandler implements AuthHandler {
 
-@Data
-public class TargetEnvironmentDetails {
-
-    private String restURL;
-    private String gRPCHost;
-    private String gRPCPort;
-    private String authMode;
-    private String username;
-    private String password;
+    @Override
+    public String getAuthString() {
+        return "NO_AUTH";
+    }
 }
