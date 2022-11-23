@@ -24,7 +24,7 @@ rootSpans:
       url: 'roundRobin(["/healthcheck"])'
     payloadCount: 20
     copyCount: 10
-    payloadFrequencySeconds: 15
+    payloadFrequencySeconds: 5
   - name: "searchAccountsRequest"
     spanKind: SPAN_KIND_SERVER
     reportingResource: request
