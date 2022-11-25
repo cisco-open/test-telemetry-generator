@@ -50,4 +50,12 @@ public class TestCLIProcessor {
         CLIProcessor.main(cliArgs);
     }
 
+    @Test
+    public void testAllGeneratorsOAuthGRPC() throws ParseException {
+        String oauthTargetYAML = Paths.get(cliResourcesPath, "target-oauth.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-e", ENTITIES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", oauthTargetYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
 }

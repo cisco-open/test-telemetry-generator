@@ -55,7 +55,7 @@ public class RESTPayloadHandler implements PayloadHandler {
         this.ENDPOINT_URL = endpointURL;
         httpClient = new HTTPClient();
         this.authHandler = authHandler;
-        isAuthEnabled = authHandler instanceof NoAuthHandler;
+        isAuthEnabled = !(authHandler instanceof NoAuthHandler);
     }
 
     @Override
