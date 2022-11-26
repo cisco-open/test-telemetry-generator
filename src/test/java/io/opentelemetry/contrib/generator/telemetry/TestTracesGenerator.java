@@ -24,7 +24,6 @@ import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
@@ -39,12 +38,13 @@ public class TestTracesGenerator {
 
     private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "entities-traces-test.yaml").toString();
-    private final String TRACES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "trace-definition.yaml").toString();
+    private final String TEST_DEFS_PATH = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions").toString();
+    private final String TRACES_YAML = Paths.get(TEST_DEFS_PATH, "trace-definition.yaml").toString();
     private final PayloadHandler payloadStore = new TestPayloadHandler();
     private TestPayloadHandler testStore;
 
-    @BeforeClass
+    @Test
     public void generateData() {
         GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML).withTraceDefinitionYAML(TRACES_YAML).build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore, true);
@@ -52,13 +52,13 @@ public class TestTracesGenerator {
         testStore = (TestPayloadHandler) payloadStore;
     }
 
-    @Test
+    @Test(dependsOnMethods = "generateData")
     public void testResourceSpansCount() {
         int totalExpectedResourceSpans = 11518;
         Assert.assertEquals(testStore.getTracePacketCount(), totalExpectedResourceSpans, "Mismatch in resource span counts");
     }
 
-    @Test
+    @Test(dependsOnMethods = "generateData")
     public void testSpanCounts() {
         Assert.assertNotNull(testStore.getSpanCount(), "No spans were stored in the test payload handler");
         Map<String, AtomicInteger> spanCounts = testStore.getSpanCount();
@@ -161,7 +161,7 @@ public class TestTracesGenerator {
         Assert.assertEquals(spanCounts.get("searchAccountsRequest").get(), searchAccountsRequest, "Mismatch in span count for searchAccountsRequest");
     }
 
-    @Test
+    @Test(dependsOnMethods = "generateData")
     public void testSpanTimes() {
         //Grab a single payload for the trace trees to check
         ExportTraceServiceRequest updateAccountTrace = null;
@@ -234,6 +234,18 @@ public class TestTracesGenerator {
                 "Mismatch in start time for deleteAccountQuery span");
         Assert.assertEquals(deleteQueryActualTimes[1], deleteQueryExpectedEndTime,
                 "Mismatch in end time for deleteAccountQuery span");
+    }
+
+    @Test
+    public void testWithOnlyRootSpans() {
+        String onlyRootSpanTraces =  Paths.get(TEST_DEFS_PATH, "trace-definition-onlyrootspans.yaml").toString();
+        GeneratorInput rootSpansGeneratorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML)
+                .withTraceDefinitionYAML(onlyRootSpanTraces).build();
+        PayloadHandler rootSpansStore = new TestPayloadHandler();
+        TelemetryGenerator rootSpansTelemetryGenerator = new TelemetryGenerator(rootSpansGeneratorInput, rootSpansStore, false);
+        rootSpansTelemetryGenerator.runGenerator();
+        TestPayloadHandler rootSpansTestStore = (TestPayloadHandler) rootSpansStore;
+        Assert.assertEquals(90, rootSpansTestStore.getTracePacketCount());
     }
 
     private long[] getSpanStartTimeEndTime(ExportTraceServiceRequest trace, String spanName) {

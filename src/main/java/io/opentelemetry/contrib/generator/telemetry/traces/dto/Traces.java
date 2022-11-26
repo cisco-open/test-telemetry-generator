@@ -51,6 +51,7 @@ public class Traces {
         if (rootSpanNames.size() < rootSpans.size()) {
             throw new GeneratorException("Root span names are not unique");
         }
+        childSpans = childSpans == null ? new ArrayList<>() : childSpans;
         Set<String> childSpanNames = childSpans.stream().map(SpanDefinition::getName).collect(Collectors.toSet());
         if (childSpanNames.size() < childSpans.size()) {
             throw new GeneratorException("Child span names are not unique");
