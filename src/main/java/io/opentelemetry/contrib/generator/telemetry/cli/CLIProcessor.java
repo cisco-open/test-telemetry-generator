@@ -33,6 +33,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Slf4j
 public class CLIProcessor {
@@ -127,6 +129,11 @@ public class CLIProcessor {
                     targetEnvironmentDetails.getPassword());
         }
         if (!nonNullRestURL.isBlank()) {
+            try {
+                new URI(nonNullRestURL);
+            } catch (URISyntaxException e) {
+                log.warn("Invalid rest URL provided in environment target YAML", e);
+            }
             return new RESTPayloadHandler(nonNullRestURL, authHandler);
         }
         int gRPCPort;

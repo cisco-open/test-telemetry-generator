@@ -1,0 +1,38 @@
+#
+# Copyright 2022 AppDynamics Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+payloadFrequencySeconds: 10
+payloadCount: 6
+metrics:
+  - name: system.network.in.kb.sec
+    unit: kBy/s
+    otelType: summary
+    valueFunction: 'absoluteCosineSequenceSummary("*7000", 5)'
+    isDouble: true
+    quantiles: [0, 50, 100]
+    reportingEntities: [service_instance, instance_endpoint]
+    attributes:
+      system.internal.ip: 'IPv4Sequence("10.134.1.34")'
+  - name: system.network.out.kb.sec
+    unit: kBy/s
+    otelType: summary
+    valueFunction: 'randomSummary(1, 10, "*400", 7)'
+    isDouble: true
+    quantiles: [0, 50, 100]
+    reportingEntities: [service_instance, instance_endpoint]
+    attributes:
+      system.internal.ip: 'IPv4Sequence("10.121.17.65")'
+      network.device.type: 'roundRobin(["ethernet", "wired", "wireless"])'

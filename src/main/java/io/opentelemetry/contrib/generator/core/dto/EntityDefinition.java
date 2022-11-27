@@ -58,9 +58,7 @@ public class EntityDefinition {
     }
 
     private void validateAttributes() {
-        if (MapUtils.emptyIfNull(attributes).isEmpty()) {
-            throw new GeneratorException("At least one item must be available in 'attributes' for entity " + name);
-        }
+        attributes = attributes == null ? new HashMap<>() :  attributes;
         Map<String, String> attrs = new HashMap<>();
         for (Map.Entry<String, String> eachAttribute: attributes.entrySet()) {
             if (eachAttribute.getKey().trim().length() == 0 || eachAttribute.getValue().trim().length() == 0) {
