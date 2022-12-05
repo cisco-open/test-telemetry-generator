@@ -59,6 +59,11 @@ public class TelemetryGenerator {
         this(input, payloadHandler, RandomStringUtils.randomAlphanumeric(32));
     }
 
+    public TelemetryGenerator(GeneratorInput input, PayloadHandler payloadHandler, Map<String, List<GeneratorEntity>> entityModel) {
+        this(input, payloadHandler, RandomStringUtils.randomAlphanumeric(32));
+        this.entityModel = entityModel;
+    }
+
     public TelemetryGenerator(GeneratorInput input, PayloadHandler payloadHandler, String requestID) {
         this(input, payloadHandler, requestID, false);
     }
@@ -75,10 +80,11 @@ public class TelemetryGenerator {
     }
 
     public void runGenerator() {
-        input.validate(requestID);
+        if (entityModel == null)
+            input.validate(requestID);
         log.info("Received data generation request with metrics = (" + input.isHasMetrics() + "), logs = (" +
                 input.isHasLogs() + "), traces = (" +  input.isHasTraces() + ")");
-        EntityModelProvider.putEntityModel(requestID, getEntityModel());
+        EntityModelProvider.putEntityModel(requestID, entityModel==null ? getEntityModel() : entityModel);
         if (input.isHasMetrics()) {
             var metricsGenerator = new MetricsGenerator(input.getMetricDefinitions(), payloadHandler, requestID, transportStorage);
             metricsGenerator.runGenerator();

@@ -125,7 +125,7 @@ public class MetricsGenerator {
         MetricGeneratorThread metricGeneratorThread;
         for (Map.Entry<String, List<MetricDefinition>> eachGroup: metricThreadGroups.entrySet()) {
             metricGeneratorThread = new MetricGeneratorThread(eachGroup.getKey(), eachGroup.getValue(), payloadHandler, requestID);
-            generatorState.getExecutorService().scheduleAtFixedRate(metricGeneratorThread, 10,
+            generatorState.getExecutorService().scheduleAtFixedRate(metricGeneratorThread, 0,
                     eachGroup.getValue().get(0).getPayloadFrequencySeconds(), TimeUnit.SECONDS);
             generatorState.getGeneratorThreadMap().put(eachGroup.getKey(), metricGeneratorThread);
             generatorState.getThreadPayloadCounts().put(eachGroup.getKey(), 0);

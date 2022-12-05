@@ -73,7 +73,7 @@ public class LogsGenerator {
 
         private void initThread(LogDefinition logDefinition) {
             var logGeneratorThread = new LogGeneratorThread(logDefinition, payloadHandler, requestID);
-            generatorState.getExecutorService().scheduleAtFixedRate(logGeneratorThread, 10,
+            generatorState.getExecutorService().scheduleAtFixedRate(logGeneratorThread, 0,
                     logDefinition.getPayloadFrequencySeconds(), TimeUnit.SECONDS);
             generatorThreadMap.put(logDefinition.getId(), logGeneratorThread);
             generatorState.getThreadPayloadCounts().put(logDefinition.getId(), 0);

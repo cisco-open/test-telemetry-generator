@@ -120,7 +120,7 @@ public class TracesGenerator {
         TraceGeneratorThread generatorThread;
         for (Map.Entry<String, RootSpanDefinition> eachTreeGroup: traceGroups.entrySet()) {
             generatorThread = new TraceGeneratorThread(eachTreeGroup.getKey(), eachTreeGroup.getValue(), requestID, payloadHandler);
-            generatorState.getExecutorService().scheduleAtFixedRate(generatorThread, 10,
+            generatorState.getExecutorService().scheduleAtFixedRate(generatorThread, 0,
                     eachTreeGroup.getValue().getPayloadFrequencySeconds(), TimeUnit.SECONDS);
             generatorState.getGeneratorThreadMap().put(eachTreeGroup.getValue().getName(), generatorThread);
             log.debug(requestID + ": Initialized trace generator thread group " + eachTreeGroup.getKey() +

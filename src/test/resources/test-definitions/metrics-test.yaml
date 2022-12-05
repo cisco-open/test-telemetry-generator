@@ -14,8 +14,8 @@
 # limitations under the License.
 #
 
-payloadFrequencySeconds: 10
-payloadCount: 10
+payloadFrequencySeconds: 30
+payloadCount: 50
 metrics:
   - name: system.network.in.kb.sec
     unit: kBy/s
