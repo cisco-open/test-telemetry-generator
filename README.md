@@ -28,7 +28,7 @@ This tools can be added to your code as a dependency or executed from the comman
 
 ## Quickstart
 
-For a quick start with a basic setup you can download the [latest fat-jar](https://github.com/cisco-open/test-telemetry-generator/releases/download/latest/test-telemetry-generator-otel-proto-0.9.0-fatjar.jar) and [example definitions](./example-definitions/) and put them all into one directory.
+For a quick start with a basic setup you can download the [latest fat-jar](https://github.com/cisco-open/test-telemetry-generator/releases/download/latest/test-telemetry-generator-otel-proto-0.9.0-fatjar.jar) and [example definitions](./example-definitions/) and put them all into one directory. We recommend that you start with the [simple example definitions](./example-definitions/simple/).
 
 You can do all of that in the command line using [curl](https://curl.se/) like the following:
 
@@ -52,9 +52,8 @@ Next, open the `cli-target-rest.yml` with an editor of your choice and set the `
 Collector](https://opentelemetry.io/docs/collector/) running on `localhost` with an `otlp` receiver listening on port `4318`, update your target config to look like the following:
 
 ```yaml
-username: "ignored"
-password: "ignored"
-restURL: "http://localhost:4318/v1/traces"
+authMode: none
+restURL: http://localhost:4318/v1/traces
 ```
 
 Finally, start the test-telemetry-generator:
