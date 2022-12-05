@@ -27,4 +27,7 @@ public class TargetEnvironmentDetails {
     private String authMode;
     private String username;
     private String password;
+    private String metricsURLPath;
+    private String logsURLPath;
+    private String tracesURLPath;
 }

@@ -134,7 +134,17 @@ public class CLIProcessor {
             } catch (URISyntaxException e) {
                 log.warn("Invalid rest URL provided in environment target YAML", e);
             }
-            return new RESTPayloadHandler(nonNullRestURL, authHandler);
+            RESTPayloadHandler restPayloadHandler = new RESTPayloadHandler(nonNullRestURL, authHandler);
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getMetricsURLPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getMetricsURLPath());
+            }
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getLogsURLPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getLogsURLPath());
+            }
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getTracesURLPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getTracesURLPath());
+            }
+            return restPayloadHandler;
         }
         int gRPCPort;
         try {
