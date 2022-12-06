@@ -64,6 +64,11 @@ public class TelemetryGenerator {
         this.entityModel = entityModel;
     }
 
+    public TelemetryGenerator(GeneratorInput input, PayloadHandler payloadHandler, String requestId, Map<String, List<GeneratorEntity>> entityModel) {
+        this(input, payloadHandler, requestId);
+        this.entityModel = entityModel;
+    }
+
     public TelemetryGenerator(GeneratorInput input, PayloadHandler payloadHandler, String requestID) {
         this(input, payloadHandler, requestID, false);
     }
