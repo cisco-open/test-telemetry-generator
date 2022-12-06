@@ -1,2 +1,3 @@
 authMode: "none"
-restURL: "http://localhost:3388"
+restURL:
+  baseURL: "http://localhost:3388"
