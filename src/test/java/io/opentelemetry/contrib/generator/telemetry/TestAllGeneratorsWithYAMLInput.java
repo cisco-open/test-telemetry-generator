@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TestAllGenerators {
+public class TestAllGeneratorsWithYAMLInput {
 
     private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "entity-definition.yaml").toString();
