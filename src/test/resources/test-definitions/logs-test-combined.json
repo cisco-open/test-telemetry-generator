@@ -2,6 +2,7 @@
   "globalPayloadFrequencySeconds": 30,
   "logs": [
     {
+      "name": "k8slogs",
       "payloadCount": 20,
       "attributes": {
         "log.labels": "{\"generator\": roundRobin([\"Telemetry-Generator\", \"Telemetry-Generator-v2\"]), \"type\": \"k8s\"}"
@@ -14,6 +15,7 @@
       }
     },
     {
+      "name": "logevents1",
       "payloadCount": 20,
       "severityOrderFunction": "severityDistributionCount([\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"], [5, 1, 1, 4])",
       "reportingEntitiesCounts": {
@@ -21,6 +23,7 @@
       }
     },
     {
+      "name": "logevents2",
       "payloadCount": 20,
       "copyCount": 2,
       "severityOrderFunction": "severityDistributionPercentage([\"INFO\", \"TRACE\"], [20, 10])",
