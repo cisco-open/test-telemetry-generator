@@ -78,10 +78,12 @@ public class TestAllGeneratorsWithRuntimeMods {
 
     @Test
     public void validateTotalLogPacketCounts() {
-        int totalCount = reportingContainerCount + reportingNodeCount + reportingMachineCount + reportingPodCount;
-        //Add counts for log events also
-        totalCount = totalCount + reportingPodCount + reportingNodeCount + reportingMachineCount;
-        Assert.assertEquals(testStore.getLogsPacketCount(), totalCount);
+        Assert.assertEquals(testStore.getLogsCount().get("k8slogs_pod").get(), reportingPodCount);
+        Assert.assertEquals(testStore.getLogsCount().get("k8slogs_node").get(), reportingNodeCount);
+        Assert.assertEquals(testStore.getLogsCount().get("k8slogs_container").get(), reportingContainerCount);
+        Assert.assertEquals(testStore.getLogsCount().get("k8slogs_machine").get(), reportingMachineCount);
+        Assert.assertEquals(testStore.getLogsCount().get("logevents1").get(),
+                reportingPodCount + reportingNodeCount + reportingMachineCount);
     }
 
     @Test
@@ -97,7 +99,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String expectedPodIP = "133.29.54.90";
         ExportMetricsServiceRequest podMetricPayload = transportStorage.getStoredMetricsPayloads().get("pod::30::10").get(2);
         Assert.assertNotNull(podMetricPayload);
-        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_1").get("pod").get(2);
+        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_pod").get("pod").get(2);
         Assert.assertNotNull(podLogPayload);
         Set<String> podIPsFromMetricPayloads = podMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -117,8 +119,8 @@ public class TestAllGeneratorsWithRuntimeMods {
         String expectedNodeName = "quaG.node";
         ExportMetricsServiceRequest nodeMetricPayload = transportStorage.getStoredMetricsPayloads().get("node::30::10").get(4);
         Assert.assertNotNull(nodeMetricPayload);
-        ExportLogsServiceRequest nodePodPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").get("node").get(4);
-        Assert.assertNotNull(nodePodPayload);
+        ExportLogsServiceRequest nodeLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_node").get("node").get(4);
+        Assert.assertNotNull(nodeLogPayload);
         Set<String> nodeNamesFromMetricPayloads = nodeMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
                 .flatMap(List::stream)
@@ -126,7 +128,7 @@ public class TestAllGeneratorsWithRuntimeMods {
                 .map(kv -> kv.getValue().getStringValue())
                 .collect(Collectors.toSet());
         Assert.assertTrue(nodeNamesFromMetricPayloads.contains(expectedNodeName));
-        Set<String> nodeNamesFromLogPayloads = nodePodPayload.getResourceLogsList().stream()
+        Set<String> nodeNamesFromLogPayloads = nodeLogPayload.getResourceLogsList().stream()
                 .map(rl -> rl.getResource().getAttributesList())
                 .flatMap(List::stream)
                 .filter(kv -> kv.getKey().equals("k8s.node.name"))
@@ -137,7 +139,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String expectedMachineName = "idC.host";
         ExportMetricsServiceRequest machineMetricPayload = transportStorage.getStoredMetricsPayloads().get("machine::30::10").get(2);
         Assert.assertNotNull(machineMetricPayload);
-        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_3").get("machine").get(2);
+        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_machine").get("machine").get(2);
         Assert.assertNotNull(machineLogPayload);
         Set<String> machineNamesFromMetricPayloads = machineMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -160,7 +162,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String unexpectedMachineName = "icq.host";
         ExportMetricsServiceRequest machineMetricPayload = transportStorage.getStoredMetricsPayloads().get("machine::30::10").get(4);
         Assert.assertNotNull(machineMetricPayload);
-        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_3").get("machine").get(4);
+        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_machine").get("machine").get(4);
         Assert.assertNotNull(machineLogPayload);
         Set<String> machineNamesFromMetricPayloads = machineMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -180,7 +182,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String unexpectedContainerName = "tamt.container";
         ExportMetricsServiceRequest containerMetricPayload = transportStorage.getStoredMetricsPayloads().get("container::30::10").get(2);
         Assert.assertNotNull(containerMetricPayload);
-        ExportLogsServiceRequest containerLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_2").get("container").get(2);
+        ExportLogsServiceRequest containerLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_container").get("container").get(2);
         Assert.assertNotNull(containerLogPayload);
         Set<String> containerNamesFromMetricPayloads = machineMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -204,7 +206,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String unexpectedPodIP = "133.29.54.25";
         ExportMetricsServiceRequest podMetricPayload = transportStorage.getStoredMetricsPayloads().get("pod::30::10").get(4);
         Assert.assertNotNull(podMetricPayload);
-        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_1").get("pod").get(4);
+        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_pod").get("pod").get(4);
         Assert.assertNotNull(podLogPayload);
         Set<String> podIPsFromMetricPayloads = podMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -229,7 +231,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String expectedPodIP = "133.29.54.160";
         ExportMetricsServiceRequest podMetricPayload = transportStorage.getStoredMetricsPayloads().get("pod::30::10").get(9);
         Assert.assertNotNull(podMetricPayload);
-        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_1").get("pod").get(9);
+        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_pod").get("pod").get(9);
         Assert.assertNotNull(podLogPayload);
         Set<String> podIPsFromMetricPayloads = podMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -249,7 +251,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String expectedNodeName = "quaL.node";
         ExportMetricsServiceRequest nodeMetricPayload = transportStorage.getStoredMetricsPayloads().get("node::30::10").get(9);
         Assert.assertNotNull(nodeMetricPayload);
-        ExportLogsServiceRequest nodeLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").get("node").get(9);
+        ExportLogsServiceRequest nodeLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_node").get("node").get(9);
         Assert.assertNotNull(nodeLogPayload);
         Set<String> nodeNamesFromMetricPayloads = nodeMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -269,7 +271,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String expectedMachineName = "ie6.host";
         ExportMetricsServiceRequest machineMetricPayload = transportStorage.getStoredMetricsPayloads().get("machine::30::10").get(9);
         Assert.assertNotNull(machineMetricPayload);
-        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_3").get("machine").get(9);
+        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_machine").get("machine").get(9);
         Assert.assertNotNull(machineLogPayload);
         Set<String> machineNamesFromMetricPayloads = machineMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -292,7 +294,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String unexpectedMachineName = "icF.host";
         ExportMetricsServiceRequest machineMetricPayload = transportStorage.getStoredMetricsPayloads().get("machine::30::10").get(9);
         Assert.assertNotNull(machineMetricPayload);
-        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_3").get("machine").get(9);
+        ExportLogsServiceRequest machineLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_machine").get("machine").get(9);
         Assert.assertNotNull(machineLogPayload);
         Set<String> machineNamesFromMetricPayloads = machineMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -312,7 +314,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String unexpectedContainerName = "tamA.container";
         ExportMetricsServiceRequest containerMetricPayload = transportStorage.getStoredMetricsPayloads().get("container::30::10").get(9);
         Assert.assertNotNull(containerMetricPayload);
-        ExportLogsServiceRequest containerLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_2").get("container").get(9);
+        ExportLogsServiceRequest containerLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_container").get("container").get(9);
         Assert.assertNotNull(containerLogPayload);
         Set<String> containerNamesFromMetricPayloads = machineMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())
@@ -336,7 +338,7 @@ public class TestAllGeneratorsWithRuntimeMods {
         String unexpectedPodIP = "133.29.54.50";
         ExportMetricsServiceRequest podMetricPayload = transportStorage.getStoredMetricsPayloads().get("pod::30::10").get(9);
         Assert.assertNotNull(podMetricPayload);
-        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("log_by_ttg_1").get("pod").get(9);
+        ExportLogsServiceRequest podLogPayload = transportStorage.getStoredLogsPayloads().get("k8slogs_pod").get("pod").get(9);
         Assert.assertNotNull(podLogPayload);
         Set<String> podIPsFromMetricPayloads = podMetricPayload.getResourceMetricsList().stream()
                 .map(rm -> rm.getResource().getAttributesList())

@@ -43,9 +43,16 @@ public class Logs {
         int logIndex = 0;
 
         for (LogDefinition eachLog: logs) {
-            maxPostSeconds = Math.max(maxPostSeconds, eachLog.validate(requestID, allEntityTypes, globalPayloadFrequencySeconds, logIndex));
+            maxPostSeconds = Math.max(maxPostSeconds, eachLog.validate(requestID, allEntityTypes, globalPayloadFrequencySeconds));
             totalPayloadCount += eachLog.getPayloadCount();
-            logIndex++;
+        }
+        validateUniqueLogName();
+    }
+
+    private void validateUniqueLogName() {
+        Set<String> logDefinitionNames = logs.stream().map(LogDefinition::getName).collect(Collectors.toSet());
+        if (logDefinitionNames.size() < logs.size()) {
+            throw new GeneratorException("Duplicate Log Definition Name found.");
         }
     }
 }

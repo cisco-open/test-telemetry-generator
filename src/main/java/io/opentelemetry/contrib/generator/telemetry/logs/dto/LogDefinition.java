@@ -16,7 +16,6 @@
 
 package io.opentelemetry.contrib.generator.telemetry.logs.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import lombok.Data;
@@ -31,24 +30,26 @@ import java.util.concurrent.ThreadLocalRandom;
 @Data
 public class LogDefinition {
 
+    private String name;
     private String severityOrderFunction;
     private Map<String, Integer> reportingEntitiesCounts;
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
     private Integer copyCount;
     private Map<String, Object> attributes;
-    @JsonIgnore
-    private String id;
 
-    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds, int logIndex) {
-        id = "log_by_ttg_" + logIndex;
+    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds) {
+        if (StringUtils.defaultString(name).isBlank()) {
+            name = "log_by_ttg_" + ThreadLocalRandom.current().nextInt();
+            log.warn("Name not found for log. Using " + name);
+        }
         if (copyCount == null || copyCount < 1) {
             copyCount = 1;
         }
         validateMandatoryFields();
         validateEntityTypesCount(allEntityTypes);
         addRequestIDAndLogNameToValueFunction(requestID);
-        attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", id, attributes);
+        attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", name, attributes);
         return validatePayloadFrequency(globalPayloadFrequencySeconds);
     }
 
@@ -126,7 +127,7 @@ public class LogDefinition {
         List<String> valueFunctions = Arrays.asList("severityDistributionCount", "severityDistributionPercentage", "severityDistributionCountIndex");
         for (String eachValueFx: valueFunctions) {
             severityOrderFunction = severityOrderFunction.replace(eachValueFx + "(",
-                    eachValueFx + "(\"" + requestID + "\", \"" + id + "\", ");
+                    eachValueFx + "(\"" + requestID + "\", \"" + name + "\", ");
         }
     }
 
@@ -136,7 +137,7 @@ public class LogDefinition {
 
     @Override
     public int hashCode() {
-        return this.id.hashCode();
+        return this.name.hashCode();
     }
 
     @Override
@@ -145,7 +146,7 @@ public class LogDefinition {
             return true;
         }
         if (logDefinition instanceof LogDefinition) {
-            return this.id.equals(((LogDefinition) logDefinition).getId());
+            return this.name.equals(((LogDefinition) logDefinition).getName());
         }
         return false;
     }
