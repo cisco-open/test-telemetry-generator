@@ -71,9 +71,9 @@ public class TestAllGeneratorsWithJSONInput {
                 "Mismatch in entity type counts for metric payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 3,
                 "Mismatch in entity type counts for log payloads");
-        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").size(), 3,
+        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("k8slogs").size(), 3,
                 "Mismatch in entity type counts for log payloads");
-        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").get("pod").size(), 20,
+        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("k8slogs").get("pod").size(), 20,
                 "Mismatch in entity type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredTracesPayloads().size(), 8,
                 "Mismatch in entity type counts for trace payloads");
