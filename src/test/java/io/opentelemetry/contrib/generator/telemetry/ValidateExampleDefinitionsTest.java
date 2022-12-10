@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 public class ValidateExampleDefinitionsTest {
-
+    
     private final String DEFINITION_BASE_PATH = Paths.get(System.getProperty("user.dir"), "example-definitions").toString();
     private final String DEFINITION_PATH = Paths.get(DEFINITION_BASE_PATH, "qa").toString();
 
