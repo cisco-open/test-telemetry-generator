@@ -80,7 +80,7 @@ public class LogGeneratorThread implements Runnable {
                             .addInstrumentationLibraryLogs(InstrumentationLibraryLogs.newBuilder()
                                     .setInstrumentationLibrary(InstrumentationLibrary.newBuilder()
                                             .setName("@opentelemetry/vodka-exporter")
-                                            .setVersion("22.9.0")
+                                            .setVersion("21.9.0")
                                             .build())
                                     .addAllLogs(otelLogs)
                                     .build())
