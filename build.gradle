@@ -25,7 +25,7 @@ dependencies {
     api group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
     api group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
     api group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.2'
-    api group: 'io.opentelemetry.proto', name: 'opentelemetry-proto', version: '0.18.0-alpha'
+    api group: 'io.opentelemetry', name: 'opentelemetry-proto', version: '1.6.0-alpha'
     api group: 'io.opentelemetry', name: 'opentelemetry-sdk-trace', version: '1.12.0'
     api group: 'com.google.guava', name: 'guava', version: 'r05'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'

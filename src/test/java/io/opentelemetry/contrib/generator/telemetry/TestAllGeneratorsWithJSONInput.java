@@ -1,19 +1,3 @@
-/*
- * Copyright 2022 AppDynamics Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package io.opentelemetry.contrib.generator.telemetry;
 
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
@@ -32,26 +16,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TestAllGenerators {
-
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition.yaml").toString();
-    private final String METRICS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "metrics-test.yaml").toString();
-    private final String LOGS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "logs-test-combined.yaml").toString();
-    private final String TRACES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "trace-definition.yaml").toString();
+public class TestAllGeneratorsWithJSONInput {
+    private final String ENTITIES_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "entity-definition.json").toString();
+    private final String METRICS_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "metrics-test.json").toString();
+    private final String LOGS_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "logs-test-combined.json").toString();
+    private final String TRACES_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "trace-definition.json").toString();
     private final PayloadHandler payloadStore = new TestPayloadHandler();
     private TestPayloadHandler testStore;
     private TransportStorage transportStorage;
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML)
-                .withMetricDefinitionYAML(METRICS_YAML)
-                .withLogDefinitionYAML(LOGS_YAML)
-                .withTraceDefinitionYAML(TRACES_YAML)
+        GeneratorInput generatorInput = new GeneratorInput.JSONFilesBuilder(ENTITIES_JSON)
+                .withMetricDefinitionYAML(METRICS_JSON)
+                .withLogDefinitionYAML(LOGS_JSON)
+                .withTraceDefinitionYAML(TRACES_JSON)
                 .build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore, true);
         telemetryGenerator.runGenerator();
@@ -88,9 +71,9 @@ public class TestAllGenerators {
                 "Mismatch in entity type counts for metric payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 3,
                 "Mismatch in entity type counts for log payloads");
-        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").size(), 3,
+        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("k8slogs").size(), 3,
                 "Mismatch in entity type counts for log payloads");
-        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").get("pod").size(), 20,
+        Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("k8slogs").get("pod").size(), 20,
                 "Mismatch in entity type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredTracesPayloads().size(), 8,
                 "Mismatch in entity type counts for trace payloads");

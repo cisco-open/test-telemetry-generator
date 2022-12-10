@@ -285,7 +285,7 @@ public class TestValueExpressions {
         String expression = "severityDistributionPercentage(\"" + GENERATOR_KEY + "\", \"" + LOG_NAME + "\", [\"Val0\", \"Val1\", \"Val2\"], [10, 70, 20])";
         List<String> expected = new ArrayList<>(Arrays.asList("Val0", "Val1", "Val1", "Val2", "Val1"));
         LogDefinition dummyDef = new LogDefinition();
-        dummyDef.setId("DummyDef");
+        dummyDef.setName("DummyDef");
         dummyDef.setPayloadCount(14);
         LogGeneratorThread dummyThread = new LogGeneratorThread(dummyDef, new TestPayloadHandler(), GENERATOR_KEY);
         GeneratorsStateProvider.getLogGeneratorState(GENERATOR_KEY).setGeneratorThreadMap(new HashMap<>());

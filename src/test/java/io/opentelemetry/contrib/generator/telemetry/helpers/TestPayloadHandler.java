@@ -23,7 +23,6 @@ import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
-import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 
 import java.util.*;
@@ -37,6 +36,7 @@ public class TestPayloadHandler implements PayloadHandler {
     private final AtomicInteger logsPacketCount;
     private final AtomicInteger spansPacketCount;
     private final ConcurrentMap<String, AtomicInteger> metricsCount;
+    private final ConcurrentMap<String, AtomicInteger> logsCount;
     private final ConcurrentMap<String, AtomicInteger> spanCount;
     private final List<ExportMetricsServiceRequest> metricPayloads;
     private final List<ExportLogsServiceRequest> logsPayloads;
@@ -48,6 +48,7 @@ public class TestPayloadHandler implements PayloadHandler {
         spansPacketCount = new AtomicInteger(0);
         metricsCount = new ConcurrentHashMap<>();
         spanCount = new ConcurrentHashMap<>();
+        logsCount = new ConcurrentHashMap<>();
         metricPayloads = Collections.synchronizedList(new ArrayList<>());
         tracePayloads = Collections.synchronizedList(new ArrayList<>());
         logsPayloads = Collections.synchronizedList(new ArrayList<>());
@@ -61,7 +62,7 @@ public class TestPayloadHandler implements PayloadHandler {
             int resourceMetricsCount = payload.getResourceMetricsCount();
             metricsPacketCount.addAndGet(resourceMetricsCount);
             payload.getResourceMetrics(0)
-                    .getScopeMetrics(0)
+                    .getInstrumentationLibraryMetrics(0)
                     .getMetricsList()
                     .forEach(metric -> {
                         if (!metricsCount.containsKey(metric.getName())) {
@@ -76,6 +77,17 @@ public class TestPayloadHandler implements PayloadHandler {
             logsPayloads.add(payload);
             int resourceLogsCount = payload.getResourceLogsCount();
             logsPacketCount.addAndGet(resourceLogsCount);
+            payload.getResourceLogs(0)
+                    .getInstrumentationLibraryLogs(0)
+                    .getLogsList()
+                    .forEach(log -> {
+                        if (!logsCount.containsKey(log.getName())) {
+                            synchronized (logsCount) {
+                                logsCount.putIfAbsent(log.getName(), new AtomicInteger(0));
+                            }
+                        }
+                        logsCount.get(log.getName()).addAndGet(resourceLogsCount);
+                    });
         } else if (message instanceof ExportTraceServiceRequest) {
             ExportTraceServiceRequest payload = (ExportTraceServiceRequest) message;
             tracePayloads.add(payload);
@@ -83,9 +95,9 @@ public class TestPayloadHandler implements PayloadHandler {
             spansPacketCount.addAndGet(spanPacketCount);
             List<ResourceSpans> resourceSpans = payload.getResourceSpansList();
             for (ResourceSpans resourceSpan : resourceSpans) {
-                List<ScopeSpans> scopeSpans = resourceSpan.getScopeSpansList();
-                for (ScopeSpans scopeSpan : scopeSpans) {
-                    List<Span> spans = scopeSpan.getSpansList();
+                List<InstrumentationLibrarySpans> instrumentationLibrarySpans = resourceSpan.getInstrumentationLibrarySpansList();
+                for (InstrumentationLibrarySpans instrumentationLibrarySpan : instrumentationLibrarySpans) {
+                    List<Span> spans = instrumentationLibrarySpan.getSpansList();
                     for (Span span : spans) {
                         if (!spanCount.containsKey(span.getName())) {
                             synchronized (spanCount) {
@@ -117,6 +129,8 @@ public class TestPayloadHandler implements PayloadHandler {
     public int getLogsPacketCount() {
         return logsPacketCount.get();
     }
+
+    public Map<String, AtomicInteger> getLogsCount() { return logsCount; }
 
     public List<ExportLogsServiceRequest> getLogsPayloads() {
         return logsPayloads;
