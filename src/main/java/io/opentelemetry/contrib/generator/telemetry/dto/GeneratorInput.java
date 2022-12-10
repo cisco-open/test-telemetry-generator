@@ -53,6 +53,7 @@ public class GeneratorInput {
     @Getter
     private final boolean hasTraces;
     private final boolean loadYAMLs;
+    private final boolean loadJSONs;
 
     private GeneratorInput(YAMLFilesBuilder yamlFilesBuilder) {
         this.entityDefinitionYAML = yamlFilesBuilder.entityDefinitionYAML;
@@ -63,6 +64,19 @@ public class GeneratorInput {
         hasLogs = !StringUtils.defaultString(logDefinitionYAML).trim().isBlank();
         hasTraces = !StringUtils.defaultString(traceDefinitionYAML).trim().isBlank();
         loadYAMLs = true;
+        loadJSONs = false;
+    }
+
+    private GeneratorInput(JSONFilesBuilder jsonFilesBuilder) {
+        this.entityDefinitionYAML = jsonFilesBuilder.entityDefinitionJSON;
+        this.metricDefinitionYAML = jsonFilesBuilder.metricDefinitionJSON;
+        this.logDefinitionYAML = jsonFilesBuilder.logDefinitionJSON;
+        this.traceDefinitionYAML = jsonFilesBuilder.traceDefinitionJSON;
+        hasMetrics = !StringUtils.defaultString(metricDefinitionYAML).trim().isBlank();
+        hasLogs = !StringUtils.defaultString(logDefinitionYAML).trim().isBlank();
+        hasTraces = !StringUtils.defaultString(traceDefinitionYAML).trim().isBlank();
+        loadYAMLs = false;
+        loadJSONs = true;
     }
 
     private GeneratorInput(DTOBuilder dtoBuilder) {
@@ -74,6 +88,7 @@ public class GeneratorInput {
         hasLogs = logDefinitions != null;
         hasTraces = traceDefinitions != null;
         loadYAMLs = false;
+        loadJSONs = false;
     }
 
     public static YAMLFilesBuilder builder(String entityDefinitionYAML) {
@@ -106,6 +121,36 @@ public class GeneratorInput {
 
         public GeneratorInput.YAMLFilesBuilder withTraceDefinitionYAML(String traceDefinitionYAML) {
             this.traceDefinitionYAML = traceDefinitionYAML;
+            return this;
+        }
+
+        public GeneratorInput build() {
+            return new GeneratorInput(this);
+        }
+    }
+
+    public static final class JSONFilesBuilder {
+        private final String entityDefinitionJSON;
+        private String metricDefinitionJSON;
+        private String logDefinitionJSON;
+        private String traceDefinitionJSON;
+
+        public JSONFilesBuilder(String entityDefinitionJSON ) {
+            this.entityDefinitionJSON = entityDefinitionJSON;
+        }
+
+        public JSONFilesBuilder withMetricDefinitionYAML(String metricDefinitionYAML) {
+            this.metricDefinitionJSON = metricDefinitionYAML;
+            return this;
+        }
+
+        public JSONFilesBuilder withLogDefinitionYAML(String logDefinitionYAML) {
+            this.logDefinitionJSON = logDefinitionYAML;
+            return this;
+        }
+
+        public JSONFilesBuilder withTraceDefinitionYAML(String traceDefinitionYAML) {
+            this.traceDefinitionJSON = traceDefinitionYAML;
             return this;
         }
 
@@ -165,6 +210,9 @@ public class GeneratorInput {
         if (loadYAMLs) {
             loadYAMLFiles();
         }
+        if(loadJSONs) {
+            loadJSONFiles();
+        }
     }
 
     private void loadYAMLFiles() {
@@ -176,20 +224,29 @@ public class GeneratorInput {
         }
     }
 
-    private void setDTOs(ObjectMapper yamlMapper) throws IOException {
+    private void loadJSONFiles() {
+        var jsonMapper = new ObjectMapper();
+        try {
+            setDTOs(jsonMapper);
+        } catch (IOException ioException) {
+            throw new GeneratorException("Exception occurred while loading JSON files due to " + ioException.getMessage());
+        }
+    }
+
+    private void setDTOs(ObjectMapper fileMapper) throws IOException {
         File entitiesYAML = validateFile(entityDefinitionYAML);
-        entityDefinitions = yamlMapper.readValue(entitiesYAML, Entities.class);
+        entityDefinitions = fileMapper.readValue(entitiesYAML, Entities.class);
         if (hasMetrics) {
             File metricsYAML = validateFile(metricDefinitionYAML);
-            metricDefinitions = yamlMapper.readValue(metricsYAML, Metrics.class);
+            metricDefinitions = fileMapper.readValue(metricsYAML, Metrics.class);
         }
         if (hasLogs) {
             File logsYAML = validateFile(logDefinitionYAML);
-            logDefinitions = yamlMapper.readValue(logsYAML, Logs.class);
+            logDefinitions = fileMapper.readValue(logsYAML, Logs.class);
         }
         if (hasTraces) {
             File tracesYAML = validateFile(traceDefinitionYAML);
-            traceDefinitions = yamlMapper.readValue(tracesYAML, Traces.class);
+            traceDefinitions = fileMapper.readValue(tracesYAML, Traces.class);
         }
     }
 
