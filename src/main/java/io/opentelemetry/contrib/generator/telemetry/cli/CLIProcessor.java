@@ -17,6 +17,7 @@
 package io.opentelemetry.contrib.generator.telemetry.cli;
 
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
+import io.opentelemetry.contrib.generator.telemetry.cli.dto.TargetEnvironmentDetails;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.TelemetryGenerator;
@@ -108,10 +109,11 @@ public class CLIProcessor {
 
     private static PayloadHandler getPayloadHandler(String targetEnvYAML) {
         TargetEnvironmentDetails targetEnvironmentDetails = getTargetEnvDetails(targetEnvYAML);
-        String nonNullRestURL = StringUtils.defaultString(targetEnvironmentDetails.getRestURL());
         String nonNullGRPCHost = StringUtils.defaultString(targetEnvironmentDetails.getGRPCHost());
         String nonNullGRPCPort = StringUtils.defaultString(targetEnvironmentDetails.getGRPCPort());
-        if (nonNullRestURL.isBlank() && (nonNullGRPCHost.isBlank() || nonNullGRPCPort.isBlank())) {
+        boolean restURLProvided = targetEnvironmentDetails.getRestURL() != null &&
+                !StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getBaseURL()).isBlank();
+        if (!restURLProvided && (nonNullGRPCHost.isBlank() || nonNullGRPCPort.isBlank())) {
             throw new GeneratorException("Either restURL (for REST endpoint) or gRPCHost & gRPCPort (for gRPC endpoint) " +
                     "must be provided in environment target YAML");
         }
@@ -128,13 +130,24 @@ public class CLIProcessor {
             authHandler = new BasicAuthHandler(targetEnvironmentDetails.getUsername(),
                     targetEnvironmentDetails.getPassword());
         }
-        if (!nonNullRestURL.isBlank()) {
+        if (restURLProvided) {
+            String restBaseURL = targetEnvironmentDetails.getRestURL().getBaseURL();
             try {
-                new URI(nonNullRestURL);
+                new URI(restBaseURL);
             } catch (URISyntaxException e) {
                 log.warn("Invalid rest URL provided in environment target YAML", e);
             }
-            return new RESTPayloadHandler(nonNullRestURL, authHandler);
+            RESTPayloadHandler restPayloadHandler = new RESTPayloadHandler(restBaseURL, authHandler);
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getMetricsPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getMetricsPath());
+            }
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getLogsPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getLogsPath());
+            }
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getTracesPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getTracesPath());
+            }
+            return restPayloadHandler;
         }
         int gRPCPort;
         try {
