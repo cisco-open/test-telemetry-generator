@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry.cli;
+package io.opentelemetry.contrib.generator.telemetry.cli.dto;
 
 import lombok.Data;
 
 @Data
 public class TargetEnvironmentDetails {
 
-    private String restURL;
+    private RestURL restURL;
     private String gRPCHost;
     private String gRPCPort;
     private String authMode;
