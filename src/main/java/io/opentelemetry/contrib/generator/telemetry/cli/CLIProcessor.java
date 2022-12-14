@@ -118,6 +118,13 @@ public class CLIProcessor {
                     "must be provided in environment target YAML");
         }
         AuthHandler authHandler;
+        if (targetEnvironmentDetails.getAuthMode() == null) {
+            throw new GeneratorException("Missing authMode in environment target YAML");
+        }
+        if (!(targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("NONE") ||
+                targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("BASIC"))) {
+            throw new GeneratorException("Invalid authMode in environment target YAML. Allowed - NONE, BASIC");
+        }
         if (targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("NONE")) {
             authHandler = new NoAuthHandler();
         } else {
