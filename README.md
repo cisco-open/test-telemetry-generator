@@ -38,13 +38,6 @@ curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/ma
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/simple/trace-definition.yaml
 ```
 
-Your `my-test-telemetry` directory should now contain the following files:
-
-```shell
-$ ls
-cli-target-rest.yaml  entity-definition.yaml  test-telemetry-generator-otel-proto-0.18.0-fatjar.jar  trace-definition.yaml
-```
-
 Next, create a file called `cli-target-rest.yml` with an editor of your choice and set the `restURL` to your OTLP HTTP endpoint. For example, if you use an [OpenTelemetry
 Collector](https://opentelemetry.io/docs/collector/) running on `localhost` with an `otlp` receiver listening on port `4318`, update your target config to look like the following:
 
@@ -52,6 +45,14 @@ Collector](https://opentelemetry.io/docs/collector/) running on `localhost` with
 authMode: none
 restURL: http://localhost:4318/v1/traces
 ```
+
+Your `my-test-telemetry` directory should now contain the following files:
+
+```shell
+$ ls
+cli-target-rest.yaml  entity-definition.yaml  test-telemetry-generator-otel-proto-0.18.0-fatjar.jar  trace-definition.yaml
+```
+
 
 Finally, start the test-telemetry-generator:
 
