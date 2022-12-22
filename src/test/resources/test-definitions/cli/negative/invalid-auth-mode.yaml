@@ -1,0 +1,5 @@
+authMode: "SSO"
+username: "username"
+password: "password"
+grpchost: "localhost"
+grpcport: "3387"

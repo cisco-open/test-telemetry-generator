@@ -1,0 +1,4 @@
+authMode: "basic"
+password: "password"
+restURL:
+  baseURL: "http://localhost:3388"
