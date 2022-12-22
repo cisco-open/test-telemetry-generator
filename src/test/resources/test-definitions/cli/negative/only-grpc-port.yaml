@@ -1,0 +1,4 @@
+authMode: "basic"
+username: "username"
+password: "password"
+grpcport: "3387"
