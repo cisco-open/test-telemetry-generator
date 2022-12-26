@@ -24,17 +24,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
-public class Entities {
+public class Resources {
 
-    private List<EntityDefinition> entities;
+    private List<ResourceDefinition> resources;
     private boolean hasRuntimeModifications;
 
     public Set<String> validate() {
-        Set<String> allEntityNames = entities.stream().map(EntityDefinition::getName).collect(Collectors.toSet());
-        for (EntityDefinition eachType: entities) {
-            eachType.validate(allEntityNames);
+        Set<String> allResourceNames = resources.stream().map(ResourceDefinition::getName).collect(Collectors.toSet());
+        for (ResourceDefinition eachType: resources) {
+            eachType.validate(allResourceNames);
             hasRuntimeModifications = hasRuntimeModifications || CollectionUtils.emptyIfNull(eachType.getRuntimeModifications()).size() > 0;
         }
-        return allEntityNames;
+        return allResourceNames;
     }
 }

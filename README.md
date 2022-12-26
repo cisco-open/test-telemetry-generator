@@ -34,7 +34,7 @@ You can do all of that in the command line using [curl](https://curl.se/) like t
 mkdir my-test-telemetry
 cd my-test-telemetry
 curl -O -L https://github.com/cisco-open/test-telemetry-generator/releases/latest/download/test-telemetry-generator-otel-proto-0.18.0-fatjar.jar
-curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/entity-definition.yaml
+curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/resource-definition.yaml
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/trace-definition.yaml
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/cli-target-rest.yaml
 ```
@@ -43,7 +43,7 @@ Your `my-test-telemetry` directory should now contain the following files:
 
 ```shell
 $ ls
-cli-target-rest.yaml  entity-definition.yaml  test-telemetry-generator-otel-proto-0.18.0-fatjar.jar  trace-definition.yaml
+cli-target-rest.yaml  resource-definition.yaml  test-telemetry-generator-otel-proto-0.18.0-fatjar.jar  trace-definition.yaml
 ```
 
 Next, open the `cli-target-rest.yml` with an editor of your choice and set the `restURL` to your OTLP HTTP endpoint. For example, if you use an [OpenTelemetry
@@ -57,7 +57,7 @@ restURL: http://localhost:4318/v1/traces
 Finally, start the test-telemetry-generator:
 
 ```shell
-java -jar test-telemetry-generator-otel-proto-0.18.0-fatjar.jar -e entity-definition.yaml -s trace-definition.yaml -t cli-target-rest.yaml
+java -jar test-telemetry-generator-otel-proto-0.18.0-fatjar.jar -e resource-definition.yaml -s trace-definition.yaml -t cli-target-rest.yaml
 ```
 
 If all goes well, you should see test-telemetry-generator printing out some logs for you:

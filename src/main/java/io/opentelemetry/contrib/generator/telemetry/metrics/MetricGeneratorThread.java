@@ -16,11 +16,11 @@
 
 package io.opentelemetry.contrib.generator.telemetry.metrics;
 
-import io.opentelemetry.contrib.generator.core.dto.GeneratorEntity;
+import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
-import io.opentelemetry.contrib.generator.telemetry.EntityModelProvider;
+import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
@@ -69,19 +69,19 @@ public class MetricGeneratorThread implements Runnable {
 
     @Override
     public void run() {
-        log.debug(requestID + ": Metric generator thread invoked for entity type: " + groupKey + " with metrics: " +
+        log.debug(requestID + ": Metric generator thread invoked for resource type: " + groupKey + " with metrics: " +
                 metrics.stream().map(MetricDefinition::getName).collect(Collectors.toList()));
         if (metricGeneratorState.isGenerateData() && currentCount < metrics.get(0).getPayloadCount()) {
             List<ResourceMetrics> resourceMetricsList = new ArrayList<>();
             ResourceMetrics resourceMetric;
             List<Metric> otelMetrics = metrics.stream()
                     .map(this::getMetric).collect(Collectors.toList());
-            List<Resource> entities = EntityModelProvider.getEntityModel(requestID).get(groupKey.split("::")[0]).stream()
-                    .filter(GeneratorEntity::isActive)
-                    .map(GeneratorEntity::getOTelResource)
+            List<Resource> resources = ResourceModelProvider.getResourceModel(requestID).get(groupKey.split("::")[0]).stream()
+                    .filter(GeneratorResource::isActive)
+                    .map(GeneratorResource::getOTelResource)
                     .collect(Collectors.toList());
-            log.debug(requestID + ": Preparing " + entities.size() + " resource metric packets for " + groupKey);
-            for (Resource eachResource: entities) {
+            log.debug(requestID + ": Preparing " + resources.size() + " resource metric packets for " + groupKey);
+            for (Resource eachResource: resources) {
                 resourceMetric = ResourceMetrics.newBuilder()
                         .setResource(eachResource)
                         .addScopeMetrics(ScopeMetrics.newBuilder()

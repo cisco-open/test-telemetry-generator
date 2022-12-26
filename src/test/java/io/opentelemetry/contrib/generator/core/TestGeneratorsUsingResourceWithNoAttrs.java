@@ -10,18 +10,18 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
-public class TestGeneratorsUsingEntityWithNoAttrs {
+public class TestGeneratorsUsingResourceWithNoAttrs {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition-noattrs.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition-noattrs.yaml").toString();
     private final String METRICS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "metrics-noattrsentity.yaml").toString();
+            "test-definitions", "metrics-noattrsresource.yaml").toString();
     private final PayloadHandler payloadStore = new TestPayloadHandler();
     private TestPayloadHandler testStore;
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML)
                 .withMetricDefinitionYAML(METRICS_YAML)
                 .build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore, true);

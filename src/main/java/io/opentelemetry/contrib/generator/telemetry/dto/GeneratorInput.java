@@ -18,7 +18,7 @@ package io.opentelemetry.contrib.generator.telemetry.dto;
 
 
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
-import io.opentelemetry.contrib.generator.core.dto.Entities;
+import io.opentelemetry.contrib.generator.core.dto.Resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.opentelemetry.contrib.generator.telemetry.logs.dto.Logs;
@@ -34,9 +34,9 @@ import java.util.Set;
 
 public class GeneratorInput {
 
-    private String entityDefinitionYAML;
+    private String resourceDefinitionYAML;
     @Getter
-    private Entities entityDefinitions;
+    private Resources resourceDefinitions;
     private String metricDefinitionYAML;
     @Getter
     private Metrics metricDefinitions;
@@ -56,7 +56,7 @@ public class GeneratorInput {
     private final boolean loadJSONs;
 
     private GeneratorInput(YAMLFilesBuilder yamlFilesBuilder) {
-        this.entityDefinitionYAML = yamlFilesBuilder.entityDefinitionYAML;
+        this.resourceDefinitionYAML = yamlFilesBuilder.resourceDefinitionYAML;
         this.metricDefinitionYAML = yamlFilesBuilder.metricDefinitionYAML;
         this.logDefinitionYAML = yamlFilesBuilder.logDefinitionYAML;
         this.traceDefinitionYAML = yamlFilesBuilder.traceDefinitionYAML;
@@ -68,7 +68,7 @@ public class GeneratorInput {
     }
 
     private GeneratorInput(JSONFilesBuilder jsonFilesBuilder) {
-        this.entityDefinitionYAML = jsonFilesBuilder.entityDefinitionJSON;
+        this.resourceDefinitionYAML = jsonFilesBuilder.resourceDefinitionJSON;
         this.metricDefinitionYAML = jsonFilesBuilder.metricDefinitionJSON;
         this.logDefinitionYAML = jsonFilesBuilder.logDefinitionJSON;
         this.traceDefinitionYAML = jsonFilesBuilder.traceDefinitionJSON;
@@ -80,7 +80,7 @@ public class GeneratorInput {
     }
 
     private GeneratorInput(DTOBuilder dtoBuilder) {
-        this.entityDefinitions = dtoBuilder.entityDefinitions;
+        this.resourceDefinitions = dtoBuilder.resourceDefinitions;
         this.metricDefinitions = dtoBuilder.metricDefinitions;
         this.logDefinitions = dtoBuilder.logDefinitions;
         this.traceDefinitions = dtoBuilder.traceDefinitions;
@@ -91,22 +91,22 @@ public class GeneratorInput {
         loadJSONs = false;
     }
 
-    public static YAMLFilesBuilder builder(String entityDefinitionYAML) {
-        return new YAMLFilesBuilder(entityDefinitionYAML);
+    public static YAMLFilesBuilder builder(String resourceDefinitionYAML) {
+        return new YAMLFilesBuilder(resourceDefinitionYAML);
     }
 
-    public static DTOBuilder builder(Entities entityDefinitions) {
-        return new DTOBuilder(entityDefinitions);
+    public static DTOBuilder builder(Resources resourceDefinitions) {
+        return new DTOBuilder(resourceDefinitions);
     }
 
     public static final class YAMLFilesBuilder {
-        private final String entityDefinitionYAML;
+        private final String resourceDefinitionYAML;
         private String metricDefinitionYAML;
         private String logDefinitionYAML;
         private String traceDefinitionYAML;
 
-        public YAMLFilesBuilder(String entityDefinitionYAML) {
-            this.entityDefinitionYAML = entityDefinitionYAML;
+        public YAMLFilesBuilder(String resourceDefinitionYAML) {
+            this.resourceDefinitionYAML = resourceDefinitionYAML;
         }
 
         public YAMLFilesBuilder withMetricDefinitionYAML(String metricDefinitionYAML) {
@@ -130,13 +130,13 @@ public class GeneratorInput {
     }
 
     public static final class JSONFilesBuilder {
-        private final String entityDefinitionJSON;
+        private final String resourceDefinitionJSON;
         private String metricDefinitionJSON;
         private String logDefinitionJSON;
         private String traceDefinitionJSON;
 
-        public JSONFilesBuilder(String entityDefinitionJSON ) {
-            this.entityDefinitionJSON = entityDefinitionJSON;
+        public JSONFilesBuilder(String resourceDefinitionJSON) {
+            this.resourceDefinitionJSON = resourceDefinitionJSON;
         }
 
         public JSONFilesBuilder withMetricDefinitionYAML(String metricDefinitionYAML) {
@@ -160,13 +160,13 @@ public class GeneratorInput {
     }
 
     public static final class DTOBuilder {
-        private final Entities entityDefinitions;
+        private final Resources resourceDefinitions;
         private Metrics metricDefinitions;
         private Logs logDefinitions;
         private Traces traceDefinitions;
 
-        public DTOBuilder(Entities entityDefinitions) {
-            this.entityDefinitions = entityDefinitions;
+        public DTOBuilder(Resources resourceDefinitions) {
+            this.resourceDefinitions = resourceDefinitions;
         }
 
         public DTOBuilder withMetricDefinitions(Metrics metricDefinitions) {
@@ -191,15 +191,15 @@ public class GeneratorInput {
 
     public void validate(String requestID) {
         checkPreconditions();
-        Set<String> allEntityTypes = entityDefinitions.validate();
+        Set<String> allResourceTypes = resourceDefinitions.validate();
         if (hasMetrics) {
-            metricDefinitions.validate(requestID, allEntityTypes);
+            metricDefinitions.validate(requestID, allResourceTypes);
         }
         if (hasLogs) {
-            logDefinitions.validate(requestID, allEntityTypes);
+            logDefinitions.validate(requestID, allResourceTypes);
         }
         if (hasTraces) {
-            traceDefinitions.validate(requestID, allEntityTypes);
+            traceDefinitions.validate(requestID, allResourceTypes);
         }
     }
 
@@ -234,8 +234,8 @@ public class GeneratorInput {
     }
 
     private void setDTOs(ObjectMapper fileMapper) throws IOException {
-        File entitiesYAML = validateFile(entityDefinitionYAML);
-        entityDefinitions = fileMapper.readValue(entitiesYAML, Entities.class);
+        File resourcesYAML = validateFile(resourceDefinitionYAML);
+        resourceDefinitions = fileMapper.readValue(resourcesYAML, Resources.class);
         if (hasMetrics) {
             File metricsYAML = validateFile(metricDefinitionYAML);
             metricDefinitions = fileMapper.readValue(metricsYAML, Metrics.class);
@@ -253,13 +253,13 @@ public class GeneratorInput {
     private File validateFile(String filePath) {
         var file = new File(filePath);
         if (!file.exists() || !file.canRead()) {
-            throw new GeneratorException("Unable to read provided YAML: " + filePath);
+            throw new GeneratorException("Unable to read provided file: " + filePath);
         }
         return file;
     }
 
     public static GeneratorInput loadFromEnvironment() {
-        return new YAMLFilesBuilder(System.getenv(Constants.ENTITY_DEFINITION_ENV))
+        return new YAMLFilesBuilder(System.getenv(Constants.RESOURCE_DEFINITION_ENV))
                 .withMetricDefinitionYAML(System.getenv(Constants.METRICS_DEFINITION_ENV))
                 .withLogDefinitionYAML(System.getenv(Constants.LOGS_DEFINITION_ENV))
                 .withTraceDefinitionYAML(System.getenv(Constants.TRACES_DEFINITION_YAML))

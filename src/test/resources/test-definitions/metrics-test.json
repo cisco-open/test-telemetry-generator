@@ -13,7 +13,7 @@
         50,
         100
       ],
-      "reportingEntities": [
+      "reportingResources": [
         "network_interface",
         "container",
         "machine"
@@ -33,7 +33,7 @@
         50,
         100
       ],
-      "reportingEntities": [
+      "reportingResources": [
         "network_interface",
         "container",
         "machine"
@@ -50,7 +50,7 @@
       "aggregationTemporality": "delta",
       "isMonotonic": true,
       "valueFunction": "arithmeticSequence(0, 1, \"/3\")",
-      "reportingEntities": [
+      "reportingResources": [
         "pod"
       ]
     },
@@ -60,7 +60,7 @@
       "otelType": "gauge",
       "valueFunction": "absoluteSineSequence(\"*50\")",
       "isDouble": true,
-      "reportingEntities": [
+      "reportingResources": [
         "node",
         "container",
         "machine",
@@ -77,7 +77,7 @@
       "aggregationTemporality": "delta",
       "valueFunction": "logarithmicSequence(30, 1, \"*1024\")",
       "isDouble": true,
-      "reportingEntities": [
+      "reportingResources": [
         "disk",
         "aws_rds",
         "aws_ebs",
@@ -93,7 +93,7 @@
       "otelType": "sum",
       "aggregationTemporality": "delta",
       "valueFunction": "controlledRandom(3072, 10240, \"\")",
-      "reportingEntities": [
+      "reportingResources": [
         "aws_rds",
         "node",
         "container",

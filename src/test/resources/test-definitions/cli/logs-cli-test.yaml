@@ -22,18 +22,18 @@ logs:
     payloadFrequencySeconds: 20
     payloadCount: 4
     copyCount: 10
-    reportingEntitiesCounts:
+    reportingResourcesCounts:
       container: 10
       pod: 10
   - severityOrderFunction: 'severityDistributionCount(["ERROR", "WARN", "DEBUG"], [1, 1, 4])'
     payloadFrequencySeconds: 20
     payloadCount: 2
     copyCount: 200
-    reportingEntitiesCounts:
+    reportingResourcesCounts:
       node: 30
   - severityOrderFunction: 'severityDistributionPercentage(["INFO", "TRACE"], [20, 80])'
     payloadFrequencySeconds: 10
     payloadCount: 4
-    reportingEntitiesCounts:
+    reportingResourcesCounts:
       machine: 4
       container: 150

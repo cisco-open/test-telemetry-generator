@@ -32,7 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class LogDefinition {
 
     private String severityOrderFunction;
-    private Map<String, Integer> reportingEntitiesCounts;
+    private Map<String, Integer> reportingResourcesCounts;
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
     private Integer copyCount;
@@ -40,13 +40,13 @@ public class LogDefinition {
     @JsonIgnore
     private String id;
 
-    public long validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequencySeconds, int logIndex) {
+    public long validate(String requestID, Set<String> allResourceTypes, Integer globalPayloadFrequencySeconds, int logIndex) {
         id = "log_by_ttg_" + logIndex;
         if (copyCount == null || copyCount < 1) {
             copyCount = 1;
         }
         validateMandatoryFields();
-        validateEntityTypesCount(allEntityTypes);
+        validateResourceTypesCount(allResourceTypes);
         addRequestIDAndLogNameToValueFunction(requestID);
         attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", id, attributes);
         return validatePayloadFrequency(globalPayloadFrequencySeconds);
@@ -56,7 +56,7 @@ public class LogDefinition {
         if (payloadCount == null || payloadCount < 1) {
             throw new GeneratorException("Payload count cannot be less than 1. Update the value in log " + this);
         }
-        if (MapUtils.emptyIfNull(reportingEntitiesCounts).isEmpty()) {
+        if (MapUtils.emptyIfNull(reportingResourcesCounts).isEmpty()) {
             throw new GeneratorException("Mandatory field 'reportingResourcesCount' not provided in log definition YAML for log " + this);
         }
         if (StringUtils.defaultString(severityOrderFunction).isBlank()) {
@@ -83,7 +83,7 @@ public class LogDefinition {
     }
 
     private void revisePayloadFrequencySeconds(){
-        int totalPacketCount = reportingEntitiesCounts.size() * copyCount;
+        int totalPacketCount = reportingResourcesCounts.size() * copyCount;
         String warning = "Revised value of payloadFrequencySeconds to rationalize log Generation to: ";
         if(inBetween(totalPacketCount, 5000, 25000) && payloadFrequencySeconds < 30){
             payloadFrequencySeconds = 30;
@@ -103,23 +103,23 @@ public class LogDefinition {
         attributes = GeneratorUtils.validateAttributes(attributes);
     }
 
-    private void validateEntityTypesCount (Set<String> allEntityTypes) {
-        Map<String, Integer> entityCount = new HashMap<>();
-        for (Map.Entry<String, Integer> eachEntity : MapUtils.emptyIfNull(reportingEntitiesCounts).entrySet()) {
-            if (eachEntity.getKey().trim().length() == 0) {
-                throw new GeneratorException("Blank key or value found in 'reportingEntityCounts'");
+    private void validateResourceTypesCount(Set<String> allResourceTypes) {
+        Map<String, Integer> resourceCount = new HashMap<>();
+        for (Map.Entry<String, Integer> eachResource : MapUtils.emptyIfNull(reportingResourcesCounts).entrySet()) {
+            if (eachResource.getKey().trim().length() == 0) {
+                throw new GeneratorException("Blank key or value found in 'reportingResourceCounts'");
             }
-            if (!allEntityTypes.contains(eachEntity.getKey().trim())){
-                throw new GeneratorException("Invalid entity type (" + eachEntity.getKey() + ") found in log definition YAML " +
+            if (!allResourceTypes.contains(eachResource.getKey().trim())){
+                throw new GeneratorException("Invalid resource type (" + eachResource.getKey() + ") found in log definition YAML " +
                         "for log " + this);
             }
-            if (eachEntity.getValue() == null || eachEntity.getValue() < 1){
-                log.warn("Unexpected value of reporting entity count found for " + eachEntity.getKey() + ". Updating value to 1 for log " + this);
-                entityCount.put(eachEntity.getKey().trim(), 1);
+            if (eachResource.getValue() == null || eachResource.getValue() < 1){
+                log.warn("Unexpected value of reporting resource count found for " + eachResource.getKey() + ". Updating value to 1 for log " + this);
+                resourceCount.put(eachResource.getKey().trim(), 1);
             }
-            else entityCount.put(eachEntity.getKey().trim(), eachEntity.getValue());
+            else resourceCount.put(eachResource.getKey().trim(), eachResource.getValue());
         }
-        reportingEntitiesCounts = entityCount;
+        reportingResourcesCounts = resourceCount;
     }
 
     private void addRequestIDAndLogNameToValueFunction(String requestID) {
