@@ -48,7 +48,7 @@ public class CLIProcessor {
             throw new GeneratorException("One of metricDefinition, logDefinition or traceDefinition must be provided");
         }
         PayloadHandler payloadHandler = getPayloadHandler(line.getOptionValue("t"));
-        GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("e"));
+        GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("r"));
         if (line.hasOption("m")) {
             inputBuilder.withMetricDefinitionYAML(line.getOptionValue("m"));
         }
