@@ -57,7 +57,7 @@ restURL: http://localhost:4318/v1/traces
 Finally, start the test-telemetry-generator:
 
 ```shell
-java -jar test-telemetry-generator-otel-proto-0.18.0-fatjar.jar -e resource-definition.yaml -s trace-definition.yaml -t cli-target-rest.yaml
+java -jar test-telemetry-generator-otel-proto-0.18.0-fatjar.jar -r resource-definition.yaml -s trace-definition.yaml -t cli-target-rest.yaml
 ```
 
 If all goes well, you should see test-telemetry-generator printing out some logs for you:
