@@ -32,48 +32,48 @@ public class ValidateExampleDefinitionsTest {
     private final String DEFINITION_PATH = Paths.get(DEFINITION_BASE_PATH, "qa").toString();
 
     @Test
-    public void validateQAEntityAndMetricDefinitions() {
-        String entityDefinitions = Paths.get(DEFINITION_PATH, "entity-definition.yaml").toString();
+    public void validateQAResourceAndMetricDefinitions() {
+        String resourceDefinitions = Paths.get(DEFINITION_PATH, "resource-definition.yaml").toString();
         String metricDefinitions = Paths.get(DEFINITION_PATH, "metric-definition.yaml").toString();
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(entityDefinitions)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(resourceDefinitions)
                 .withMetricDefinitionYAML(metricDefinitions).build();
-        generatorInput.validate("ValidateQAExampleDefinitionsTest_EntityMetricDefinitions");
+        generatorInput.validate("ValidateQAExampleDefinitionsTest_ResourceMetricDefinitions");
     }
 
     @Test
     public void validateQALogDefinitions() {
-        String entityDefinitions = Paths.get(DEFINITION_PATH, "entity-definition.yaml").toString();
+        String resourceDefinitions = Paths.get(DEFINITION_PATH, "resource-definition.yaml").toString();
         String logDefinitions = Paths.get(DEFINITION_PATH, "log-definition.yaml").toString();
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(entityDefinitions)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(resourceDefinitions)
                 .withLogDefinitionYAML(logDefinitions).build();
         generatorInput.validate("ValidateQAExampleDefinitionsTest_LogDefinitions");
     }
 
     @Test
     public void validateQATraceDefinitions() {
-        String entityDefinitions = Paths.get(DEFINITION_PATH, "entity-definition.yaml").toString();
+        String resourceDefinitions = Paths.get(DEFINITION_PATH, "resource-definition.yaml").toString();
         String traceDefinitions = Paths.get(DEFINITION_PATH, "trace-definition.yaml").toString();
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(entityDefinitions)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(resourceDefinitions)
                 .withTraceDefinitionYAML(traceDefinitions).build();
         generatorInput.validate("ValidateQAExampleDefinitionsTest_TraceDefinitions");
     }
 
     @Test
-    public void validateDemoEntityAndTraceDefinitions() {
-        String entityDefinitions = Paths.get(DEFINITION_BASE_PATH, "demo", "entity-definition.yaml").toString();
+    public void validateDemoResourceAndTraceDefinitions() {
+        String resourceDefinitions = Paths.get(DEFINITION_BASE_PATH, "demo", "resource-definition.yaml").toString();
         String tracesDefinitions = Paths.get(DEFINITION_BASE_PATH, "demo", "trace-definition.yaml").toString();
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(entityDefinitions)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(resourceDefinitions)
                 .withTraceDefinitionYAML(tracesDefinitions).build();
-        generatorInput.validate("ValidateDemoExampleDefinitionsTest_EntityTraceDefinitions");
+        generatorInput.validate("ValidateDemoExampleDefinitionsTest_ResourceTraceDefinitions");
     }
 
     @Test
-    public void validateSimpleEntityAndTraceDefinitions() {
-        String entityDefinitions = Paths.get(DEFINITION_BASE_PATH, "simple", "entity-definition.yaml").toString();
+    public void validateSimpleResourceAndTraceDefinitions() {
+        String resourceDefinitions = Paths.get(DEFINITION_BASE_PATH, "simple", "resource-definition.yaml").toString();
         String tracesDefinitions = Paths.get(DEFINITION_BASE_PATH, "simple", "trace-definition.yaml").toString();
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(entityDefinitions)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(resourceDefinitions)
                 .withTraceDefinitionYAML(tracesDefinitions).build();
-        generatorInput.validate("ValidateSimpleExampleDefinitionsTest_EntityTraceDefinitions");
+        generatorInput.validate("ValidateSimpleExampleDefinitionsTest_ResourceTraceDefinitions");
     }
 
     @Test

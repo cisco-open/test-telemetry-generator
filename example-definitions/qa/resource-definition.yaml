@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-entities:
+resources:
   - name: cluster
     count: 3
     childrenDistribution:
@@ -47,7 +47,7 @@ entities:
     attributeOperations:
       - 'copyFromParent("cluster", "k8s.cluster.name")'
     runtimeModifications:
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 2
         modificationQuantity: 5
         endAfterMinutes: 12
@@ -86,11 +86,11 @@ entities:
       - 'modifyFromParent("managed_replicaset", "k8s.replicaset.name", "k8s.pod.owner.name", "")'
       - 'modifyFromParent("managed_replicaset", "k8s.workload.kind", "k8s.pod.owner.kind", "")'
     runtimeModifications:
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 1
         modificationQuantity: 15
         endAfterMinutes: 6
-      - entityModificationType: CHURN
+      - resourceModificationType: CHURN
         modificationFrequencyMinutes: 2
         modificationQuantity: 25
         endAfterMinutes: 8
@@ -164,7 +164,7 @@ entities:
       - 'copyFromParent("pod", "k8s.pod.name")'
       - 'copyFromParent("ec2", "host.name")'
     runtimeModifications:
-      - entityModificationType: REMOVE
+      - resourceModificationType: REMOVE
         modificationFrequencyMinutes: 1
         modificationQuantity: 5
         endAfterMinutes: 5
@@ -195,11 +195,11 @@ entities:
       host.id: 'alphanumericSequence("iaf7").concat("-aws-ec2-").concat(alphanumericSequence("pexe"))'
       host.name: 'alphanumericSequence("cic").concat(".host")'
     runtimeModifications:
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 1
         modificationQuantity: 10
         endAfterMinutes: 6
-      - entityModificationType: REMOVE
+      - resourceModificationType: REMOVE
         modificationFrequencyMinutes: 2
         modificationQuantity: 15
         endAfterMinutes: 8
@@ -239,11 +239,11 @@ entities:
       - 'copyFromParent("service", "service.namespace")'
       - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
     runtimeModifications:
-      - entityModificationType: CHURN
+      - resourceModificationType: CHURN
         modificationFrequencyMinutes: 2
         modificationQuantity: 25
         endAfterMinutes: 8
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 1
         modificationQuantity: 10
         endAfterMinutes: 8
@@ -276,11 +276,11 @@ entities:
       http.host: 'IPv4Sequence("198.134.1.11")'
       http.port: 'roundRobin(["80", "8000", "8080"])'
     runtimeModifications:
-      - entityModificationType: REMOVE
+      - resourceModificationType: REMOVE
         modificationFrequencyMinutes: 1
         modificationQuantity: 3
         endAfterMinutes: 8
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 1
         modificationQuantity: 5
         endAfterMinutes: 6

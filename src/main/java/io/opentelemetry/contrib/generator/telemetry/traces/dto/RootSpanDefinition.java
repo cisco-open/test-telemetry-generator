@@ -42,8 +42,8 @@ public class RootSpanDefinition extends SpanDefinition implements Cloneable {
     @JsonIgnore
     private Map<String, Integer> spansIndexMap; //map having the position/index of each span in the trace tree
 
-    public void validate(String requestID, int traceCompletionTimeoutSecs, Set<String> allEntityTypes, Set<String> childSpanNames) {
-        super.validate(requestID, allEntityTypes, childSpanNames);
+    public void validate(String requestID, int traceCompletionTimeoutSecs, Set<String> allResourceTypes, Set<String> childSpanNames) {
+        super.validate(requestID, allResourceTypes, childSpanNames);
 
         if (payloadCount == null || payloadCount < 1) {
             throw new GeneratorException("Root span with name " + getName() + " has missing or 0 payloadCount.");

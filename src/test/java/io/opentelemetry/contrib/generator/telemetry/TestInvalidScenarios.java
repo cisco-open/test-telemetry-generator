@@ -25,13 +25,13 @@ import java.nio.file.Paths;
 
 public class TestInvalidScenarios {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition.yaml").toString();
     private final TestPayloadHandler payloadStore = new TestPayloadHandler();
 
     @Test(expectedExceptions = GeneratorException.class)
-    public void testOnlyEntitiesYAML() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML).build();
+    public void testOnlyResourcesYAML() {
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML).build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore);
         telemetryGenerator.runGenerator();
     }

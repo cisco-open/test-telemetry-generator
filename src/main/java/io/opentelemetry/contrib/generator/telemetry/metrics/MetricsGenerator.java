@@ -76,9 +76,9 @@ public class MetricsGenerator {
     }
 
     /**
-     * Since the metric generator threads are grouped by entity type rather than each metric, we need to also consider
+     * Since the metric generator threads are grouped by resource type rather than each metric, we need to also consider
      * metrics having different payload count and/or payload frequency. To handle this, we introduce the concept of a group key
-     * which is obtained as - reportingEntityType::payloadFrequency::payloadCount. <p>
+     * which is obtained as - reportingResourceType::payloadFrequency::payloadCount. <p>
      * After the grouping, we need to add the group key to expression method parameters to identify each group uniquely
      * when processing the value expressions.
      * @return list of metrics grouped by group key
@@ -91,7 +91,7 @@ public class MetricsGenerator {
                 "absoluteCosineSequenceSummary", "absoluteTangentSequence", "absoluteTangentSequenceSummary"));
         Map<String, List<MetricDefinition>> metricThreadGroups = new HashMap<>();
         for (MetricDefinition eachMetric: metrics.getMetrics()) {
-            Set<String> groupKeys = eachMetric.getReportingEntities();
+            Set<String> groupKeys = eachMetric.getReportingResources();
             groupKeys.forEach(eachKey -> {
                 eachKey = eachKey + "::" + eachMetric.getPayloadFrequencySeconds() + "::" + eachMetric.getPayloadCount();
                 MetricDefinition metricDefinition = getMetricWithModifiedExpression(eachKey, eachMetric, expressionsFilter);

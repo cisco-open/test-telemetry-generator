@@ -17,7 +17,7 @@
 package io.opentelemetry.contrib.generator.core;
 
 import io.opentelemetry.contrib.generator.core.jel.JELProvider;
-import io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions;
+import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import jakarta.el.ELProcessor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +48,7 @@ public class TestExpressionMethods {
         }
         //Check all are unique
         Assert.assertEquals(UUIDs1.size(), size, "UUIDs generated were not all unique");
-        EntityModelExpressions.resetCaches();
+        ResourceModelExpressions.resetCaches();
         Set<String> UUIDs2 = new HashSet<>();
         for (int i=0; i<size; i++) {
             UUIDs2.add(jelProcessor.eval(inputExpression).toString());
@@ -136,7 +136,7 @@ public class TestExpressionMethods {
 
     @Test
     public void testMap() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "{\"name\": alphanumericSequence(\"abM\").concat(\"-service\"), " +
                 "\"pod-name\": counter(\"abz-\"), \"owner\": \"dpp-squad\", \"pod-id\": UUIDFromStringCounter(\"pod-abz\"), " +
                 "\"containers\": 3}";
@@ -159,7 +159,7 @@ public class TestExpressionMethods {
 
     @Test
     public void testLong() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "getLong(count() * 200 + 10)";
         List<Long> expectedValues = Arrays.asList(210L, 410L, 610L, 810L, 1010L);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));
@@ -167,7 +167,7 @@ public class TestExpressionMethods {
 
     @Test
     public void testDouble() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "getDouble(count() / 4)";
         List<Double> expectedValues = Arrays.asList(0.25D, 0.5D, 0.75D, 1.0D, 1.25D);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));
@@ -175,7 +175,7 @@ public class TestExpressionMethods {
 
     @Test
     public void testBoolean() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "getBoolean(count() % 2)";
         List<Boolean> expectedValues = Arrays.asList(false, true, false, true, false);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));

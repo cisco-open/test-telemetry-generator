@@ -23,7 +23,7 @@ logs:
     payloadFrequencySeconds: 20
     payloadCount: 10
     copyCount: 1000
-    reportingEntitiesCounts:
+    reportingResourcesCounts:
       container: 10
       pod: 10
   - name: logevents1
@@ -31,12 +31,12 @@ logs:
     payloadFrequencySeconds: 20
     payloadCount: 2
     copyCount: 200
-    reportingEntitiesCounts:
+    reportingResourcesCounts:
       node: 30
   - name: logevents2
     severityOrderFunction: 'severityDistributionPercentage(["INFO", "TRACE"], [20, 80])'
     payloadFrequencySeconds: 10
     payloadCount: 5
-    reportingEntitiesCounts:
+    reportingResourcesCounts:
       ec2: 4
       container: 150

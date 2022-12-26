@@ -32,17 +32,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Internal representation of a single entity/resource.
+ * Internal representation of a single resource.
  */
 @Slf4j
 @Data
-public class GeneratorEntity {
+public class GeneratorResource {
 
-    private String type; //type of this entity. There can be multiple entities of this type.
-    private boolean isActive; //if this entity is currently reporting any MELT data
-    private Resource.Builder otelResource; //OTel representation of the entity
-    private Map<String, List<GeneratorEntity>> childrenByType; //list of all the child entities of this entity, grouped by type
-    private Map<String, List<GeneratorEntity>> parentsByType; //list of all the parent entities of this entity, grouped by type
+    private String type; //type of this resource. There can be multiple resources of this type.
+    private boolean isActive; //if this resource is currently reporting any MELT data
+    private Resource.Builder otelResource; //OTel representation of the resource
+    private Map<String, List<GeneratorResource>> childrenByType; //list of all the child resources of this resource, grouped by type
+    private Map<String, List<GeneratorResource>> parentsByType; //list of all the parent resources of this resource, grouped by type
 
     public Resource getOTelResource() {
         return otelResource.build();
@@ -101,15 +101,15 @@ public class GeneratorEntity {
     }
 
     @Override
-    public boolean equals(Object generatorEntity) {
-        if (!(generatorEntity instanceof GeneratorEntity)) {
+    public boolean equals(Object generatorResource) {
+        if (!(generatorResource instanceof GeneratorResource)) {
             return false;
         }
-        GeneratorEntity compareEntity = (GeneratorEntity) generatorEntity;
-        if (!Objects.equals(this.type, compareEntity.type)) {
+        GeneratorResource compareResource = (GeneratorResource) generatorResource;
+        if (!Objects.equals(this.type, compareResource.type)) {
             return false;
         }
-        return this.getAttributes().equals(compareEntity.getAttributes());
+        return this.getAttributes().equals(compareResource.getAttributes());
     }
 
     public Map<String, String> getAttributes() {

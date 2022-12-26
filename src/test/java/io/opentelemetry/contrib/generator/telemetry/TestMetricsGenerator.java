@@ -16,7 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
-import io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions;
+import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.helpers.TestPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
@@ -28,8 +28,8 @@ import java.nio.file.Paths;
 
 public class TestMetricsGenerator {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition.yaml").toString();
     private final String METRICS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "metrics-test.yaml").toString();
     private final PayloadHandler payloadStore = new TestPayloadHandler();
@@ -43,27 +43,27 @@ public class TestMetricsGenerator {
     private final int AWS_RDS_COUNT = 50;
     private final int AWS_EBS_COUNT = 50;
     private final int PAYLOAD_COUNT = 10;
-    private final int REPORTING_ENTITIES_COUNT = NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT + NODE_COUNT +
+    private final int REPORTING_RESOURCES_COUNT = NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT + NODE_COUNT +
             POD_COUNT + DISK_COUNT + AWS_EBS_COUNT + AWS_RDS_COUNT;
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML).withMetricDefinitionYAML(METRICS_YAML).build();
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML).withMetricDefinitionYAML(METRICS_YAML).build();
         TelemetryGenerator generator = new TelemetryGenerator(generatorInput, payloadStore);
         generator.runGenerator();
         testStore = (TestPayloadHandler) payloadStore;
-        EntityModelExpressions.resetCaches();
+        ResourceModelExpressions.resetCaches();
     }
 
     @Test
     public void testPayloadAndPacketCounts() {
-        //Check payload count = payload count * each of 8 types of entities
+        //Check payload count = payload count * each of 8 types of resources
         int payloadCount = 8 * PAYLOAD_COUNT;
         Assert.assertEquals(testStore.getMetricPayloads().size(), payloadCount, "Mismatch in payload count");
-        //Check packet count = payload count * number of entities
-        int expectedPacketCount = REPORTING_ENTITIES_COUNT * PAYLOAD_COUNT;
+        //Check packet count = payload count * number of resources
+        int expectedPacketCount = REPORTING_RESOURCES_COUNT * PAYLOAD_COUNT;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedPacketCount, "Mismatch in resource metrics packet count");
-        //Check metric count for each metric = number of reporting entities * number of payloads
+        //Check metric count for each metric = number of reporting resources * number of payloads
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TestMetricsGenerator {
         int systemNetworkOutKbSec_Count = (NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
         int podRestarts_Count = POD_COUNT * PAYLOAD_COUNT;
         int cpuUsed_Count = (NODE_COUNT + CONTAINER_COUNT + POD_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
-        int filesystemUsed_Count = (REPORTING_ENTITIES_COUNT - NETWORK_INTERFACE_COUNT) * PAYLOAD_COUNT;
+        int filesystemUsed_Count = (REPORTING_RESOURCES_COUNT - NETWORK_INTERFACE_COUNT) * PAYLOAD_COUNT;
         int memoryUsed_Count = (AWS_RDS_COUNT + NODE_COUNT + CONTAINER_COUNT + POD_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
         Assert.assertEquals(testStore.getMetricsCount().get("system.network.in.kb.sec").get(), systemNetworkInKbSec_Count,
                 "Mismatch in metrics count for metric system.network.in.kb.sec");

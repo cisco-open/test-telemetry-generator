@@ -63,10 +63,10 @@ public class CLIProcessor {
     }
 
     private static Options getOptions() {
-        Option entityDefinition = Option.builder("e")
-                .argName("entityDefinition")
-                .longOpt("entityDefinition")
-                .desc("Path to the entity definition YAML")
+        Option resourceDefinition = Option.builder("r")
+                .argName("resourceDefinition")
+                .longOpt("resourceDefinition")
+                .desc("Path to the resource definition YAML")
                 .hasArg()
                 .required()
                 .build();
@@ -96,7 +96,7 @@ public class CLIProcessor {
                 .required()
                 .build();
         Options options = new Options();
-        options.addOption(entityDefinition);
+        options.addOption(resourceDefinition);
         options.addOption(metricDefinition);
         options.addOption(logsDefinition);
         options.addOption(traceDefinition);

@@ -25,28 +25,28 @@ import org.apache.commons.lang3.RandomStringUtils;
 public class RuntimeModification {
 
     @JsonIgnore
-    private String entityType;
+    private String resourceType;
     @JsonIgnore
     private String modificationId;
-    private EntityModificationType entityModificationType;
+    private ResourceModificationType resourceModificationType;
     private int modificationFrequencyMinutes;
     private int modificationQuantity;
     private int startAfterMinutes;
     private int endAfterMinutes;
 
-    public void validate(String entityType, int originalCount) {
-        this.entityType = entityType;
+    public void validate(String resourceType, int originalCount) {
+        this.resourceType = resourceType;
         modificationId = RandomStringUtils.randomAlphanumeric(16);
-        if (entityModificationType == null || modificationFrequencyMinutes < 1 || modificationQuantity < 1) {
-            String message = "Invalid runtime modification added for " + entityType +
-                    ". All 3 params: (entityModificationType, modificationFrequencyMinutes, modificationQuantity) must be provided.";
+        if (resourceModificationType == null || modificationFrequencyMinutes < 1 || modificationQuantity < 1) {
+            String message = "Invalid runtime modification added for " + resourceType +
+                    ". All 3 params: (resourceModificationType, modificationFrequencyMinutes, modificationQuantity) must be provided.";
             throw new GeneratorException(message);
         }
-        if (entityModificationType != EntityModificationType.ADD && modificationQuantity > originalCount) {
-            throw new GeneratorException(entityModificationType + " modification type has a modification quantity more than the entity count for " + entityType);
+        if (resourceModificationType != ResourceModificationType.ADD && modificationQuantity > originalCount) {
+            throw new GeneratorException(resourceModificationType + " modification type has a modification quantity more than the resource count for " + resourceType);
         }
         if (endAfterMinutes < modificationFrequencyMinutes) {
-            throw new GeneratorException(entityModificationType + " has an end time of " + endAfterMinutes + " minutes which exceeds the " +
+            throw new GeneratorException(resourceModificationType + " has an end time of " + endAfterMinutes + " minutes which exceeds the " +
                     modificationFrequencyMinutes + " minutes specified for frequency");
         }
     }

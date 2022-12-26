@@ -21,7 +21,7 @@ import lombok.Setter;
 
 import java.util.Set;
 
-public class EntityType {
+public class ResourceType {
 
     @Setter
     @Getter
@@ -32,7 +32,7 @@ public class EntityType {
     @Setter
     private Set<String> childTypes;
 
-    public EntityType(String name) {
+    public ResourceType(String name) {
         this.name = name;
     }
 }

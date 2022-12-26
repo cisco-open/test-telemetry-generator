@@ -30,20 +30,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import static io.opentelemetry.contrib.generator.telemetry.misc.Constants.ENV_ALPHANUMERIC;
 
 /**
- * This holds the implementation for all the supported expressions in entity/resource definition YAML. Since we are using ELProcessor
+ * This holds the implementation for all the supported expressions in resource definition YAML. Since we are using ELProcessor
  * in a standalone context to process the expressions, all the implementing methods have to be public static.
  * @see ELProcessor
  */
 @SuppressWarnings("unused")
-public class EntityModelExpressions {
+public class ResourceModelExpressions {
 
     private static final ConcurrentHashMap<String, Integer> counters = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Double> doubleCounters = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> stringCounters = new ConcurrentHashMap<>();
     private static final ELProcessor jelProcessor = JELProvider.getJelProcessor();
-    public static String expressionsGlobalKey = ""; //Modified by the entity model generator every time a new entity/attribute is being processed
+    public static String expressionsGlobalKey = ""; //Modified by the resource model generator every time a new resource/attribute is being processed
 
-    private EntityModelExpressions() {}
+    private ResourceModelExpressions() {}
 
     /**
      * Returns a string prefix to a counter value. Counter is stateful & is linked to the input string.
@@ -112,7 +112,7 @@ public class EntityModelExpressions {
     /**
      * Takes the value set for ENV_ALPHANUMERIC in the environment or the system property and calculates the next
      * alphanumeric sequence.
-     * @see EntityModelExpressions#alphanumericSequence(String)
+     * @see ResourceModelExpressions#alphanumericSequence(String)
      * @return Next alphanumeric string based on input provided via environment variable or system property.
      */
     public static String alphanumericSequenceFromEnv() {

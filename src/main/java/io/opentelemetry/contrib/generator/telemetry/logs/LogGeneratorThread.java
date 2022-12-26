@@ -16,8 +16,8 @@
 
 package io.opentelemetry.contrib.generator.telemetry.logs;
 
-import io.opentelemetry.contrib.generator.core.dto.GeneratorEntity;
-import io.opentelemetry.contrib.generator.telemetry.EntityModelProvider;
+import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
+import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
@@ -71,10 +71,10 @@ public class LogGeneratorThread implements Runnable {
             ResourceLogs resourceLog;
             LogRecord logRecord = getLog(logDefinition);
             List<LogRecord> otelLogs = Collections.nCopies(logDefinition.getCopyCount(), logRecord);
-            for (Map.Entry<String, Integer> reportingEntity : logDefinition.getReportingEntitiesCounts().entrySet()) {
-                List<Resource> postToEntities = getEntitySubsetByPostCount(reportingEntity.getKey(), reportingEntity.getValue());
-                log.debug(requestID + ": Preparing " + postToEntities.size() + " resource logs packets for " + reportingEntity);
-                for (Resource eachResource: postToEntities) {
+            for (Map.Entry<String, Integer> reportingResource : logDefinition.getReportingResourcesCounts().entrySet()) {
+                List<Resource> postToResources = getResourceSubsetByPostCount(reportingResource.getKey(), reportingResource.getValue());
+                log.debug(requestID + ": Preparing " + postToResources.size() + " resource logs packets for " + reportingResource);
+                for (Resource eachResource: postToResources) {
                     resourceLog = ResourceLogs.newBuilder()
                             .setResource(eachResource)
                             .addInstrumentationLibraryLogs(InstrumentationLibraryLogs.newBuilder()
@@ -87,13 +87,13 @@ public class LogGeneratorThread implements Runnable {
                             .build();
                     resourceLogsList.add(resourceLog);
                 }
-                log.info(requestID + ": Sending payload for: " + reportingEntity);
+                log.info(requestID + ": Sending payload for: " + reportingResource);
                 ExportLogsServiceRequest resourceLogs = ExportLogsServiceRequest.newBuilder().addAllResourceLogs(resourceLogsList).build();
                 boolean responseStatus = payloadHandler.postPayload(resourceLogs);
                 if (logGeneratorState.getTransportStorage() != null) {
-                    logGeneratorState.getTransportStorage().store(logDefinition.getName(), reportingEntity.getKey(), resourceLogs, responseStatus);
+                    logGeneratorState.getTransportStorage().store(logDefinition.getName(), reportingResource.getKey(), resourceLogs, responseStatus);
                 }
-                log.debug(requestID + ": Complete payload for entity: " + reportingEntity + " in log Definition" + logDefinition.getName() + ": " + resourceLogs);
+                log.debug(requestID + ": Complete payload for resource: " + reportingResource + " in log Definition" + logDefinition.getName() + ": " + resourceLogs);
                 resourceLogsList.clear();
             }
             currentPayloadCount++;
@@ -112,19 +112,19 @@ public class LogGeneratorThread implements Runnable {
                 .build();
     }
 
-    private List<Resource> getEntitySubsetByPostCount(String entityName, int entityCount) {
-        int entityStartIndex = 0;
-        //entityEndIndex is exclusive
-        int entityEndIndex;
-        List<GeneratorEntity> entitiesInEntityModel = EntityModelProvider.getEntityModel(requestID).get(entityName).stream()
-                .filter(GeneratorEntity::isActive).collect(Collectors.toList());
-        if (entityCount >= entitiesInEntityModel.size()) {
-            entityEndIndex = entitiesInEntityModel.size();
+    private List<Resource> getResourceSubsetByPostCount(String resourceName, int resourceCount) {
+        int resourceStartIndex = 0;
+        //resourceEndIndex is exclusive
+        int resourceEndIndex;
+        List<GeneratorResource> resourcesInResourceModel = ResourceModelProvider.getResourceModel(requestID).get(resourceName).stream()
+                .filter(GeneratorResource::isActive).collect(Collectors.toList());
+        if (resourceCount >= resourcesInResourceModel.size()) {
+            resourceEndIndex = resourcesInResourceModel.size();
         } else {
-            entityStartIndex = currentPayloadCount % (entitiesInEntityModel.size() - entityCount + 1);
-            entityEndIndex = entityStartIndex + entityCount;
+            resourceStartIndex = currentPayloadCount % (resourcesInResourceModel.size() - resourceCount + 1);
+            resourceEndIndex = resourceStartIndex + resourceCount;
         }
-        return entitiesInEntityModel.subList(entityStartIndex, entityEndIndex)
-                .stream().map(GeneratorEntity::getOTelResource).collect(Collectors.toList());
+        return resourcesInResourceModel.subList(resourceStartIndex, resourceEndIndex)
+                .stream().map(GeneratorResource::getOTelResource).collect(Collectors.toList());
     }
 }
