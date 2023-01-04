@@ -16,7 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
-import io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions;
+import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.helpers.TestPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
@@ -28,8 +28,8 @@ import java.nio.file.Paths;
 
 public class TestLogsGenerator {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition.yaml").toString();
     private final String LOGS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "logs-test.yaml").toString();
     private final PayloadHandler payloadStore = new TestPayloadHandler();
@@ -45,11 +45,11 @@ public class TestLogsGenerator {
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML).withLogDefinitionYAML(LOGS_YAML).build();
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML).withLogDefinitionYAML(LOGS_YAML).build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore);
         telemetryGenerator.runGenerator();
         testStore = (TestPayloadHandler) payloadStore;
-        EntityModelExpressions.resetCaches();
+        ResourceModelExpressions.resetCaches();
     }
 
     @Test
@@ -57,16 +57,16 @@ public class TestLogsGenerator {
         //Check payload count = Summation of all post counts per log definition
         int expectedPayloadCount = 2 * POST_COUNT_K8S_LOG + POST_COUNT_LOG_LOG_1 + 2 * POST_COUNT_LOG_LOG_2;
         Assert.assertEquals(testStore.getLogsPayloads().size(), expectedPayloadCount, "Mismatch in payload count");
-        //Check packet count = Summation (payload count * number of entities) for every log
+        //Check packet count = Summation (payload count * number of resources) for every log
         int expectedPacketCount = (CONTAINER_COUNT_K8S + POD_COUNT) * POST_COUNT_K8S_LOG + NODE_COUNT * POST_COUNT_LOG_LOG_1
                 + (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;
         Assert.assertEquals(testStore.getLogsPacketCount(), expectedPacketCount, "Mismatch in resource logs packet count");
-        //Check log count for each log = number of reporting entities * number of payloads defined per log definition
+        //Check log count for each log = number of reporting resources * number of payloads defined per log definition
     }
 
     @Test
     public void testLogsCounts() {
-        //Check total log count for each log = number of reporting entities * number of payloads defined per log definition
+        //Check total log count for each log = number of reporting resources * number of payloads defined per log definition
         int k8sEvents_Count = (POD_COUNT + CONTAINER_COUNT_K8S) * POST_COUNT_K8S_LOG;
         int logEvents1_Count = NODE_COUNT * POST_COUNT_LOG_LOG_1;
         int logEvents2_Count = (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;

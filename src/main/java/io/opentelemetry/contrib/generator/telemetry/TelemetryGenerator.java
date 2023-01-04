@@ -16,15 +16,15 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
-import io.opentelemetry.contrib.generator.core.dto.EntityDefinition;
-import io.opentelemetry.contrib.generator.core.dto.GeneratorEntity;
+import io.opentelemetry.contrib.generator.core.dto.ResourceDefinition;
+import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.logs.LogsGenerator;
 import io.opentelemetry.contrib.generator.telemetry.metrics.MetricsGenerator;
 import io.opentelemetry.contrib.generator.telemetry.traces.TracesGenerator;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.TransportStorage;
-import io.opentelemetry.contrib.generator.core.EntityModelGenerator;
+import io.opentelemetry.contrib.generator.core.ResourceModelGenerator;
 import io.opentelemetry.contrib.generator.core.RuntimeModificationsThread;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class TelemetryGenerator {
     private final String requestID;
     @Getter
     private final TransportStorage transportStorage;
-    private Map<String, List<GeneratorEntity>> entityModel;
+    private Map<String, List<GeneratorResource>> resourceModel;
     @Getter
     private GeneratorsMonitor generatorsMonitor;
 
@@ -78,7 +78,7 @@ public class TelemetryGenerator {
         input.validate(requestID);
         log.info("Received data generation request with metrics = (" + input.isHasMetrics() + "), logs = (" +
                 input.isHasLogs() + "), traces = (" +  input.isHasTraces() + ")");
-        EntityModelProvider.putEntityModel(requestID, getEntityModel());
+        ResourceModelProvider.putResourceModel(requestID, getResourceModel());
         if (input.isHasMetrics()) {
             var metricsGenerator = new MetricsGenerator(input.getMetricDefinitions(), payloadHandler, requestID, transportStorage);
             metricsGenerator.runGenerator();
@@ -93,8 +93,8 @@ public class TelemetryGenerator {
             logsGenerator.runGenerator();
         }
         ScheduledExecutorService runtimeModsExecutor = null;
-        if (input.getEntityDefinitions().isHasRuntimeModifications()) {
-            var runtimeModifications = new RuntimeModificationsThread(requestID, input.getEntityDefinitions().getEntities().stream()
+        if (input.getResourceDefinitions().isHasRuntimeModifications()) {
+            var runtimeModifications = new RuntimeModificationsThread(requestID, input.getResourceDefinitions().getResources().stream()
                     .map(eachType -> CollectionUtils.emptyIfNull(eachType.getRuntimeModifications()))
                     .flatMap(Collection::stream).collect(Collectors.toList()));
             runtimeModsExecutor = Executors.newScheduledThreadPool(1);
@@ -102,18 +102,18 @@ public class TelemetryGenerator {
         }
         generatorsMonitor = new GeneratorsMonitor(requestID, input);
         generatorsMonitor.monitorThreads();
-        if (input.getEntityDefinitions().isHasRuntimeModifications() && runtimeModsExecutor != null) {
+        if (input.getResourceDefinitions().isHasRuntimeModifications() && runtimeModsExecutor != null) {
             runtimeModsExecutor.shutdown();
         }
     }
 
-    public Map<String, List<GeneratorEntity>> getEntityModel() {
-        if (entityModel == null) {
-            Map<String, EntityDefinition> entitiesMap = input.getEntityDefinitions().getEntities().stream()
-                    .collect(Collectors.toMap(EntityDefinition::getName, Function.identity()));
-            var entityModelGenerator = new EntityModelGenerator(entitiesMap, requestID);
-            entityModel = entityModelGenerator.getEntityModel();
+    public Map<String, List<GeneratorResource>> getResourceModel() {
+        if (resourceModel == null) {
+            Map<String, ResourceDefinition> resourcesMap = input.getResourceDefinitions().getResources().stream()
+                    .collect(Collectors.toMap(ResourceDefinition::getName, Function.identity()));
+            var resourceModelGenerator = new ResourceModelGenerator(resourcesMap, requestID);
+            resourceModel = resourceModelGenerator.getResourceModel();
         }
-        return entityModel;
+        return resourceModel;
     }
 }

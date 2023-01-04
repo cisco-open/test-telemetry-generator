@@ -23,13 +23,13 @@ metrics:
     aggregationTemporality: delta
     isMonotonic: true
     valueFunction: 'arithmeticSequence(0, 1, "/3")'
-    reportingEntities: [pod]
+    reportingResources: [pod]
   - name: cpu.used
     unit: "{cores}"
     otelType: gauge
     valueFunction: 'absoluteSineSequence("*50")'
     isDouble: true
-    reportingEntities: [node]
+    reportingResources: [node]
     attributes:
       max.cpu.processes: '[counter("app-process-"), roundRobin(["kernel_task", "java", "mds"])]'
   - name: filesystem.used
@@ -38,14 +38,14 @@ metrics:
     aggregationTemporality: delta
     valueFunction: 'logarithmicSequence(30, 1, "*1024")'
     isDouble: true
-    reportingEntities: [container]
+    reportingResources: [container]
   - name: system.network.in.kb.sec
     unit: kBy/s
     otelType: summary
     valueFunction: 'absoluteCosineSequenceSummary("*7000", 5)'
     isDouble: true
     quantiles: [ 0, 50, 100 ]
-    reportingEntities: [ machine ]
+    reportingResources: [ machine ]
     attributes:
       system.internal.ip: 'IPv4Sequence("10.134.1.34")'
   - name: memory.used
@@ -53,4 +53,4 @@ metrics:
     otelType: sum
     aggregationTemporality: delta
     valueFunction: 'controlledRandom(3072, 10240, "")'
-    reportingEntities: [node, container, pod]
+    reportingResources: [node, container, pod]

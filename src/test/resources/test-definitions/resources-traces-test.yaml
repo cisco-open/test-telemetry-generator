@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-entities:
+resources:
   - name: service
     count: 4
     childrenDistribution:
@@ -34,11 +34,11 @@ entities:
       - 'copyFromParent("service", "service.namespace")'
       - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
     runtimeModifications:
-      - entityModificationType: CHURN
+      - resourceModificationType: CHURN
         modificationFrequencyMinutes: 2
         modificationQuantity: 25
         endAfterMinutes: 8
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 1
         modificationQuantity: 10
         endAfterMinutes: 8
@@ -71,11 +71,11 @@ entities:
       http.host: 'IPv4Sequence("198.134.1.11")'
       http.port: 'roundRobin(["80", "8000", "8080"])'
     runtimeModifications:
-      - entityModificationType: REMOVE
+      - resourceModificationType: REMOVE
         modificationFrequencyMinutes: 1
         modificationQuantity: 3
         endAfterMinutes: 8
-      - entityModificationType: ADD
+      - resourceModificationType: ADD
         modificationFrequencyMinutes: 1
         modificationQuantity: 5
         endAfterMinutes: 6

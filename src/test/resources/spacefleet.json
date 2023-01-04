@@ -1,0 +1,48 @@
+{
+  "applicationData": {
+    "torpedoFired": true
+  },
+  "state": "FLYING",
+  "meltConfigs": {
+    "metrics": {
+      "payloadFrequencySeconds": 60,
+      "payloadCount": 10,
+      "metrics": [
+        {
+          "name": "speed",
+          "unit": "km/s",
+          "otelType": "sum",
+          "isDouble": true,
+          "valueFunction": "controlledRandom(899377.374, 1199169.832, \"\")",
+          "reportingEntities": ["propulsion_system"],
+          "attributes": {
+            "spacecraft.name": "'starship'"
+          }
+        },
+        {
+          "name": "torpedos",
+          "unit": "{torpedos}",
+          "otelType": "sum",
+          "valueFunction": "controlledRandom(17, 17, \"\")",
+          "reportingEntities": ["weapons_controls"],
+          "attributes": {
+            "spacecraft.name": "'starship'"
+          },
+          "attributeOperations" : [
+            "copyFromResource(\"torpedo.tube.id\")"
+          ]
+        }
+      ]
+    },
+    "logs": {
+      "payloadCount": 1,
+      "logs": [
+        {
+          "severityOrderFunction": "severityDistributionCount([\"WARN\"], [1])",
+          "customMessage": "Enemy ship detected",
+          "reportingEntities": ["bridge_controls"]
+        }
+      ]
+    }
+  }
+}

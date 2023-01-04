@@ -36,7 +36,7 @@ public class Constants {
     public static final String DEBUG_SEVERITY = "DEBUG";
     public static final String TRACE_SEVERITY = "TRACE";
 
-    public static final String ENTITY_DEFINITION_ENV = "ENTITY_DEFINITION_YAML";
+    public static final String RESOURCE_DEFINITION_ENV = "RESOURCE_DEFINITION_YAML";
     public static final String METRICS_DEFINITION_ENV = "METRICS_DEFINITION_YAML";
     public static final String LOGS_DEFINITION_ENV = "LOGS_DEFINITION_YAML";
     public static final String TRACES_DEFINITION_YAML = "TRACES_DEFINITION_YAML";

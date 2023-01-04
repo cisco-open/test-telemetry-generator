@@ -16,7 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
-import io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions;
+import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.MELTAttributeGenerators;
 import jakarta.el.ELProcessor;
@@ -163,7 +163,7 @@ public class TestMELTAttributeExpressions {
 
     @Test
     public void testMap() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "{\"name\": alphanumericSequence(\"" + requestID + "\", \"metric\", \"cpu.used\", \"mapexpr\", \"abM\")" +
                 ".concat(\"-service\"), \"pod-name\": counter(\"" + requestID + "\", \"metric\", \"cpu.used\", \"mapeXpr\", \"abz-\"), " +
                 "\"owner\": \"dpp-squad\", \"pod-id\": " +
@@ -187,7 +187,7 @@ public class TestMELTAttributeExpressions {
 
     @Test
     public void testLong() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "getLong(count(\"" + requestID + "\", \"metric\", \"cpu.used\", \"longexpr\") * 200 + 10)";
         List<Long> expectedValues = Arrays.asList(210L, 410L, 610L, 810L, 1010L);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));
@@ -195,7 +195,7 @@ public class TestMELTAttributeExpressions {
 
     @Test
     public void testDouble() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "getDouble(count(\"" + requestID + "\", \"metric\", \"cpu.used\", \"dblexpr\") / 4)";
         List<Double> expectedValues = Arrays.asList(0.25D, 0.5D, 0.75D, 1.0D, 1.25D);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));
@@ -203,7 +203,7 @@ public class TestMELTAttributeExpressions {
 
     @Test
     public void testBoolean() {
-        EntityModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
+        ResourceModelExpressions.expressionsGlobalKey = RandomStringUtils.randomAlphanumeric(16);
         String expression = "getBoolean(count(\"" + requestID + "\", \"metric\", \"cpu.used\", \"boolexpr\") % 2)";
         List<Boolean> expectedValues = Arrays.asList(false, true, false, true, false);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));

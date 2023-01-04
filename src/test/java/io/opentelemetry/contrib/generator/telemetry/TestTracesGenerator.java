@@ -24,7 +24,6 @@ import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
@@ -37,8 +36,8 @@ import java.util.stream.Collectors;
 
 public class TestTracesGenerator {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entities-traces-test.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resources-traces-test.yaml").toString();
     private final String TEST_DEFS_PATH = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions").toString();
     private final String TRACES_YAML = Paths.get(TEST_DEFS_PATH, "trace-definition.yaml").toString();
@@ -47,7 +46,7 @@ public class TestTracesGenerator {
 
     @Test
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML).withTraceDefinitionYAML(TRACES_YAML).build();
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML).withTraceDefinitionYAML(TRACES_YAML).build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore, true);
         telemetryGenerator.runGenerator();
         testStore = (TestPayloadHandler) payloadStore;
@@ -240,7 +239,7 @@ public class TestTracesGenerator {
     @Test
     public void testWithOnlyRootSpans() {
         String onlyRootSpanTraces =  Paths.get(TEST_DEFS_PATH, "trace-definition-onlyrootspans.yaml").toString();
-        GeneratorInput rootSpansGeneratorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML)
+        GeneratorInput rootSpansGeneratorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML)
                 .withTraceDefinitionYAML(onlyRootSpanTraces).build();
         PayloadHandler rootSpansStore = new TestPayloadHandler();
         TelemetryGenerator rootSpansTelemetryGenerator = new TelemetryGenerator(rootSpansGeneratorInput, rootSpansStore, false);
