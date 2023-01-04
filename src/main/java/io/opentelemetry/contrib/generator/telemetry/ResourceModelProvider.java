@@ -16,24 +16,24 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
-import io.opentelemetry.contrib.generator.core.dto.GeneratorEntity;
+import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class EntityModelProvider {
+public class ResourceModelProvider {
 
-    private static final ConcurrentMap<String, Map<String, List<GeneratorEntity>>> entityModels = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Map<String, List<GeneratorResource>>> resourceModels = new ConcurrentHashMap<>();
 
-    private EntityModelProvider() {}
+    private ResourceModelProvider() {}
 
-    public static void putEntityModel(String requestID, Map<String, List<GeneratorEntity>> entityModel) {
-        entityModels.put(requestID, entityModel);
+    public static void putResourceModel(String requestID, Map<String, List<GeneratorResource>> resourceModel) {
+        resourceModels.put(requestID, resourceModel);
     }
 
-    public static Map<String, List<GeneratorEntity>> getEntityModel(String requestID) {
-        return entityModels.get(requestID);
+    public static Map<String, List<GeneratorResource>> getResourceModel(String requestID) {
+        return resourceModels.get(requestID);
     }
 }

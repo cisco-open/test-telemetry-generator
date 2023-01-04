@@ -16,7 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
-import io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions;
+import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.helpers.TestPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
@@ -28,8 +28,8 @@ import java.nio.file.Paths;
 
 public class TestMetricsGeneratorWithOverrides {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition.yaml").toString();
     private final String METRICS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "metrics-overrides-test.yaml").toString();
     private final PayloadHandler payloadStore = new TestPayloadHandler();
@@ -45,11 +45,11 @@ public class TestMetricsGeneratorWithOverrides {
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML).withMetricDefinitionYAML(METRICS_YAML).build();
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML).withMetricDefinitionYAML(METRICS_YAML).build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore);
         telemetryGenerator.runGenerator();
         testStore = (TestPayloadHandler) payloadStore;
-        EntityModelExpressions.resetCaches();
+        ResourceModelExpressions.resetCaches();
     }
 
     @Test
@@ -65,12 +65,12 @@ public class TestMetricsGeneratorWithOverrides {
         int payloadCount = NW_IFC_PAYLOADS + CONTAINER_PAYLOADS + MACHINE_PAYLOADS + NODE_PAYLOADS + POD_PAYLOADS +
                 DISK_PAYLOADS + AWS_RDS_PAYLOADS + AWS_EBS_PAYLOADS;
         Assert.assertEquals(testStore.getMetricPayloads().size(), payloadCount, "Mismatch in payload count");
-        //Check packet count = payload count * number of entities
+        //Check packet count = payload count * number of resources
         int expectedPacketCount = (NW_IFC_PAYLOADS * NETWORK_INTERFACE_COUNT) + (CONTAINER_PAYLOADS * CONTAINER_COUNT) +
                 (MACHINE_PAYLOADS * MACHINE_COUNT) + (NODE_PAYLOADS * NODE_COUNT) + (POD_PAYLOADS * POD_COUNT) +
                 (DISK_PAYLOADS * DISK_COUNT) + (AWS_RDS_PAYLOADS * AWS_RDS_COUNT) + (AWS_EBS_PAYLOADS * AWS_EBS_COUNT);
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedPacketCount, "Mismatch in resource metrics packet count");
-        //Check metric count for each metric = number of reporting entities * number of payloads
+        //Check metric count for each metric = number of reporting resources * number of payloads
     }
 
     @Test

@@ -16,6 +16,6 @@
 
 package io.opentelemetry.contrib.generator.core.dto;
 
-public enum EntityModificationType {
+public enum ResourceModificationType {
     CHURN, ADD, REMOVE
 }

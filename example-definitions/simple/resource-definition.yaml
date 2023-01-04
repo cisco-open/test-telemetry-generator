@@ -14,18 +14,22 @@
 # limitations under the License.
 #
 
-entities:
-  - name: service_instance
-    count: 150
+resources:
+  - name: service
+    count: 2
     childrenDistribution:
-      instance_endpoint: 'distribution(1, 0, 0)'
+      service_instance: distribution(1, 1, 1)
     attributes:
-      service.instance.id: '"instance.id-".concat(alphanumericSequence("ceewewsdc"))'
-      service.name: '"service.name-".concat(alphanumericSequence("ksdj3"))'
-      service.namespace: '"service.namespace-".concat(alphanumericSequence("gnrtrvv4"))'
-  - name: instance_endpoint
-    count: 150
+      telemetry.sdk.language: roundRobin(["java", "dotnet"])
+      service.name: roundRobin(["foo", "bar"])
+      service.namespace: '"foobar"'
+  - name: service_instance
+    count: 8
+    attributes:
+      telemetry.sdk.name: '"opentelemetry"'
+      telemetry.sdk.version: counter('1.2.')
     attributeOperations:
-      - 'copyFromParent("service_instance", "service.instance.id")'
-      - 'copyFromParent("service_instance", "service.name")'
-      - 'copyFromParent("service_instance", "service.namespace")'
+      - 'copyFromParent("service", "service.name")'
+      - 'copyFromParent("service", "telemetry.sdk.language")'
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.instance_id", "counter(\"-\")")'

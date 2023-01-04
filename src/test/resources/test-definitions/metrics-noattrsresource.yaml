@@ -23,7 +23,7 @@ metrics:
     valueFunction: 'absoluteCosineSequenceSummary("*7000", 5)'
     isDouble: true
     quantiles: [0, 50, 100]
-    reportingEntities: [service_instance, instance_endpoint]
+    reportingResources: [service_instance, instance_endpoint]
     attributes:
       system.internal.ip: 'IPv4Sequence("10.134.1.34")'
   - name: system.network.out.kb.sec
@@ -32,7 +32,7 @@ metrics:
     valueFunction: 'randomSummary(1, 10, "*400", 7)'
     isDouble: true
     quantiles: [0, 50, 100]
-    reportingEntities: [service_instance, instance_endpoint]
+    reportingResources: [service_instance, instance_endpoint]
     attributes:
       system.internal.ip: 'IPv4Sequence("10.121.17.65")'
       network.device.type: 'roundRobin(["ethernet", "wired", "wireless"])'

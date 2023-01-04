@@ -39,12 +39,12 @@ public class MetricDefinition implements Cloneable {
     private String valueFunction;
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
-    private Set<String> reportingEntities;
+    private Set<String> reportingResources;
     private Map<String, Object> attributes;
 
-    public void validate(String requestID, Set<String> allEntityTypes, Integer globalPayloadFrequency, Integer globalPayloadCount) {
+    public void validate(String requestID, Set<String> allResourceTypes, Integer globalPayloadFrequency, Integer globalPayloadCount) {
         validateMandatoryFields();
-        validateEntityTypes(allEntityTypes);
+        validateResourceTypes(allResourceTypes);
         setPayloadFrequencyAndPayloadCount(globalPayloadFrequency, globalPayloadCount);
         attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "metric", name, attributes);
         if (isDouble == null) {
@@ -60,8 +60,8 @@ public class MetricDefinition implements Cloneable {
         validateMandatoryField(name, "unit", unit);
         validateMandatoryField(name, "otelType", otelType);
         validateMandatoryField(name, "valueFunction", valueFunction);
-        if (CollectionUtils.emptyIfNull(reportingEntities).isEmpty()) {
-            throw new GeneratorException("Mandatory field 'reportingEntities' not provided in metrics definition YAML for metric " + name);
+        if (CollectionUtils.emptyIfNull(reportingResources).isEmpty()) {
+            throw new GeneratorException("Mandatory field 'reportingResources' not provided in metrics definition YAML for metric " + name);
         }
         validateOTelType();
     }
@@ -98,10 +98,10 @@ public class MetricDefinition implements Cloneable {
         attributes = GeneratorUtils.validateAttributes(attributes);
     }
 
-    private void validateEntityTypes(Set<String> allEntityTypes) {
-        for (String eachEntity: reportingEntities) {
-            if (!allEntityTypes.contains(eachEntity)) {
-                throw new GeneratorException("Invalid entity type (" + eachEntity + ") found in metric definition YAML " +
+    private void validateResourceTypes(Set<String> allResourceTypes) {
+        for (String eachResource: reportingResources) {
+            if (!allResourceTypes.contains(eachResource)) {
+                throw new GeneratorException("Invalid resource type (" + eachResource + ") found in metric definition YAML " +
                         "for metric " + name);
             }
         }

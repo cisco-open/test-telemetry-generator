@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class TestAllGeneratorsWithJSONInput {
-    private final String ENTITIES_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition.json").toString();
+    private final String RESOURCES_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition.json").toString();
     private final String METRICS_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "metrics-test.json").toString();
     private final String LOGS_JSON = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
@@ -31,7 +31,7 @@ public class TestAllGeneratorsWithJSONInput {
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.JSONFilesBuilder(ENTITIES_JSON)
+        GeneratorInput generatorInput = new GeneratorInput.JSONFilesBuilder(RESOURCES_JSON)
                 .withMetricDefinitionYAML(METRICS_JSON)
                 .withLogDefinitionYAML(LOGS_JSON)
                 .withTraceDefinitionYAML(TRACES_JSON)
@@ -52,13 +52,13 @@ public class TestAllGeneratorsWithJSONInput {
         int DISK_COUNT = 100;
         int AWS_RDS_COUNT = 50;
         int AWS_EBS_COUNT = 50;
-        int METRIC_REPORTING_ENTITIES_COUNT = NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT + NODE_COUNT +
+        int METRIC_REPORTING_RESOURCES_COUNT = NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT + NODE_COUNT +
                 POD_COUNT + DISK_COUNT + AWS_EBS_COUNT + AWS_RDS_COUNT;
-        int LOG_REPORTING_ENTITIES_COUNT = CONTAINER_COUNT + NODE_COUNT + 2 * POD_COUNT + MACHINE_COUNT;
+        int LOG_REPORTING_RESOURCES_COUNT = CONTAINER_COUNT + NODE_COUNT + 2 * POD_COUNT + MACHINE_COUNT;
         int metricPayloadCount = 10;
         int logsPayloadCount = 20;
-        int expectedMetricPackets = METRIC_REPORTING_ENTITIES_COUNT * metricPayloadCount;
-        int expectedLogsPackets = LOG_REPORTING_ENTITIES_COUNT * logsPayloadCount;
+        int expectedMetricPackets = METRIC_REPORTING_RESOURCES_COUNT * metricPayloadCount;
+        int expectedLogsPackets = LOG_REPORTING_RESOURCES_COUNT * logsPayloadCount;
         int expectedSpanPackets = 11518;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedMetricPackets, "Mismatch in expected metric packets count");
         Assert.assertEquals(testStore.getLogsPacketCount(), expectedLogsPackets, "Mismatch in expected log packets count");
@@ -68,35 +68,35 @@ public class TestAllGeneratorsWithJSONInput {
     @Test
     public void validateStorageCounts() {
         Assert.assertEquals(transportStorage.getStoredMetricsPayloads().size(), 8,
-                "Mismatch in entity type counts for metric payloads");
+                "Mismatch in resource type counts for metric payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 3,
-                "Mismatch in entity type counts for log payloads");
+                "Mismatch in resource type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("k8slogs").size(), 3,
-                "Mismatch in entity type counts for log payloads");
+                "Mismatch in resource type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("k8slogs").get("pod").size(), 20,
-                "Mismatch in entity type counts for log payloads");
+                "Mismatch in resource type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredTracesPayloads().size(), 8,
-                "Mismatch in entity type counts for trace payloads");
+                "Mismatch in resource type counts for trace payloads");
         Assert.assertEquals(transportStorage.getMetricsResponses().size(), 8,
-                "Mismatch in entity type counts for metric response statuses");
+                "Mismatch in resource type counts for metric response statuses");
         Assert.assertEquals(transportStorage.getLogsResponses().size(), 3,
-                "Mismatch in entity type counts for log response statuses");
+                "Mismatch in resource type counts for log response statuses");
         Assert.assertEquals(transportStorage.getTracesResponses().size(), 8,
-                "Mismatch in entity type counts for trace response statuses");
+                "Mismatch in resource type counts for trace response statuses");
         for (Map.Entry<String, List<ExportMetricsServiceRequest>> metricCounts: transportStorage.getStoredMetricsPayloads().entrySet()) {
-            Assert.assertEquals(metricCounts.getValue().size(), 10, "Expected 10 metric payloads for entity type: " +
+            Assert.assertEquals(metricCounts.getValue().size(), 10, "Expected 10 metric payloads for resource type: " +
                     metricCounts.getKey());
             Assert.assertEquals(transportStorage.getMetricsResponses().get(metricCounts.getKey()).size(), 10,
-                    "Expected 10 metric response statuses for entity type: " + metricCounts.getKey());
+                    "Expected 10 metric response statuses for resource type: " + metricCounts.getKey());
         }
 
         for (Map.Entry<String, Map<String, List<ExportLogsServiceRequest>>> logCounts: transportStorage.getStoredLogsPayloads().entrySet()) {
-            Set<String> entityNames = logCounts.getValue().keySet();
-            for(String name : entityNames){
-                Assert.assertEquals(logCounts.getValue().get(name).size(), 20, "Expected 20 log payloads for entity type: " +
+            Set<String> resourceNames = logCounts.getValue().keySet();
+            for(String name : resourceNames){
+                Assert.assertEquals(logCounts.getValue().get(name).size(), 20, "Expected 20 log payloads for resource type: " +
                         logCounts.getKey());
                 Assert.assertEquals(transportStorage.getLogsResponses().get(logCounts.getKey()).get(name).size(), 20,
-                        "Expected 20 log response statuses for " + "log:entity key: " + logCounts.getKey());
+                        "Expected 20 log response statuses for " + "log:resource key: " + logCounts.getKey());
             }
         }
 

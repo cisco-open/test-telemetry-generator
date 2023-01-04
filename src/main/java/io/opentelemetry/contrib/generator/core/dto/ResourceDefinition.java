@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
-public class EntityDefinition {
+public class ResourceDefinition {
 
     private String name;
     private Integer count;
@@ -40,20 +39,20 @@ public class EntityDefinition {
     @JsonIgnore
     private Integer countWithRuntimeModifications;
 
-    public void validate(Set<String> allEntityNames) {
+    public void validate(Set<String> allResourceNames) {
         validateMandatoryFields();
         validateAttributes();
-        validateChildren(allEntityNames);
+        validateChildren(allResourceNames);
         validateRuntimeModifications();
     }
     
     private void validateMandatoryFields() {
         name = StringUtils.defaultString(name).trim();
         if (name.isBlank()) {
-            throw new GeneratorException("Mandatory field 'name' not provided in entity definition YAML");
+            throw new GeneratorException("Mandatory field 'name' not provided in resource definition YAML");
         }
         if (count == null || count < 1) {
-            throw new GeneratorException("Mandatory field 'count' not provided or less than 1 in entity definition YAML for entity");
+            throw new GeneratorException("Mandatory field 'count' not provided or less than 1 in resource definition YAML for resource");
         }
     }
 
@@ -62,21 +61,21 @@ public class EntityDefinition {
         Map<String, String> attrs = new HashMap<>();
         for (Map.Entry<String, String> eachAttribute: attributes.entrySet()) {
             if (eachAttribute.getKey().trim().length() == 0 || eachAttribute.getValue().trim().length() == 0) {
-                throw new GeneratorException("Blank key or value found in 'attributes' for entity " + name);
+                throw new GeneratorException("Blank key or value found in 'attributes' for resource " + name);
             }
             attrs.put(eachAttribute.getKey().trim(), eachAttribute.getValue().trim());
         }
         attributes = attrs;
     }
 
-    private void validateChildren(Set<String> allEntityNames) {
+    private void validateChildren(Set<String> allResourceNames) {
         if (childrenDistribution == null) {
             return;
         }
         Map<String, String> children = new HashMap<>();
         for (Map.Entry<String, String> eachChild: childrenDistribution.entrySet()) {
-            if (!allEntityNames.contains(eachChild.getKey().trim())) {
-                throw new GeneratorException("Unknown child entity name '" + eachChild.getKey() + "' provided for entity " + name);
+            if (!allResourceNames.contains(eachChild.getKey().trim())) {
+                throw new GeneratorException("Unknown child resource name '" + eachChild.getKey() + "' provided for resource " + name);
             }
             children.put(eachChild.getKey().trim(), eachChild.getValue().trim());
         }

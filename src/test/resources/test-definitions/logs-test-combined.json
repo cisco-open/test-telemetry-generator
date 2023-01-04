@@ -8,7 +8,7 @@
         "log.labels": "{\"generator\": roundRobin([\"Telemetry-Generator\", \"Telemetry-Generator-v2\"]), \"type\": \"k8s\"}"
       },
       "severityOrderFunction": "severityDistributionCount([\"INFO\", \"ERROR\", \"WARN\"], [1, 2, 3])",
-      "reportingEntitiesCounts": {
+      "reportingResourcesCounts": {
         "node": 25,
         "pod": 75,
         "container": 150
@@ -18,7 +18,7 @@
       "name": "logevents1",
       "payloadCount": 20,
       "severityOrderFunction": "severityDistributionCount([\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"], [5, 1, 1, 4])",
-      "reportingEntitiesCounts": {
+      "reportingResourcesCounts": {
         "pod": 75
       }
     },
@@ -27,7 +27,7 @@
       "payloadCount": 20,
       "copyCount": 2,
       "severityOrderFunction": "severityDistributionPercentage([\"INFO\", \"TRACE\"], [20, 10])",
-      "reportingEntitiesCounts": {
+      "reportingResourcesCounts": {
         "machine": 80
       }
     }

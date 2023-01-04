@@ -34,7 +34,7 @@ public class Logs {
     @JsonIgnore
     private Integer totalPayloadCount;
 
-    public void validate(String requestID, Set<String> allEntityTypes) {
+    public void validate(String requestID, Set<String> allResourceTypes) {
         if (globalPayloadFrequencySeconds != null && globalPayloadFrequencySeconds < 10) {
             throw new GeneratorException("Global Payload generation frequency cannot be less than 10 second");
         }
@@ -43,7 +43,7 @@ public class Logs {
         int logIndex = 0;
 
         for (LogDefinition eachLog: logs) {
-            maxPostSeconds = Math.max(maxPostSeconds, eachLog.validate(requestID, allEntityTypes, globalPayloadFrequencySeconds));
+            maxPostSeconds = Math.max(maxPostSeconds, eachLog.validate(requestID, allResourceTypes, globalPayloadFrequencySeconds));
             totalPayloadCount += eachLog.getPayloadCount();
         }
         validateUniqueLogName();

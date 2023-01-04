@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides ELProcessor initialized with all the expression methods supported by the entity/resource model definition YAML.
+ * Provides ELProcessor initialized with all the expression methods supported by the resource model definition YAML.
  */
 public class JELProvider {
 
@@ -34,11 +34,11 @@ public class JELProvider {
     public static ELProcessor getJelProcessor() {
         if (jelProcessor == null) {
             jelProcessor = new ELProcessor();
-            var expressionsClass = "io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions";
+            var expressionsClass = "io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions";
             List<String> methods = Arrays.asList("counter", "UUIDFromStringCounter", "roundRobin", "alphanumericSequenceFromEnv",
                     "alphanumericSequence", "IPv4Sequence", "distribution", "count", "getLong", "getDouble", "getBoolean");
             addMethods(expressionsClass, methods);
-            var operationsClass = "io.opentelemetry.contrib.generator.core.EntityModelGenerator";
+            var operationsClass = "io.opentelemetry.contrib.generator.core.ResourceModelGenerator";
             methods = Arrays.asList("copyFromParent", "modifyFromParent");
             addMethods(operationsClass, methods);
         }

@@ -54,28 +54,28 @@ public class TransportStorage {
         storedTracesPayloads = new ConcurrentHashMap<>();
     }
 
-    public void store(String entityType, GeneratedMessageV3 payload, boolean isSuccess) {
+    public void store(String resourceType, GeneratedMessageV3 payload, boolean isSuccess) {
         if (payload instanceof ExportMetricsServiceRequest) {
-            metricsResponses.putIfAbsent(entityType, new ArrayList<>());
-            storedMetricsPayloads.putIfAbsent(entityType, new ArrayList<>());
-            metricsResponses.get(entityType).add(isSuccess);
-            storedMetricsPayloads.get(entityType).add((ExportMetricsServiceRequest) payload);
+            metricsResponses.putIfAbsent(resourceType, new ArrayList<>());
+            storedMetricsPayloads.putIfAbsent(resourceType, new ArrayList<>());
+            metricsResponses.get(resourceType).add(isSuccess);
+            storedMetricsPayloads.get(resourceType).add((ExportMetricsServiceRequest) payload);
         } else {
-            tracesResponses.putIfAbsent(entityType, new ArrayList<>());
-            storedTracesPayloads.putIfAbsent(entityType, new ArrayList<>());
-            tracesResponses.get(entityType).add(isSuccess);
-            storedTracesPayloads.get(entityType).add((ExportTraceServiceRequest) payload);
+            tracesResponses.putIfAbsent(resourceType, new ArrayList<>());
+            storedTracesPayloads.putIfAbsent(resourceType, new ArrayList<>());
+            tracesResponses.get(resourceType).add(isSuccess);
+            storedTracesPayloads.get(resourceType).add((ExportTraceServiceRequest) payload);
         }
     }
 
-    public void store(String logName, String entityType, GeneratedMessageV3 payload, boolean isSuccess){
+    public void store(String logName, String resourceType, GeneratedMessageV3 payload, boolean isSuccess){
         if (payload instanceof ExportLogsServiceRequest) {
             logsResponses.putIfAbsent(logName, new HashMap<>());
             storedLogsPayloads.putIfAbsent(logName, new HashMap<>());
-            logsResponses.get(logName).putIfAbsent(entityType, new ArrayList<>());
-            storedLogsPayloads.get(logName).putIfAbsent(entityType, new ArrayList<>());
-            logsResponses.get(logName).get(entityType).add(isSuccess);
-            storedLogsPayloads.get(logName).get(entityType).add((ExportLogsServiceRequest) payload);
+            logsResponses.get(logName).putIfAbsent(resourceType, new ArrayList<>());
+            storedLogsPayloads.get(logName).putIfAbsent(resourceType, new ArrayList<>());
+            logsResponses.get(logName).get(resourceType).add(isSuccess);
+            storedLogsPayloads.get(logName).get(resourceType).add((ExportLogsServiceRequest) payload);
         }
     }
 }

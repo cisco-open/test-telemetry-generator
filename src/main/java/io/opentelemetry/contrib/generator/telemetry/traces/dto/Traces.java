@@ -40,7 +40,7 @@ public class Traces {
     @Getter
     private long maxPostSeconds;
 
-    public void validate(String requestID, Set<String> allEntityTypes) {
+    public void validate(String requestID, Set<String> allResourceTypes) {
         if (traceCompletionTimeoutSecs == null || traceCompletionTimeoutSecs < 30) {
             throw new GeneratorException("Trace completion timeout cannot be less than 30 seconds");
         }
@@ -62,8 +62,8 @@ public class Traces {
         if (allSpanNames.size() < (childSpanNames.size() + rootSpanNames.size())) {
             throw new GeneratorException("Some root spans and child spans have the same name");
         }
-        rootSpans.forEach(eachSpan -> eachSpan.validate(requestID, traceCompletionTimeoutSecs, allEntityTypes, childSpanNames));
-        childSpans.forEach(eachSpan -> eachSpan.validate(requestID, allEntityTypes, childSpanNames));
+        rootSpans.forEach(eachSpan -> eachSpan.validate(requestID, traceCompletionTimeoutSecs, allResourceTypes, childSpanNames));
+        childSpans.forEach(eachSpan -> eachSpan.validate(requestID, allResourceTypes, childSpanNames));
     }
 
     /**

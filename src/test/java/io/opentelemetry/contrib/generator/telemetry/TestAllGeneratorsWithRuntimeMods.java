@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 
 public class TestAllGeneratorsWithRuntimeMods {
 
-    private final String ENTITIES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
-            "test-definitions", "entity-definition-runtime-mods.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+            "test-definitions", "resource-definition-runtime-mods.yaml").toString();
     private final String METRICS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "metrics-test-runtime-mods.yaml").toString();
     private final String LOGS_YAML = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
@@ -55,7 +55,7 @@ public class TestAllGeneratorsWithRuntimeMods {
 
     @BeforeClass
     public void generateData() {
-        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(ENTITIES_YAML)
+        GeneratorInput generatorInput = new GeneratorInput.YAMLFilesBuilder(RESOURCES_YAML)
                 .withMetricDefinitionYAML(METRICS_YAML)
                 .withLogDefinitionYAML(LOGS_YAML)
                 .withTraceDefinitionYAML(TRACES_YAML)
