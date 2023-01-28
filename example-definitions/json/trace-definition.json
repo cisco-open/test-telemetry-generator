@@ -1,0 +1,54 @@
+{
+  "traceCompletionTimeoutSecs": 120,
+  "rootSpans": [
+    {
+      "name": "checkout",
+      "spanKind": "SPAN_KIND_SERVER",
+      "reportingResource": "frontend_instance",
+      "attributes": {
+        "http.method": "\"POST\"",
+        "http.url": "\"/checkout/\".concat(UUIDFromStringCounter(\"checkout\"))"
+      },
+      "childSpans": [
+        "doCheckout"
+      ],
+      "payloadCount": 10,
+      "copyCount": 5
+    }
+  ],
+  "childSpans": [
+    {
+      "name": "doCheckout",
+      "errorFrequency": 5,
+      "reportingResource": "checkout_instance",
+      "spanKind": "SPAN_KIND_SERVER",
+      "childSpans": [
+        "sendEmail",
+        "convertCurrency"
+      ],
+      "attributes": {
+        "http.method": "\"POST\"",
+        "http.url": "\"/api/v1/checkout/\".concat(UUIDFromStringCounter(\"checkout\"))"
+      }
+    },
+    {
+      "name": "sendEmail",
+      "reportingResource": "email_instance",
+      "spanKind": "SPAN_KIND_SERVER",
+      "attributes": {
+        "http.method": "\"POST\"",
+        "http.url": "\"/sendEmail\""
+      }
+    },
+    {
+      "name": "convertCurrency",
+      "errorFrequency": 7,
+      "reportingResource": "currency_instance",
+      "spanKind": "SPAN_KIND_SERVER",
+      "attributes": {
+        "http.method": "\"GET\"",
+        "http.url": "\"/currency/convert/\".concat(roundRobin([\"YEN\",\"BZR\"])).concat(\"/\").concat(roundRobin([\"EUR\", \"USD\"]))"
+      }
+    }
+  ]
+}
