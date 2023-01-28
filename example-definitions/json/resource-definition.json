@@ -1,0 +1,116 @@
+{
+  "resources": [
+    {
+      "name": "frontend",
+      "count": 3,
+      "childrenDistribution": {
+        "frontend_instance": "distribution(1, 1, 1)"
+      },
+      "attributes": {
+        "service.name": "\"frontend\"",
+        "service.namespace": "\"opentelemetry-demo\""
+      }
+    },
+    {
+      "name": "frontend_instance",
+      "count": 6,
+      "attributes": {
+        "telemetry.sdk.name": "\"opentelemetry\"",
+        "telemetry.sdk.language": "\"nodejs\"",
+        "telemetry.sdk.version": "counter('1.2.')"
+      },
+      "attributeOperations": [
+        "copyFromParent(\"container\", \"container.name\")",
+        "copyFromParent(\"container\", \"container.id\")",
+        "copyFromParent(\"frontend\", \"service.name\")",
+        "copyFromParent(\"frontend\", \"telemetry.sdk.language\")",
+        "copyFromParent(\"frontend\", \"service.namespace\")",
+        "modifyFromParent(\"frontend\", \"service.name\", \"service.instance_id\", \"counter(\\\"-\\\")\")"
+      ]
+    },
+    {
+      "name": "checkout",
+      "count": 3,
+      "childrenDistribution": {
+        "checkout_instance": "distribution(1, 1, 1)"
+      },
+      "attributes": {
+        "service.name": "\"checkout\"",
+        "service.namespace": "\"opentelemetry-demo\""
+      }
+    },
+    {
+      "name": "checkout_instance",
+      "count": 6,
+      "attributes": {
+        "telemetry.sdk.name": "\"opentelemetry\"",
+        "telemetry.sdk.language": "\"go\"",
+        "telemetry.sdk.version": "counter('1.3.')"
+      },
+      "attributeOperations": [
+        "copyFromParent(\"container\", \"container.name\")",
+        "copyFromParent(\"container\", \"container.id\")",
+        "copyFromParent(\"checkout\", \"service.name\")",
+        "copyFromParent(\"checkout\", \"telemetry.sdk.language\")",
+        "copyFromParent(\"checkout\", \"service.namespace\")",
+        "modifyFromParent(\"checkout\", \"service.name\", \"service.instance_id\", \"counter(\\\"-\\\")\")"
+      ]
+    },
+    {
+      "name": "email",
+      "count": 3,
+      "childrenDistribution": {
+        "email_instance": "distribution(1, 1, 1)"
+      },
+      "attributes": {
+        "service.name": "\"email\"",
+        "service.namespace": "\"opentelemetry-demo\""
+      }
+    },
+    {
+      "name": "email_instance",
+      "count": 6,
+      "attributes": {
+        "telemetry.sdk.name": "\"opentelemetry\"",
+        "telemetry.sdk.language": "\"ruby\"",
+        "telemetry.sdk.version": "counter('0.1.')"
+      },
+      "attributeOperations": [
+        "copyFromParent(\"container\", \"container.name\")",
+        "copyFromParent(\"container\", \"container.id\")",
+        "copyFromParent(\"email\", \"service.name\")",
+        "copyFromParent(\"email\", \"telemetry.sdk.language\")",
+        "copyFromParent(\"email\", \"service.namespace\")",
+        "modifyFromParent(\"email\", \"service.name\", \"service.instance_id\", \"counter(\\\"-\\\")\")"
+      ]
+    },
+    {
+      "name": "currency",
+      "count": 3,
+      "childrenDistribution": {
+        "currency_instance": "distribution(1, 1, 1)"
+      },
+      "attributes": {
+        "service.name": "\"currency\"",
+        "service.namespace": "\"opentelemetry-demo\""
+      }
+    },
+    {
+      "name": "currency_instance",
+      "count": 6,
+      "attributes": {
+        "telemetry.sdk.name": "\"opentelemetry\"",
+        "telemetry.sdk.language": "\"cpp\"",
+        "telemetry.sdk.version": "counter('0.1.')"
+      },
+      "attributeOperations": [
+        "copyFromParent(\"container\", \"container.name\")",
+        "copyFromParent(\"container\", \"container.id\")",
+        "copyFromParent(\"currency\", \"service.name\")",
+        "copyFromParent(\"currency\", \"telemetry.sdk.language\")",
+        "copyFromParent(\"currency\", \"service.namespace\")",
+        "modifyFromParent(\"currency\", \"service.name\", \"service.instance_id\", \"counter(\\\"-\\\")\")"
+      ]
+    }
+  ]
+}
