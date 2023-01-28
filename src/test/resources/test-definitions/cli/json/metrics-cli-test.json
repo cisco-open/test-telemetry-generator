@@ -1,0 +1,105 @@
+{
+  "payloadFrequencySeconds": 10,
+  "payloadCount": 6,
+  "metrics": [
+    {
+      "name": "system.network.in.kb.sec",
+      "unit": "kBy/s",
+      "otelType": "summary",
+      "valueFunction": "absoluteCosineSequenceSummary(\"*7000\", 5)",
+      "isDouble": true,
+      "quantiles": [
+        0,
+        50,
+        100
+      ],
+      "reportingResources": [
+        "network_interface",
+        "container",
+        "machine"
+      ],
+      "attributes": {
+        "system.internal.ip": "IPv4Sequence(\"10.134.1.34\")"
+      }
+    },
+    {
+      "name": "system.network.out.kb.sec",
+      "unit": "kBy/s",
+      "otelType": "summary",
+      "valueFunction": "randomSummary(1, 10, \"*400\", 7)",
+      "isDouble": true,
+      "quantiles": [
+        0,
+        50,
+        100
+      ],
+      "reportingResources": [
+        "network_interface",
+        "container",
+        "machine"
+      ],
+      "attributes": {
+        "system.internal.ip": "IPv4Sequence(\"10.121.17.65\")",
+        "network.device.type": "roundRobin([\"ethernet\", \"wired\", \"wireless\"])"
+      }
+    },
+    {
+      "name": "pod.restarts",
+      "unit": 1,
+      "otelType": "sum",
+      "aggregationTemporality": "delta",
+      "isMonotonic": true,
+      "valueFunction": "arithmeticSequence(0, 1, \"/3\")",
+      "reportingResources": [
+        "pod"
+      ]
+    },
+    {
+      "name": "cpu.used",
+      "unit": "{cores}",
+      "otelType": "gauge",
+      "valueFunction": "absoluteSineSequence(\"*50\")",
+      "isDouble": true,
+      "reportingResources": [
+        "node",
+        "container",
+        "machine",
+        "pod"
+      ],
+      "attributes": {
+        "max.cpu.processes": "[counter(\"app-process-\"), roundRobin([\"kernel_task\", \"java\", \"mds\"])]"
+      }
+    },
+    {
+      "name": "filesystem.used",
+      "unit": "MBy",
+      "otelType": "sum",
+      "aggregationTemporality": "delta",
+      "valueFunction": "logarithmicSequence(30, 1, \"*1024\")",
+      "isDouble": true,
+      "reportingResources": [
+        "disk",
+        "aws_rds",
+        "aws_ebs",
+        "node",
+        "container",
+        "machine",
+        "pod"
+      ]
+    },
+    {
+      "name": "memory.used",
+      "unit": "MBy",
+      "otelType": "sum",
+      "aggregationTemporality": "delta",
+      "valueFunction": "controlledRandom(3072, 10240, \"\")",
+      "reportingResources": [
+        "aws_rds",
+        "node",
+        "container",
+        "machine",
+        "pod"
+      ]
+    }
+  ]
+}

@@ -52,6 +52,22 @@ public class TestCLIProcessor {
         CLIProcessor.main(cliArgs);
     }
 
+    @Test
+    public void testWithJSONFormatInputs() throws ParseException {
+        String cliResourcesPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+                "test-definitions", "cli", "json").toString();
+        String RESOURCES_JSON = Paths.get(cliResourcesPath, "resource-definition.json").toString();
+        String METRICS_JSON = Paths.get(cliResourcesPath, "metrics-cli-test.json").toString();
+        String LOGS_JSON = Paths.get(cliResourcesPath, "logs-cli-test.json").toString();
+        String TRACES_JSON = Paths.get(cliResourcesPath, "traces-cli-test.json").toString();
+        String basicAuthTargetYAML = Paths.get(cliResourcesPath, "..", "target-basicauth.yaml").toString();
+        String[] cliArgs = new String[] {
+                "--resourceDefinition", RESOURCES_JSON, "--metricDefinition", METRICS_JSON, "--logDefinition", LOGS_JSON,
+                "--spanDefinition", TRACES_JSON, "--target", basicAuthTargetYAML, "--jsonFormat"
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
     @Test(expectedExceptions = MissingOptionException.class)
     public void testWithoutResourceDefinition() throws ParseException {
         String noAuthTargetYAML = Paths.get(cliResourcesPath, "target-noauth.yaml").toString();
