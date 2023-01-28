@@ -48,17 +48,33 @@ public class CLIProcessor {
             throw new GeneratorException("One of metricDefinition, logDefinition or traceDefinition must be provided");
         }
         PayloadHandler payloadHandler = getPayloadHandler(line.getOptionValue("t"));
-        GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("r"));
-        if (line.hasOption("m")) {
-            inputBuilder.withMetricDefinitionYAML(line.getOptionValue("m"));
+        GeneratorInput input;
+        if (line.hasOption("j")) {
+            GeneratorInput.JSONFilesBuilder inputBuilder = new GeneratorInput.JSONFilesBuilder(line.getOptionValue("r"));
+            if (line.hasOption("m")) {
+                inputBuilder.withMetricDefinitionJSON(line.getOptionValue("m"));
+            }
+            if (line.hasOption("l")) {
+                inputBuilder.withLogDefinitionJSON(line.getOptionValue("l"));
+            }
+            if (line.hasOption("s")) {
+                inputBuilder.withTraceDefinitionJSON(line.getOptionValue("s"));
+            }
+            input = inputBuilder.build();
+        } else {
+            GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("r"));
+            if (line.hasOption("m")) {
+                inputBuilder.withMetricDefinitionYAML(line.getOptionValue("m"));
+            }
+            if (line.hasOption("l")) {
+                inputBuilder.withLogDefinitionYAML(line.getOptionValue("l"));
+            }
+            if (line.hasOption("s")) {
+                inputBuilder.withTraceDefinitionYAML(line.getOptionValue("s"));
+            }
+            input = inputBuilder.build();
         }
-        if (line.hasOption("l")) {
-            inputBuilder.withLogDefinitionYAML(line.getOptionValue("l"));
-        }
-        if (line.hasOption("s")) {
-            inputBuilder.withTraceDefinitionYAML(line.getOptionValue("s"));
-        }
-        TelemetryGenerator generator = new TelemetryGenerator(inputBuilder.build(), payloadHandler);
+        TelemetryGenerator generator = new TelemetryGenerator(input, payloadHandler);
         generator.runGenerator();
     }
 
@@ -95,12 +111,18 @@ public class CLIProcessor {
                 .hasArg()
                 .required()
                 .build();
+        Option jsonFormatFlag = Option.builder("j")
+                .argName("jsonFormat")
+                .longOpt("jsonFormat")
+                .desc("Flag to use JSON format for input definitions")
+                .build();
         Options options = new Options();
         options.addOption(resourceDefinition);
         options.addOption(metricDefinition);
         options.addOption(logsDefinition);
         options.addOption(traceDefinition);
         options.addOption(targetEnvYAML);
+        options.addOption(jsonFormatFlag);
 
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("test-telemetry-generator-all.jar", options, true);
