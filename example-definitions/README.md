@@ -7,6 +7,7 @@ with the test-telemetry-generator:
 |--------|-------------|
 | [simple](./simple) | A very simple example, start here to learn how to use test-telemetry-generator |
 | [demo](./demo) | An example that simulates (parts of) the [OpenTelemetry demo](https://github.com/open-telemetry/opentelemetry-demo) |
+| [json](./json) | An example in JSON format |
 | [qa](./qa) | A complex example that is used for running quality assurance tests against an OTLP backend |
 
 
