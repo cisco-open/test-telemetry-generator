@@ -139,17 +139,17 @@ public class GeneratorInput {
             this.resourceDefinitionJSON = resourceDefinitionJSON;
         }
 
-        public JSONFilesBuilder withMetricDefinitionYAML(String metricDefinitionYAML) {
+        public JSONFilesBuilder withMetricDefinitionJSON(String metricDefinitionYAML) {
             this.metricDefinitionJSON = metricDefinitionYAML;
             return this;
         }
 
-        public JSONFilesBuilder withLogDefinitionYAML(String logDefinitionYAML) {
+        public JSONFilesBuilder withLogDefinitionJSON(String logDefinitionYAML) {
             this.logDefinitionJSON = logDefinitionYAML;
             return this;
         }
 
-        public JSONFilesBuilder withTraceDefinitionYAML(String traceDefinitionYAML) {
+        public JSONFilesBuilder withTraceDefinitionJSON(String traceDefinitionYAML) {
             this.traceDefinitionJSON = traceDefinitionYAML;
             return this;
         }
