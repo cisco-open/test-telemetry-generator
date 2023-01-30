@@ -34,8 +34,8 @@ You can do all of that in the command line using [curl](https://curl.se/) like t
 mkdir my-test-telemetry
 cd my-test-telemetry
 curl -O -L https://github.com/cisco-open/test-telemetry-generator/releases/latest/download/test-telemetry-generator-otel-proto-0.18.0-fatjar.jar
-curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/resource-definition.yaml
-curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/trace-definition.yaml
+curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/simple/resource-definition.yaml
+curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/simple/trace-definition.yaml
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/cli-target-rest.yaml
 ```
 
@@ -50,8 +50,15 @@ Next, open the `cli-target-rest.yml` with an editor of your choice and set the `
 Collector](https://opentelemetry.io/docs/collector/) running on `localhost` with an `otlp` receiver listening on port `4318`, update your target config to look like the following:
 
 ```yaml
-authMode: none
-restURL: http://localhost:4318/v1/traces
+authMode: "none"
+# Set authmode to 'basic' and uncomment username & password if you need authentication
+# username: "your-username"
+# password: "your-password"
+restURL:
+  baseURL: "http://localhost:4318"
+  metricsPath: "/v1/metrics"
+  logsPath: "/v1/logs"
+  tracesPath: "/v1/traces"
 ```
 
 Finally, start the test-telemetry-generator:
