@@ -1,0 +1,58 @@
+{
+  "traceCompletionTimeoutSecs": 120,
+  "rootSpans": [
+    {
+      "name": "healthCheck",
+      "spanKind": "SPAN_KIND_SERVER",
+      "reportingResource": "http_backend",
+      "attributes": {
+        "type": "roundRobin([\"REST\"])",
+        "url": "roundRobin([\"/healthcheck\"])"
+      },
+      "payloadCount": 4,
+      "copyCount": 20,
+      "payloadFrequencySeconds": 15
+    },
+    {
+      "name": "getAccountDetails",
+      "spanKind": "SPAN_KIND_SERVER",
+      "reportingResource": "request",
+      "childSpans": [
+        "getAccountDetailsHTTPRequest",
+        "getAccountDetailsProcessing"
+      ],
+      "payloadCount": 2,
+      "copyCount": 10
+    }
+  ],
+  "childSpans": [
+    {
+      "name": "getAccountDetailsHTTPRequest",
+      "spanKind": "SPAN_KIND_SERVER",
+      "reportingResource": "http_backend",
+      "attributes": {
+        "request.incoming.host.ip": "IPv4Sequence(\"131.54.24.4\")",
+        "request.incoming.auth.type": "roundRobin([\"MFA\", \"LDAP\", \"OAuth\", \"SSO\"])"
+      }
+    },
+    {
+      "name": "getAccountDetailsProcessing",
+      "spanKind": "SPAN_KIND_INTERNAL",
+      "reportingResource": "service_instance",
+      "childSpans": [
+        "checkAccountDetailsCache",
+        "getAccountDetailsQuery"
+      ]
+    },
+    {
+      "name": "checkAccountDetailsCache",
+      "spanKind": "SPAN_KIND_INTERNAL",
+      "reportingResource": "service_instance"
+    },
+    {
+      "name": "getAccountDetailsQuery",
+      "spanKind": "SPAN_KIND_INTERNAL",
+      "reportingResource": "database_backend"
+    }
+  ]
+}

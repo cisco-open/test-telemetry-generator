@@ -32,9 +32,9 @@ public class TestAllGeneratorsWithJSONInput {
     @BeforeClass
     public void generateData() {
         GeneratorInput generatorInput = new GeneratorInput.JSONFilesBuilder(RESOURCES_JSON)
-                .withMetricDefinitionYAML(METRICS_JSON)
-                .withLogDefinitionYAML(LOGS_JSON)
-                .withTraceDefinitionYAML(TRACES_JSON)
+                .withMetricDefinitionJSON(METRICS_JSON)
+                .withLogDefinitionJSON(LOGS_JSON)
+                .withTraceDefinitionJSON(TRACES_JSON)
                 .build();
         TelemetryGenerator telemetryGenerator = new TelemetryGenerator(generatorInput, payloadStore, true);
         telemetryGenerator.runGenerator();
