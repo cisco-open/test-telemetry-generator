@@ -1,5 +1,6 @@
-authMode: "basic"
-username: "your-username"
-password: "your-password"
-grpchost: "target-gRPC-host"
-grpcport: "target-gRPC-port"
+authMode: none
+# Set authmode to 'basic' and uncomment username & password if you need authentication
+# username: "username"
+# password: "password"
+grpchost: "localhost"
+grpcport: "4317"

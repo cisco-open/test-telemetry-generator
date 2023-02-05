@@ -16,8 +16,8 @@
 
 package io.opentelemetry.contrib.generator.telemetry.traces;
 
-import io.opentelemetry.contrib.generator.core.dto.GeneratorEntity;
-import io.opentelemetry.contrib.generator.telemetry.EntityModelProvider;
+import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
+import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.RootSpanDefinition;
@@ -68,18 +68,18 @@ public class SpansGenerator {
             currentPostCount++;
         }
         Map<String, List<List<Span>>> spanCopiesByResource = getSpanCopiesByResource();
-        Map<String, List<GeneratorEntity>> entityModel = EntityModelProvider.getEntityModel(requestID);
+        Map<String, List<GeneratorResource>> resourceModel = ResourceModelProvider.getResourceModel(requestID);
         List<ResourceSpans> resourceSpansList = new ArrayList<>();
         ResourceSpans resourceSpans;
         for (Map.Entry<String, List<List<Span>>> eachSpanGroup: spanCopiesByResource.entrySet()) {
             for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
                 var copyIndexFinal = copyIndex;
-                List<GeneratorEntity> validEntities = entityModel.get(eachSpanGroup.getKey()).stream()
-                        .filter(GeneratorEntity::isActive).collect(Collectors.toList());
-                int resourceIndex = (currentPostCount + copyIndex) % validEntities.size();
+                List<GeneratorResource> validResources = resourceModel.get(eachSpanGroup.getKey()).stream()
+                        .filter(GeneratorResource::isActive).collect(Collectors.toList());
+                int resourceIndex = (currentPostCount + copyIndex) % validResources.size();
                 List<Span> spans = eachSpanGroup.getValue().stream().map(list -> list.get(copyIndexFinal)).collect(Collectors.toList());
                 resourceSpans = ResourceSpans.newBuilder()
-                        .setResource(validEntities.get(resourceIndex).getOTelResource())
+                        .setResource(validResources.get(resourceIndex).getOTelResource())
                         .addScopeSpans(ScopeSpans.newBuilder()
                                 .setScope(InstrumentationScope.newBuilder()
                                         .setName("@opentelemetry/test-telemetry-generator")

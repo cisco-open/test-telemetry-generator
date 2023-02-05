@@ -3,4 +3,5 @@
 .DS_Store
 build
 /logs
+bin
 gradle/wrapper/gradle-wrapper.jar

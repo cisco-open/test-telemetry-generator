@@ -17,6 +17,7 @@
 package io.opentelemetry.contrib.generator.telemetry.cli;
 
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
+import io.opentelemetry.contrib.generator.telemetry.cli.dto.TargetEnvironmentDetails;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorInput;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.TelemetryGenerator;
@@ -34,6 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Slf4j
 public class CLIProcessor {
@@ -46,25 +49,41 @@ public class CLIProcessor {
             throw new GeneratorException("One of metricDefinition, logDefinition or traceDefinition must be provided");
         }
         PayloadHandler payloadHandler = getPayloadHandler(line.getOptionValue("t"));
-        GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("e"));
-        if (line.hasOption("m")) {
-            inputBuilder.withMetricDefinitionYAML(line.getOptionValue("m"));
+        GeneratorInput input;
+        if (line.hasOption("j")) {
+            GeneratorInput.JSONFilesBuilder inputBuilder = new GeneratorInput.JSONFilesBuilder(line.getOptionValue("r"));
+            if (line.hasOption("m")) {
+                inputBuilder.withMetricDefinitionJSON(line.getOptionValue("m"));
+            }
+            if (line.hasOption("l")) {
+                inputBuilder.withLogDefinitionJSON(line.getOptionValue("l"));
+            }
+            if (line.hasOption("s")) {
+                inputBuilder.withTraceDefinitionJSON(line.getOptionValue("s"));
+            }
+            input = inputBuilder.build();
+        } else {
+            GeneratorInput.YAMLFilesBuilder inputBuilder = new GeneratorInput.YAMLFilesBuilder(line.getOptionValue("r"));
+            if (line.hasOption("m")) {
+                inputBuilder.withMetricDefinitionYAML(line.getOptionValue("m"));
+            }
+            if (line.hasOption("l")) {
+                inputBuilder.withLogDefinitionYAML(line.getOptionValue("l"));
+            }
+            if (line.hasOption("s")) {
+                inputBuilder.withTraceDefinitionYAML(line.getOptionValue("s"));
+            }
+            input = inputBuilder.build();
         }
-        if (line.hasOption("l")) {
-            inputBuilder.withLogDefinitionYAML(line.getOptionValue("l"));
-        }
-        if (line.hasOption("s")) {
-            inputBuilder.withTraceDefinitionYAML(line.getOptionValue("s"));
-        }
-        TelemetryGenerator generator = new TelemetryGenerator(inputBuilder.build(), payloadHandler);
+        TelemetryGenerator generator = new TelemetryGenerator(input, payloadHandler);
         generator.runGenerator();
     }
 
     private static Options getOptions() {
-        Option entityDefinition = Option.builder("e")
-                .argName("entityDefinition")
-                .longOpt("entityDefinition")
-                .desc("Path to the entity definition YAML")
+        Option resourceDefinition = Option.builder("r")
+                .argName("resourceDefinition")
+                .longOpt("resourceDefinition")
+                .desc("Path to the resource definition YAML")
                 .hasArg()
                 .required()
                 .build();
@@ -93,13 +112,18 @@ public class CLIProcessor {
                 .hasArg()
                 .required()
                 .build();
+        Option jsonFormatFlag = Option.builder("j")
+                .argName("jsonFormat")
+                .longOpt("jsonFormat")
+                .desc("Flag to use JSON format for input definitions")
+                .build();
         Options options = new Options();
-        options.addOption(entityDefinition);
+        options.addOption(resourceDefinition);
         options.addOption(metricDefinition);
         options.addOption(logsDefinition);
         options.addOption(traceDefinition);
         options.addOption(targetEnvYAML);
-
+        options.addOption(jsonFormatFlag);
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("test-telemetry-generator-all.jar", options, true);
         return options;
@@ -107,47 +131,63 @@ public class CLIProcessor {
 
     private static PayloadHandler getPayloadHandler(String targetEnvYAML) {
         TargetEnvironmentDetails targetEnvironmentDetails = getTargetEnvDetails(targetEnvYAML);
-        String nonNullRestURL = StringUtils.defaultString(targetEnvironmentDetails.getRestURL());
         String nonNullGRPCHost = StringUtils.defaultString(targetEnvironmentDetails.getGRPCHost());
         String nonNullGRPCPort = StringUtils.defaultString(targetEnvironmentDetails.getGRPCPort());
-        if (nonNullRestURL.isBlank() && (nonNullGRPCHost.isBlank() || nonNullGRPCPort.isBlank())) {
+        boolean restURLProvided = targetEnvironmentDetails.getRestURL() != null &&
+                !StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getBaseURL()).isBlank();
+        if (!restURLProvided && (nonNullGRPCHost.isBlank() || nonNullGRPCPort.isBlank())) {
             throw new GeneratorException("Either restURL (for REST endpoint) or gRPCHost & gRPCPort (for gRPC endpoint) " +
                     "must be provided in environment target YAML");
         }
-        String authMode = targetEnvironmentDetails.getAuthMode() == null ? "" : targetEnvironmentDetails.getAuthMode();
-        authMode = authMode.toUpperCase();
+        String authMode = StringUtils.defaultString(targetEnvironmentDetails.getAuthMode()).toUpperCase();
         if (authMode.isBlank() || (!authMode.equals("NONE") && !authMode.equals("BASIC") && !authMode.equals("OAUTH"))) {
             log.warn("authMode not provided or invalid value provided in environment target YAML. Valid values are - none/basic/oauth." +
                     "Will use none authentication for data posting.");
             authMode = "NONE";
         }
         AuthHandler authHandler;
-        if (authMode.equalsIgnoreCase("NONE")) {
+        if (authMode.equals("NONE")) {
             authHandler = new NoAuthHandler();
-        } else if (authMode.equalsIgnoreCase("BASIC")) {
+        } else if (authMode.equals("BASIC")) {
             if (StringUtils.defaultString(targetEnvironmentDetails.getUsername()).isBlank()) {
-                throw new GeneratorException("Missing username in environment target YAML");
+                throw new GeneratorException("Select auth mode is Basic but username not provided");
             }
             if (StringUtils.defaultString(targetEnvironmentDetails.getPassword()).isBlank()) {
-                throw new GeneratorException("Missing password in environment target YAML");
+                throw new GeneratorException("Select auth mode is Basic but password not provided");
             }
             authHandler = new BasicAuthHandler(targetEnvironmentDetails.getUsername(),
                     targetEnvironmentDetails.getPassword());
         } else {
             if (StringUtils.defaultString(targetEnvironmentDetails.getTokenURL()).isBlank()) {
-                throw new GeneratorException("Missing tokenURL in environment target YAML");
+                throw new GeneratorException("Select auth mode is OAuth but tokenURL not provided");
             }
             if (StringUtils.defaultString(targetEnvironmentDetails.getClientId()).isBlank()) {
-                throw new GeneratorException("Missing clientId in environment target YAML");
+                throw new GeneratorException("Select auth mode is Basic but clientId not provided");
             }
             if (StringUtils.defaultString(targetEnvironmentDetails.getClientSecret()).isBlank()) {
-                throw new GeneratorException("Missing clientSecret in environment target YAML");
+                throw new GeneratorException("Select auth mode is Basic but clientSecret not provided");
             }
             authHandler = new OAuthHandler(targetEnvironmentDetails.getTokenURL(), targetEnvironmentDetails.getClientId(),
                     targetEnvironmentDetails.getClientSecret(), targetEnvironmentDetails.getScope());
         }
-        if (!nonNullRestURL.isBlank()) {
-            return new RESTPayloadHandler(nonNullRestURL, authHandler);
+        if (restURLProvided) {
+            String restBaseURL = targetEnvironmentDetails.getRestURL().getBaseURL();
+            try {
+                new URI(restBaseURL);
+            } catch (URISyntaxException e) {
+                log.warn("Invalid rest URL provided in environment target YAML", e);
+            }
+            RESTPayloadHandler restPayloadHandler = new RESTPayloadHandler(restBaseURL, authHandler);
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getMetricsPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getMetricsPath());
+            }
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getLogsPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getLogsPath());
+            }
+            if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getTracesPath()).isBlank()) {
+                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getTracesPath());
+            }
+            return restPayloadHandler;
         }
         int gRPCPort;
         try {

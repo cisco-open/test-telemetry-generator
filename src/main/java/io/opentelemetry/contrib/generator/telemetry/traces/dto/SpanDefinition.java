@@ -50,9 +50,9 @@ public class SpanDefinition {
     @JsonIgnore
     private long endTimeMillisOffset;
 
-    public void validate(String requestID, Set<String> allEntityTypes, Set<String> allSpanNames) {
+    public void validate(String requestID, Set<String> allResourceTypes, Set<String> allSpanNames) {
         validateMandatoryFields();
-        validateEntityTypes(allEntityTypes);
+        validateResourceTypes(allResourceTypes);
         validateChildSpans(allSpanNames);
         validateTimeOffsets();
         attributes = GeneratorUtils.validateAttributes(attributes);
@@ -75,8 +75,8 @@ public class SpanDefinition {
         }
     }
 
-    public void validateEntityTypes(Set<String> entityTypes) {
-        if (!entityTypes.contains(reportingResource)) {
+    public void validateResourceTypes(Set<String> resourceTypes) {
+        if (!resourceTypes.contains(reportingResource)) {
             throw new GeneratorException("Invalid resource type (" + reportingResource + ") found in trace definition YAML " +
                     "for span " + name);
         }

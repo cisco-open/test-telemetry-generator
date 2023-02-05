@@ -1,0 +1,304 @@
+#
+# Copyright 2022 AppDynamics Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+resources:
+  - name: cluster
+    count: 3
+    childrenDistribution:
+      namespace: 'distribution(3, 0, 0)'
+      node: 'distribution(5, 2, 10)'
+    attributes:
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+  - name: namespace
+    count: 10
+    childrenDistribution:
+      resource_quota: 'distribution(2, 2, 1)'
+      managed_replicaset: 'distribution(2, 0, 0)'
+      workload: 'distribution(3, 5, 5)'
+    attributes:
+      k8s.namespace.name: 'counter("namespace")'
+    attributeOperations:
+      - 'copyFromParent("cluster", "k8s.cluster.name")'
+  - name: node
+    count: 25
+    childrenDistribution:
+      pod: 'distribution(3, 0, 0)'
+    attributes:
+      k8s.node.uid: 'alphanumericSequence("remodel").concat(".node")'
+      k8s.node.name: 'alphanumericSequence("amzc").concat(".node")'
+      cloud.provider: 'roundRobin(["AWS", "GCP", "Azure"])'
+      k8s.node.system.uuid: 'UUIDFromStringCounter("node")'
+      cloud.host.instance.id: 'alphanumericSequence("io1").concat("-").concat(alphanumericSequence("taylbee"))'
+      k8s.node.ip.internal: 'IPv4Sequence("10.134.1.101")'
+      k8s.node.role: 'roundRobin(["master", "worker"])'
+    attributeOperations:
+      - 'copyFromParent("cluster", "k8s.cluster.name")'
+    runtimeModifications:
+      - resourceModificationType: ADD
+        modificationFrequencyMinutes: 2
+        modificationQuantity: 5
+        endAfterMinutes: 12
+  - name: resource_quota
+    count: 25
+    attributes:
+      k8s.rq.name: 'alphanumericSequence("uoi").concat(".resource_quota")'
+      k8s.resource_quota.uid: 'alphanumericSequence("remodel").concat(".resource_quota")'
+    attributeOperations:
+      - 'copyFromParent("namespace", "k8s.cluster.name")'
+      - 'copyFromParent("namespace", "k8s.namespace.name")'
+  - name: workload
+    count: 50
+    childrenDistribution:
+      pod: 'distribution(1, 10, 5)'
+    attributes:
+      k8s.workload.name: 'alphanumericSequence("craps").concat(".workload")'
+    attributeOperations:
+      - 'copyFromParent("namespace", "k8s.cluster.name")'
+      - 'copyFromParent("namespace", "k8s.namespace.name")'
+  - name: pod
+    count: 75
+    childrenDistribution:
+      container: 'distribution(2, 0, 0)'
+    attributes:
+      k8s.pod.ip: 'IPv4Sequence("153.29.54.1")'
+      k8s.pod.status: 'roundRobin(["Pending","Running","Succeeded","Unknown"])'
+      k8s.pod.uid: 'alphanumericSequence("new.model").concat(".pod")'
+    attributeOperations:
+      - 'copyFromParent("workload", "k8s.cluster.name")'
+      - 'copyFromParent("node", "k8s.node.uid")'
+      - 'copyFromParent("workload", "k8s.namespace.name")'
+      - 'copyFromParent("node", "k8s.node.name")'
+      - 'copyFromParent("node", "k8s.node.ip.internal")'
+      - 'modifyFromParent("node", "k8s.cluster.name", "k8s.pod.name", "counter(\"-pod-\")")'
+      - 'modifyFromParent("managed_replicaset", "k8s.replicaset.name", "k8s.pod.owner.name", "")'
+      - 'modifyFromParent("managed_replicaset", "k8s.workload.kind", "k8s.pod.owner.kind", "")'
+    runtimeModifications:
+      - resourceModificationType: ADD
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 15
+        endAfterMinutes: 6
+      - resourceModificationType: CHURN
+        modificationFrequencyMinutes: 2
+        modificationQuantity: 25
+        endAfterMinutes: 8
+  - name: managed_replicaset
+    count: 20
+    childrenDistribution:
+      pod: 'distribution(3, 15, 15)'
+    attributes:
+      k8s.replicaset.uid: 'alphanumericSequence("remodel").concat(".managed_replicaset")'
+      k8s.replicaset.owner.name: 'alphanumericSequence("dpprep").concat(".replicaset-owner")'
+      k8s.namespace.name: 'counter("namespace")'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.replicaset.name: 'alphanumericSequence("nrec").concat(".replicaset")'
+      k8s.workload.kind: 'roundRobin(["managed_replicaset"])'
+      appd.workload.subtype: 'roundRobin(["statefulset", "daemonset"])'
+  - name: unmanaged_replicaset
+    count: 20
+    childrenDistribution:
+      pod: 'distribution(3, 15, 15)'
+    attributes:
+      k8s.replicaset.uid: 'alphanumericSequence("remodel").concat(".unmanaged_replicaset")'
+      k8s.namespace.name: 'counter("namesxace")'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.replicaset.name: 'alphanumericSequence("nrec").concat(".replicaset")'
+      k8s.workload.kind: 'roundRobin(["unmanaged_replicaset"])'
+  - name: deployment
+    count: 12
+    childrenDistribution:
+      managed_replicaset: 'distribution(1, 3, 2)'
+    attributes:
+      k8s.deployment.uid: 'alphanumericSequence("remodel").concat(".deployment")'
+      k8s.deployment.name: 'alphanumericSequence("dpprep").concat(".replicaset-owner")'
+      k8s.namespace.name: 'counter("namesxace")'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+  - name: pvc
+    count: 20
+    attributes:
+      k8s.pvc.uid: 'alphanumericSequence("remodel").concat(".pvc")'
+      k8s.pvc.name: 'alphanumericSequence("vxe4").concat(".pvc")'
+    attributeOperations:
+      - 'copyFromParent("namespace", "k8s.cluster.name")'
+      - 'copyFromParent("namespace", "k8s.namespace.name")'
+  - name: disk_infra
+    count: 100
+    attributes:
+      disk.device: '"device-".concat(alphanumericSequence("amx3q"))'
+    attributeOperations:
+      - 'copyFromParent("aws_ec2", "host.id")'
+  - name: network
+    count: 120
+    attributes:
+      clou.network.id: 'alphanumericSequence("IDfr3x").concat(".network")'
+    attributeOperations:
+      - 'copyFromParent("aws_ec2", "host.id")'
+  - name: filesystem
+    count: 80
+    attributes:
+      filesystem.mount_point: 'counter("/dev/sdb")'
+      filesystem.type: 'roundRobin(["ext2", "ext3", "ext4", "xfs"])'
+    attributeOperations:
+      - 'copyFromParent("ec2", "host.id")'
+  - name: container
+    count: 150
+    attributes:
+      container.id: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("i5q")).concat("1v0dka4appd07oc11v0dka4appd07oc11v0dka4appd07oc1peak")'
+      container.id.short: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("i5q"))'
+      container.name: 'alphanumericSequence("omat").concat(".container")'
+      container.image.name: '"dtr.corp.example.com/".concat(roundRobin(["cps", "dpp", "dis", "fmm"])).concat("/").concat(alphanumericSequence("a1sat34x"))'
+    attributeOperations:
+      - 'copyFromParent("pod", "k8s.namespace.name")'
+      - 'copyFromParent("pod", "k8s.pod.name")'
+      - 'copyFromParent("ec2", "host.name")'
+    runtimeModifications:
+      - resourceModificationType: REMOVE
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 5
+        endAfterMinutes: 5
+  - name: classic_load_balancer
+    count: 50
+    attributes:
+      cloud.loadbalancer.id: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("ID-CLB"))'
+      cloud.platform: 'roundRobin(["aws_classic_load_balancer"])'
+  - name: application_load_balancer
+    count: 80
+    attributes:
+      cloud.loadbalancer.id: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("ID-ALB"))'
+      cloud.platform: 'roundRobin(["aws_application_load_balancer"])'
+  - name: network_load_balancer
+    count: 80
+    attributes:
+      cloud.loadbalancer.id: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("ID-NLB"))'
+      cloud.platform: 'roundRobin(["aws_network_load_balancer"])'
+  - name: ec2
+    count: 80
+    childrenDistribution:
+      disk_infra: 'distribution(1, 0, 0)'
+      network: 'distribution(1, 2, 1)'
+      container: 'distribution(1, 10, 1)'
+      filesystem: 'distribution(1, 0, 0)'
+    attributes:
+      cloud.platform: 'roundRobin(["aws_ec2"])'
+      host.id: 'alphanumericSequence("iaf7").concat("-aws-ec2-").concat(alphanumericSequence("pexe"))'
+      host.name: 'alphanumericSequence("cic").concat(".host")'
+    runtimeModifications:
+      - resourceModificationType: ADD
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 10
+        endAfterMinutes: 6
+      - resourceModificationType: REMOVE
+        modificationFrequencyMinutes: 2
+        modificationQuantity: 15
+        endAfterMinutes: 8
+  - name: vm
+    count: 80
+    childrenDistribution:
+      disk_infra: 'distribution(1, 0, 0)'
+      container: 'distribution(1, 10, 1)'
+      filesystem: 'distribution(1, 0, 0)'
+    attributes:
+      cloud.platform: 'roundRobin(["azure_vm"])'
+      host.id: 'alphanumericSequence("i4fc").concat("-azure-vm-").concat(alphanumericSequence("pldsj4e"))'
+  - name: host_cloud
+    count: 3
+    childrenDistribution:
+      vm: 'distribution(2, 1, 0)'
+    attributes:
+      host.id: '"ID-".concat(alphanumericSequence("i4fc")).concat("-azure-vm-")'
+      cloud.provider: '"device-".concat(alphanumericSequence("a3x"))'
+      cloud.account.id: '"ID-".concat(alphanumericSequence("a3xzq9"))'
+  - name: service
+    count: 4
+    childrenDistribution:
+      service_instance: 'distribution(1, 0, 0)'
+      business_transaction: 'distribution(1, 0, 0)'
+      service_endpoint: 'distribution(1, 0, 0)'
+    attributes:
+      service.name: '"service-".concat(alphanumericSequence("alerting-test"))'
+      service.namespace: 'counter("svcnamespace")'
+  - name: service_instance
+    count: 40
+    childrenDistribution:
+      instance_endpoint: 'distribution(1, 0, 0)'
+    attributes:
+      service.instance.id: 'counter("alerting-svc-instance")'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
+    runtimeModifications:
+      - resourceModificationType: CHURN
+        modificationFrequencyMinutes: 2
+        modificationQuantity: 25
+        endAfterMinutes: 8
+      - resourceModificationType: ADD
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 10
+        endAfterMinutes: 8
+  - name: business_transaction
+    count: 4
+    attributes:
+      bt.name: '"bt-".concat(alphanumericSequence("trx"))'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
+  - name: service_endpoint
+    count: 4
+    attributes:
+      endpoint.name: 'counter("alerting-svc-endpoint")'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'modifyFromParent("service", "service.name", "service.name", "roundRobin([\"\"])")'
+  - name: instance_endpoint
+    count: 4
+    attributes:
+      endpoint.name: 'counter("alerting-instance-endpoint")'
+    attributeOperations:
+      - 'copyFromParent("service_instance", "service.namespace")'
+      - 'copyFromParent("service_instance", "service.name")'
+      - 'copyFromParent("service_instance", "service.instance.id")'
+  - name: http_backend
+    count: 4
+    attributes:
+      backend.name: 'roundRobin(["alerting-svc-backend"])'
+      http.host: 'IPv4Sequence("198.134.1.11")'
+      http.port: 'roundRobin(["80", "8000", "8080"])'
+    runtimeModifications:
+      - resourceModificationType: REMOVE
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 3
+        endAfterMinutes: 8
+      - resourceModificationType: ADD
+        modificationFrequencyMinutes: 1
+        modificationQuantity: 5
+        endAfterMinutes: 6
+  - name: request
+    count: 3
+    attributes:
+      type: 'roundRobin(["HTTP", "JMS", "HTTPS"])'
+      async: 'roundRobin(["true", "false"])'
+  - name: database_backend
+    count: 3
+    attributes:
+      backend.name: '"database_backend-".concat(alphanumericSequence("coushin"))'
+  - name: messaging_backend
+    count: 3
+    attributes:
+      backend.name: '"messaging_backend-".concat(alphanumericSequence("msgy"))'
+  - name: custom_backend
+    count: 3
+    attributes:
+      type: 'roundRobin(["messaging_backend", "database_backend", "http_backend"])'
+      backend.name: '"custom_backend-".concat(alphanumericSequence("msgy"))'

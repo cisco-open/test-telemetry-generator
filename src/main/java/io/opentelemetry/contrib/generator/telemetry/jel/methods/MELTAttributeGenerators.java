@@ -18,6 +18,7 @@ package io.opentelemetry.contrib.generator.telemetry.jel.methods;
 
 import io.opentelemetry.contrib.generator.core.jel.helpers.AlphanumericHelper;
 import io.opentelemetry.contrib.generator.core.jel.helpers.IPHelper;
+import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import jakarta.el.ELProcessor;
@@ -31,9 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This holds the implementation for all the supported attribute expressions in logs, metrics & traces definition YAML files.
  * Since we are using ELProcessor in a standalone context to process the expressions, all the implementing methods have to be public static.
- * Although these work exactly the same way as in entity model as far as the output is concerned, but since these expressions are processed
+ * Although these work exactly the same way as in resource model as far as the output is concerned, but since these expressions are processed
  * in a multithreaded scenario so using the same implementation as in
- * {@link io.opentelemetry.contrib.generator.core.jel.methods.EntityModelExpressions} will not work.
+ * {@link ResourceModelExpressions} will not work.
  * @see ELProcessor
  */
 @SuppressWarnings("unused")

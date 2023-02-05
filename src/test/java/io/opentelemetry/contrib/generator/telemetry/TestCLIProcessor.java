@@ -16,7 +16,9 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
+import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import io.opentelemetry.contrib.generator.telemetry.cli.CLIProcessor;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.ParseException;
 import org.testng.annotations.Test;
 
@@ -26,7 +28,7 @@ public class TestCLIProcessor {
 
     private final String cliResourcesPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
             "test-definitions", "cli").toString();
-    private final String ENTITIES_YAML = Paths.get(cliResourcesPath, "entity-definition.yaml").toString();
+    private final String RESOURCES_YAML = Paths.get(cliResourcesPath, "resource-definition.yaml").toString();
     private final String METRICS_YAML = Paths.get(cliResourcesPath, "metrics-cli-test.yaml").toString();
     private final String LOGS_YAML = Paths.get(cliResourcesPath, "logs-cli-test.yaml").toString();
     private final String TRACES_YAML = Paths.get(cliResourcesPath, "traces-cli-test.yaml").toString();
@@ -35,7 +37,7 @@ public class TestCLIProcessor {
     public void testAllGeneratorsNoAuthREST() throws ParseException {
         String noAuthTargetYAML = Paths.get(cliResourcesPath, "target-noauth.yaml").toString();
         String[] cliArgs = new String[] {
-                "-e", ENTITIES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noAuthTargetYAML
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noAuthTargetYAML
         };
         CLIProcessor.main(cliArgs);
     }
@@ -44,7 +46,7 @@ public class TestCLIProcessor {
     public void testMetricsTracesBasicAuthGRPC() throws ParseException {
         String basicAuthTargetYAML = Paths.get(cliResourcesPath, "target-basicauth.yaml").toString();
         String[] cliArgs = new String[] {
-                "--entityDefinition", ENTITIES_YAML, "--metricDefinition", METRICS_YAML,
+                "--resourceDefinition", RESOURCES_YAML, "--metricDefinition", METRICS_YAML,
                 "--spanDefinition", TRACES_YAML, "--target", basicAuthTargetYAML
         };
         CLIProcessor.main(cliArgs);
@@ -54,7 +56,124 @@ public class TestCLIProcessor {
     public void testAllGeneratorsOAuthGRPC() throws ParseException {
         String oauthTargetYAML = Paths.get(cliResourcesPath, "target-oauth.yaml").toString();
         String[] cliArgs = new String[] {
-                "-e", ENTITIES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", oauthTargetYAML
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", oauthTargetYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test
+    public void testWithJSONFormatInputs() throws ParseException {
+        String cliResourcesPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
+                "test-definitions", "cli", "json").toString();
+        String RESOURCES_JSON = Paths.get(cliResourcesPath, "resource-definition.json").toString();
+        String METRICS_JSON = Paths.get(cliResourcesPath, "metrics-cli-test.json").toString();
+        String LOGS_JSON = Paths.get(cliResourcesPath, "logs-cli-test.json").toString();
+        String TRACES_JSON = Paths.get(cliResourcesPath, "traces-cli-test.json").toString();
+        String basicAuthTargetYAML = Paths.get(cliResourcesPath, "..", "target-basicauth.yaml").toString();
+        String[] cliArgs = new String[] {
+                "--resourceDefinition", RESOURCES_JSON, "--metricDefinition", METRICS_JSON, "--logDefinition", LOGS_JSON,
+                "--spanDefinition", TRACES_JSON, "--target", basicAuthTargetYAML, "--jsonFormat"
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = MissingOptionException.class)
+    public void testWithoutResourceDefinition() throws ParseException {
+        String noAuthTargetYAML = Paths.get(cliResourcesPath, "target-noauth.yaml").toString();
+        String[] cliArgs = new String[] { METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noAuthTargetYAML };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithOnlyResourceDefinition() throws ParseException {
+        String noAuthTargetYAML = Paths.get(cliResourcesPath, "target-noauth.yaml").toString();
+        String[] cliArgs = new String[] { "-r", RESOURCES_YAML, "-t", noAuthTargetYAML };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = MissingOptionException.class)
+    public void testWithoutTargetAuthYAML() throws ParseException {
+        String[] cliArgs = new String[] { "-r", RESOURCES_YAML, METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test
+    public void testWithoutAuthMode() throws ParseException {
+        String noAuthModeYAML = Paths.get(cliResourcesPath, "negative", "no-auth-mode.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noAuthModeYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test
+    public void testWithInvalidAuthMode() throws ParseException {
+        String invalidAuthModeYAML = Paths.get(cliResourcesPath, "negative", "invalid-auth-mode.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", invalidAuthModeYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithoutEndpoint() throws ParseException {
+        String noEndpointYAML = Paths.get(cliResourcesPath, "negative", "without-endpoint.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noEndpointYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithOnlyGRPCHost() throws ParseException {
+        String onlyGRPCHostYAML = Paths.get(cliResourcesPath, "negative", "only-grpc-host.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", onlyGRPCHostYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithOnlyGRPCPort() throws ParseException {
+        String onlyGRPCPortYAML = Paths.get(cliResourcesPath, "negative", "only-grpc-port.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", onlyGRPCPortYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test
+    public void testWithAuthModeNoneAndBasicCredentials() throws ParseException {
+        String noneAuthModeYAML = Paths.get(cliResourcesPath, "negative", "none-auth-mode.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noneAuthModeYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithAuthModeBasicAndNoUsername() throws ParseException {
+        String noUsernameYAML = Paths.get(cliResourcesPath, "negative", "no-username.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noUsernameYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithAuthModeBasicAndNoPassword() throws ParseException {
+        String noPasswordYAML = Paths.get(cliResourcesPath, "negative", "no-password.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noPasswordYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test(expectedExceptions = GeneratorException.class)
+    public void testWithAuthModeBasicAndNoCredentials() throws ParseException {
+        String noCredsYAML = Paths.get(cliResourcesPath, "negative", "no-credentials.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", noCredsYAML
         };
         CLIProcessor.main(cliArgs);
     }
