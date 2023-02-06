@@ -1,0 +1,6 @@
+authMode: "oauth"
+clientId: "clientId"
+clientSecret: "clientSecret"
+grpchost: "localhost"
+grpcport: "3387"
+tokenURL: "http://localhost:8888/dummy"

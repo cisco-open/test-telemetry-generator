@@ -52,7 +52,7 @@ public class GRPCPayloadHandler implements PayloadHandler {
         this.HOST = host;
         this.gRPCPORT = gRPCPort;
         this.authHandler = authHandler;
-        isAuthEnabled = authHandler instanceof NoAuthHandler;
+        isAuthEnabled = !(authHandler instanceof NoAuthHandler);
     }
 
     @Override

@@ -53,6 +53,15 @@ public class TestCLIProcessor {
     }
 
     @Test
+    public void testAllGeneratorsOAuthGRPC() throws ParseException {
+        String oauthTargetYAML = Paths.get(cliResourcesPath, "target-oauth.yaml").toString();
+        String[] cliArgs = new String[] {
+                "-r", RESOURCES_YAML, "-m", METRICS_YAML, "-l", LOGS_YAML, "-s", TRACES_YAML, "-t", oauthTargetYAML
+        };
+        CLIProcessor.main(cliArgs);
+    }
+
+    @Test
     public void testWithJSONFormatInputs() throws ParseException {
         String cliResourcesPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources",
                 "test-definitions", "cli", "json").toString();
@@ -88,7 +97,7 @@ public class TestCLIProcessor {
         CLIProcessor.main(cliArgs);
     }
 
-    @Test(expectedExceptions = GeneratorException.class)
+    @Test
     public void testWithoutAuthMode() throws ParseException {
         String noAuthModeYAML = Paths.get(cliResourcesPath, "negative", "no-auth-mode.yaml").toString();
         String[] cliArgs = new String[] {
@@ -97,7 +106,7 @@ public class TestCLIProcessor {
         CLIProcessor.main(cliArgs);
     }
 
-    @Test(expectedExceptions = GeneratorException.class)
+    @Test
     public void testWithInvalidAuthMode() throws ParseException {
         String invalidAuthModeYAML = Paths.get(cliResourcesPath, "negative", "invalid-auth-mode.yaml").toString();
         String[] cliArgs = new String[] {

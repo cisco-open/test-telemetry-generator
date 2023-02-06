@@ -24,6 +24,7 @@ import io.opentelemetry.contrib.generator.telemetry.TelemetryGenerator;
 import io.opentelemetry.contrib.generator.telemetry.transport.auth.AuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.auth.BasicAuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.auth.NoAuthHandler;
+import io.opentelemetry.contrib.generator.telemetry.transport.auth.OAuthHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.grpc.GRPCPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.rest.RESTPayloadHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -138,25 +139,36 @@ public class CLIProcessor {
             throw new GeneratorException("Either restURL (for REST endpoint) or gRPCHost & gRPCPort (for gRPC endpoint) " +
                     "must be provided in environment target YAML");
         }
+        String authMode = StringUtils.defaultString(targetEnvironmentDetails.getAuthMode()).toUpperCase();
+        if (authMode.isBlank() || (!authMode.equals("NONE") && !authMode.equals("BASIC") && !authMode.equals("OAUTH"))) {
+            log.warn("authMode not provided or invalid value provided in environment target YAML. Valid values are - none/basic/oauth." +
+                    "Will use none authentication for data posting.");
+            authMode = "NONE";
+        }
         AuthHandler authHandler;
-        if (targetEnvironmentDetails.getAuthMode() == null) {
-            throw new GeneratorException("Missing authMode in environment target YAML");
-        }
-        if (!(targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("NONE") ||
-                targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("BASIC"))) {
-            throw new GeneratorException("Invalid authMode in environment target YAML. Allowed - NONE, BASIC");
-        }
-        if (targetEnvironmentDetails.getAuthMode().equalsIgnoreCase("NONE")) {
+        if (authMode.equals("NONE")) {
             authHandler = new NoAuthHandler();
-        } else {
+        } else if (authMode.equals("BASIC")) {
             if (StringUtils.defaultString(targetEnvironmentDetails.getUsername()).isBlank()) {
-                throw new GeneratorException("Missing username in environment target YAML");
+                throw new GeneratorException("Select auth mode is Basic but username not provided");
             }
             if (StringUtils.defaultString(targetEnvironmentDetails.getPassword()).isBlank()) {
-                throw new GeneratorException("Missing password in environment target YAML");
+                throw new GeneratorException("Select auth mode is Basic but password not provided");
             }
             authHandler = new BasicAuthHandler(targetEnvironmentDetails.getUsername(),
                     targetEnvironmentDetails.getPassword());
+        } else {
+            if (StringUtils.defaultString(targetEnvironmentDetails.getTokenURL()).isBlank()) {
+                throw new GeneratorException("Select auth mode is OAuth but tokenURL not provided");
+            }
+            if (StringUtils.defaultString(targetEnvironmentDetails.getClientId()).isBlank()) {
+                throw new GeneratorException("Select auth mode is Basic but clientId not provided");
+            }
+            if (StringUtils.defaultString(targetEnvironmentDetails.getClientSecret()).isBlank()) {
+                throw new GeneratorException("Select auth mode is Basic but clientSecret not provided");
+            }
+            authHandler = new OAuthHandler(targetEnvironmentDetails.getTokenURL(), targetEnvironmentDetails.getClientId(),
+                    targetEnvironmentDetails.getClientSecret(), targetEnvironmentDetails.getScope());
         }
         if (restURLProvided) {
             String restBaseURL = targetEnvironmentDetails.getRestURL().getBaseURL();

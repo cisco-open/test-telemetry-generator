@@ -27,4 +27,8 @@ public class TargetEnvironmentDetails {
     private String authMode;
     private String username;
     private String password;
+    private String tokenURL;
+    private String clientId;
+    private String clientSecret;
+    private String scope;
 }
