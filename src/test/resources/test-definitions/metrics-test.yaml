@@ -33,6 +33,7 @@ metrics:
     isDouble: true
     quantiles: [0, 50, 100]
     reportingResources: [network_interface, container, machine]
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
     attributes:
       system.internal.ip: 'IPv4Sequence("10.121.17.65")'
       network.device.type: 'roundRobin(["ethernet", "wired", "wireless"])'
@@ -43,12 +44,14 @@ metrics:
     isMonotonic: true
     valueFunction: 'arithmeticSequence(0, 1, "/3")'
     reportingResources: [pod]
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
   - name: cpu.used
     unit: "{cores}"
     otelType: gauge
     valueFunction: 'absoluteSineSequence("*50")'
     isDouble: true
     reportingResources: [node, container, machine, pod]
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
     attributes:
       max.cpu.processes: '[counter("app-process-"), roundRobin(["kernel_task", "java", "mds"])]'
   - name: filesystem.used

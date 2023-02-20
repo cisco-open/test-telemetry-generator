@@ -36,6 +36,7 @@ public class LogDefinition {
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
     private Integer copyCount;
+    private Set<String> copyResourceAttributes;
     private Map<String, Object> attributes;
     @JsonIgnore
     private String id;
@@ -44,6 +45,9 @@ public class LogDefinition {
         id = "log_by_ttg_" + logIndex;
         if (copyCount == null || copyCount < 1) {
             copyCount = 1;
+        }
+        if (copyResourceAttributes == null) {
+            copyResourceAttributes = new HashSet<>();
         }
         validateMandatoryFields();
         validateResourceTypesCount(allResourceTypes);

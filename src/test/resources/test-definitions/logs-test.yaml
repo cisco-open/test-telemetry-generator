@@ -25,15 +25,18 @@ logs:
     reportingResourcesCounts:
       container: 10
       pod: 10
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
   - severityOrderFunction: 'severityDistributionCount(["ERROR", "WARN", "DEBUG"], [1, 1, 4])'
     payloadFrequencySeconds: 20
     payloadCount: 2
     copyCount: 200
     reportingResourcesCounts:
       node: 30
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
   - severityOrderFunction: 'severityDistributionPercentage(["INFO", "TRACE"], [20, 80])'
     payloadFrequencySeconds: 10
     payloadCount: 5
     reportingResourcesCounts:
       machine: 4
       container: 150
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]

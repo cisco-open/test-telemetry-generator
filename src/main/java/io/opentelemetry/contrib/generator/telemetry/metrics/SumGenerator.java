@@ -40,12 +40,12 @@ public class SumGenerator {
         this.jelProcessor = jelProcessor;
     }
 
-    public Metric getOTelMetric(MetricDefinition metricDefinition) {
+    public Metric.Builder getOTelMetric(MetricDefinition metricDefinition) {
         Metric.Builder partialMetric = Metric.newBuilder().setName(metricDefinition.getName())
                 .setUnit(metricDefinition.getUnit());
         return metricDefinition.getIsDouble() ?
-                partialMetric.setSum(getDoubleSumDataPoint(metricDefinition)).build() :
-                partialMetric.setSum(getIntSumDataPoint(metricDefinition)).build();
+                partialMetric.setSum(getDoubleSumDataPoint(metricDefinition)) :
+                partialMetric.setSum(getIntSumDataPoint(metricDefinition));
     }
 
     private Sum getDoubleSumDataPoint(MetricDefinition metricDefinition) {

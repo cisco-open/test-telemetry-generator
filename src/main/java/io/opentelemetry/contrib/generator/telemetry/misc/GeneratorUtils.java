@@ -19,7 +19,9 @@ package io.opentelemetry.contrib.generator.telemetry.misc;
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
 
+import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
+import io.opentelemetry.proto.resource.v1.Resource;
 import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -95,6 +97,20 @@ public class GeneratorUtils {
             attributes.add(eachAttribute);
         }
         return attributes;
+    }
+
+    public static List<KeyValue> getResourceAttributes(Set<String> attributes, Resource resource) {
+        List<KeyValue> selectedRsrcAttrs = new ArrayList<>();
+        for (String eachAttr: attributes) {
+            Optional<KeyValue> optionalKV = resource.getAttributesList().stream().filter(kv -> kv.getKey().equals(eachAttr))
+                    .findFirst();
+            selectedRsrcAttrs.add(optionalKV.orElseGet(() -> getEmptyKV(eachAttr)));
+        }
+        return selectedRsrcAttrs;
+    }
+
+    public static KeyValue getEmptyKV(String key) {
+        return KeyValue.newBuilder().setKey(key).setValue(AnyValue.newBuilder().setStringValue("").build()).build();
     }
 
 }

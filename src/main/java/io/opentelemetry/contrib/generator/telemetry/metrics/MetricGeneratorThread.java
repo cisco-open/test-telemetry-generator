@@ -19,6 +19,7 @@ package io.opentelemetry.contrib.generator.telemetry.metrics;
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
+import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
@@ -26,15 +27,14 @@ import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.common.v1.InstrumentationScope;
-import io.opentelemetry.proto.metrics.v1.Metric;
-import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
-import io.opentelemetry.proto.metrics.v1.ScopeMetrics;
+import io.opentelemetry.proto.common.v1.KeyValue;
+import io.opentelemetry.proto.metrics.v1.*;
 import io.opentelemetry.proto.resource.v1.Resource;
 import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +45,7 @@ public class MetricGeneratorThread implements Runnable {
 
     private final String groupKey;
     private final String requestID;
-    private final List<MetricDefinition> metrics;
+    private final Map<String, MetricDefinition> metrics;
     private final PayloadHandler payloadHandler;
     private final GeneratorState<MetricGeneratorThread> metricGeneratorState;
     private final GaugeGenerator gaugeGenerator;
@@ -57,7 +57,7 @@ public class MetricGeneratorThread implements Runnable {
                                  String requestID) {
         this.groupKey = groupKey;
         this.requestID = requestID;
-        this.metrics = metrics;
+        this.metrics = metrics.stream().collect(Collectors.toMap(MetricDefinition::getName, Function.identity()));
         this.payloadHandler = payloadHandler;
         this.metricGeneratorState = GeneratorsStateProvider.getMetricGeneratorState(requestID);
         ELProcessor jelProcessor = JELProvider.getJelProcessor();
@@ -70,18 +70,26 @@ public class MetricGeneratorThread implements Runnable {
     @Override
     public void run() {
         log.debug(requestID + ": Metric generator thread invoked for resource type: " + groupKey + " with metrics: " +
-                metrics.stream().map(MetricDefinition::getName).collect(Collectors.toList()));
-        if (metricGeneratorState.isGenerateData() && currentCount < metrics.get(0).getPayloadCount()) {
+                metrics.values().stream().map(MetricDefinition::getName).collect(Collectors.toList()));
+        int payloadCount = metrics.values().stream().findFirst().get().getPayloadCount();
+        if (metricGeneratorState.isGenerateData() && currentCount < payloadCount) {
             List<ResourceMetrics> resourceMetricsList = new ArrayList<>();
             ResourceMetrics resourceMetric;
-            List<Metric> otelMetrics = metrics.stream()
+            List<Metric.Builder> partialOTelMetrics = metrics.values().stream()
                     .map(this::getMetric).collect(Collectors.toList());
-            List<Resource> resources = ResourceModelProvider.getResourceModel(requestID).get(groupKey.split("::")[0]).stream()
+            List<Resource> resources = ResourceModelProvider.getResourceModel(requestID)
+                    .get(groupKey.split("::")[0]).stream()
                     .filter(GeneratorResource::isActive)
                     .map(GeneratorResource::getOTelResource)
                     .collect(Collectors.toList());
             log.debug(requestID + ": Preparing " + resources.size() + " resource metric packets for " + groupKey);
             for (Resource eachResource: resources) {
+                List<Metric> otelMetrics = new ArrayList<>();
+                for (Metric.Builder eachPartialMetric: partialOTelMetrics) {
+                    List<KeyValue> resourceAttrs = GeneratorUtils.getResourceAttributes(metrics.get(eachPartialMetric.getName())
+                            .getCopyResourceAttributes(), eachResource);
+                    otelMetrics.add(getMetricWithResourceAttributes(eachPartialMetric, resourceAttrs));
+                }
                 resourceMetric = ResourceMetrics.newBuilder()
                         .setResource(eachResource)
                         .addScopeMetrics(ScopeMetrics.newBuilder()
@@ -106,7 +114,7 @@ public class MetricGeneratorThread implements Runnable {
         }
     }
 
-    private Metric getMetric(MetricDefinition metricDefinition) {
+    private Metric.Builder getMetric(MetricDefinition metricDefinition) {
         switch (metricDefinition.getOtelType()) {
             case Constants.GAUGE:
                 return gaugeGenerator.getOTelMetric(metricDefinition);
@@ -116,4 +124,29 @@ public class MetricGeneratorThread implements Runnable {
                 return summaryGenerator.getOTelMetric(metricDefinition);
         }
     }
+
+    private Metric getMetricWithResourceAttributes(Metric.Builder partialMetric, List<KeyValue> resourceAttributes) {
+        Metric.DataCase metricType = partialMetric.getDataCase();
+        if (metricType.equals(Metric.DataCase.GAUGE)) {
+            List<NumberDataPoint> dataPoints = partialMetric.getGauge().getDataPointsList();
+            List<NumberDataPoint> dataPointsWAttrs = dataPoints.stream().map(NumberDataPoint::toBuilder)
+                    .map(bdp -> bdp.addAllAttributes(resourceAttributes).build()).collect(Collectors.toList());
+            Gauge newGauge = partialMetric.getGauge().toBuilder().clearDataPoints().addAllDataPoints(dataPointsWAttrs).build();
+            return Metric.newBuilder().setName(partialMetric.getName()).setUnit(partialMetric.getUnit()).setGauge(newGauge).build();
+        } else if (metricType.equals(Metric.DataCase.SUM)) {
+            List<NumberDataPoint> dataPoints = partialMetric.getSum().getDataPointsList();
+            List<NumberDataPoint> dataPointsWAttrs = dataPoints.stream().map(NumberDataPoint::toBuilder)
+                    .map(bdp -> bdp.addAllAttributes(resourceAttributes).build()).collect(Collectors.toList());
+            partialMetric.getSum().toBuilder().clearDataPoints().addAllDataPoints(dataPointsWAttrs).build();
+            Sum newSum = partialMetric.getSum().toBuilder().clearDataPoints().addAllDataPoints(dataPointsWAttrs).build();
+            return Metric.newBuilder().setName(partialMetric.getName()).setUnit(partialMetric.getUnit()).setSum(newSum).build();
+        } else {
+            List<SummaryDataPoint> dataPoints = partialMetric.getSummary().getDataPointsList();
+            List<SummaryDataPoint> dataPointsWAttrs = dataPoints.stream().map(SummaryDataPoint::toBuilder)
+                    .map(bdp -> bdp.addAllAttributes(resourceAttributes).build()).collect(Collectors.toList());
+            Summary newSummary = partialMetric.getSummary().toBuilder().clearDataPoints().addAllDataPoints(dataPointsWAttrs).build();
+            return Metric.newBuilder().setName(partialMetric.getName()).setUnit(partialMetric.getUnit()).setSummary(newSummary).build();
+        }
+    }
+
 }
