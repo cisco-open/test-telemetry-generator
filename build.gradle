@@ -31,7 +31,7 @@ dependencies {
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     api group: 'commons-cli', name: 'commons-cli', version: '1.5.0'
-    api group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '3.1.0'
+    api group: 'jakarta.ws.rs', name: 'jakarta.ws.rs-api', version: '3.1.0'
     api group: 'com.github.f4b6a3', name: 'uuid-creator', version: '5.2.0'
     api group: 'io.grpc', name: 'grpc-protobuf', version: '1.53.0'
     api group: 'io.grpc', name: 'grpc-stub', version: '1.53.0'
