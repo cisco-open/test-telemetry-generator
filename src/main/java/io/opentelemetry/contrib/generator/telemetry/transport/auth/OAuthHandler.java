@@ -20,9 +20,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.opentelemetry.contrib.generator.telemetry.transport.implementations.HTTPClient;
+import jakarta.ws.rs.core.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
