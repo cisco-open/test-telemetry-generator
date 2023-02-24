@@ -152,9 +152,9 @@ public class TestMELTAttributeExpressions {
                 Arrays.asList("n.abc4", Arrays.asList("n1.abc4", "n1.abc"), "nested-10.10.11.4"),
                 Arrays.asList("n.abc5", Arrays.asList("n1.abc5", "n1.abc"), "nested-10.10.11.5"));
         IntStream.range(0, 5).forEach(i -> {
-            String simpleOutput = StringUtils.join(jelProcessor.eval(simpleExpression));
-            String concatenatedOutput = StringUtils.join(jelProcessor.eval(concatenatedExpression));
-            String nestedOutput = StringUtils.join(jelProcessor.eval(nestedExpression));
+            String simpleOutput = StringUtils.join((List<String>) jelProcessor.eval(simpleExpression));
+            String concatenatedOutput = StringUtils.join((List<String>) jelProcessor.eval(concatenatedExpression));
+            String nestedOutput = StringUtils.join((List<String>) jelProcessor.eval(nestedExpression));
             Assert.assertEquals(simpleOutput, StringUtils.join(simpleExpectedOutputs.get(i)));
             Assert.assertEquals(concatenatedOutput, StringUtils.join(concatenatedExpectedOutputs.get(i)));
             Assert.assertEquals(nestedOutput, StringUtils.join(nestedExpectedOutputs.get(i)));
