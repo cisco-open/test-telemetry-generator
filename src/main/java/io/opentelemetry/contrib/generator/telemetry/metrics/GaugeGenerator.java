@@ -36,12 +36,12 @@ public class GaugeGenerator {
         this.jelProcessor = jelProcessor;
     }
 
-    public Metric getOTelMetric(MetricDefinition metricDefinition) {
+    public Metric.Builder getOTelMetric(MetricDefinition metricDefinition) {
         Metric.Builder partialMetric = Metric.newBuilder().setName(metricDefinition.getName())
                 .setUnit(metricDefinition.getUnit());
         return metricDefinition.getIsDouble() ?
-                partialMetric.setGauge(getDoubleGaugeDataPoint(metricDefinition)).build() :
-                partialMetric.setGauge(getIntGaugeDataPoint(metricDefinition)).build();
+                partialMetric.setGauge(getDoubleGaugeDataPoint(metricDefinition)) :
+                partialMetric.setGauge(getIntGaugeDataPoint(metricDefinition));
     }
 
     private Gauge getDoubleGaugeDataPoint(MetricDefinition metricDefinition) {

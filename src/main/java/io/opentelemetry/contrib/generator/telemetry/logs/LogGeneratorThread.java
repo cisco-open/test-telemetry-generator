@@ -22,7 +22,6 @@ import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.logs.dto.LogDefinition;
-import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.common.v1.AnyValue;
@@ -34,6 +33,8 @@ import io.opentelemetry.proto.logs.v1.LogRecord;
 import jakarta.el.ELProcessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import static io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -69,12 +70,14 @@ public class LogGeneratorThread implements Runnable {
                 logGeneratorState.getThreadPayloadCounts().get(logDefinition.getId()) < logDefinition.getPayloadCount()) {
             List<ResourceLogs> resourceLogsList = new ArrayList<>();
             ResourceLogs resourceLog;
-            LogRecord logRecord = getLog(logDefinition);
-            List<LogRecord> otelLogs = Collections.nCopies(logDefinition.getCopyCount(), logRecord);
+            LogRecord.Builder partialLogRecord = getLog(logDefinition);
             for (Map.Entry<String, Integer> reportingResource : logDefinition.getReportingResourcesCounts().entrySet()) {
                 List<Resource> postToResources = getResourceSubsetByPostCount(reportingResource.getKey(), reportingResource.getValue());
                 log.debug(requestID + ": Preparing " + postToResources.size() + " resource logs packets for " + reportingResource);
                 for (Resource eachResource: postToResources) {
+                    LogRecord logRecord = partialLogRecord.clone().addAllAttributes(getResourceAttributes(logDefinition
+                            .getCopyResourceAttributes(), eachResource)).build();
+                    List<LogRecord> otelLogs = Collections.nCopies(logDefinition.getCopyCount(), logRecord);
                     resourceLog = ResourceLogs.newBuilder()
                             .setResource(eachResource)
                             .addScopeLogs(ScopeLogs.newBuilder()
@@ -101,16 +104,15 @@ public class LogGeneratorThread implements Runnable {
         }
     }
 
-    private LogRecord getLog(LogDefinition logDefinition) {
+    private LogRecord.Builder getLog(LogDefinition logDefinition) {
         long nanoTime = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
         String severity = jelProcessor.eval(logDefinition.getSeverityOrderFunction()).toString();
         return LogRecord.newBuilder()
                 .setTimeUnixNano(nanoTime)
                 .setObservedTimeUnixNano(nanoTime)
                 .setSeverityText(severity)
-                .addAllAttributes(GeneratorUtils.getEvaluatedAttributes(jelProcessor, logDefinition.getAttributes()))
-                .setBody(AnyValue.newBuilder().setStringValue(LogMessageProvider.getLogMessage(severity)).build())
-                .build();
+                .addAllAttributes(getEvaluatedAttributes(jelProcessor, logDefinition.getAttributes()))
+                .setBody(AnyValue.newBuilder().setStringValue(LogMessageProvider.getLogMessage(severity)).build());
     }
 
     private List<Resource> getResourceSubsetByPostCount(String resourceName, int resourceCount) {

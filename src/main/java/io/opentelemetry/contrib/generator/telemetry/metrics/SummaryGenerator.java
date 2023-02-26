@@ -42,12 +42,11 @@ public class SummaryGenerator {
         this.jelProcessor = jelProcessor;
     }
 
-    public Metric getOTelMetric(MetricDefinition metricDefinition) {
+    public Metric.Builder getOTelMetric(MetricDefinition metricDefinition) {
         return Metric.newBuilder()
                 .setName(metricDefinition.getName())
                 .setUnit(metricDefinition.getUnit())
-                .setSummary(getDoubleSummaryDataPoint(metricDefinition))
-                .build();
+                .setSummary(getDoubleSummaryDataPoint(metricDefinition));
     }
 
     private Summary getDoubleSummaryDataPoint(MetricDefinition metricDefinition) {

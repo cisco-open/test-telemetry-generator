@@ -19,7 +19,6 @@ package io.opentelemetry.contrib.generator.telemetry.traces;
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
-import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.RootSpanDefinition;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.SpanDefinition;
 import com.google.protobuf.ByteString;
@@ -30,6 +29,8 @@ import io.opentelemetry.sdk.trace.IdGenerator;
 import jakarta.el.ELProcessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import static io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -67,17 +68,27 @@ public class SpansGenerator {
             initTimesAndIds();
             currentPostCount++;
         }
-        Map<String, List<List<Span>>> spanCopiesByResource = getSpanCopiesByResource();
+        Map<String, List<List<Span.Builder>>> spanCopiesByResource = getSpanCopiesByResource();
         Map<String, List<GeneratorResource>> resourceModel = ResourceModelProvider.getResourceModel(requestID);
         List<ResourceSpans> resourceSpansList = new ArrayList<>();
         ResourceSpans resourceSpans;
-        for (Map.Entry<String, List<List<Span>>> eachSpanGroup: spanCopiesByResource.entrySet()) {
+        for (Map.Entry<String, List<List<Span.Builder>>> eachSpanGroup: spanCopiesByResource.entrySet()) {
             for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
                 var copyIndexFinal = copyIndex;
                 List<GeneratorResource> validResources = resourceModel.get(eachSpanGroup.getKey()).stream()
                         .filter(GeneratorResource::isActive).collect(Collectors.toList());
                 int resourceIndex = (currentPostCount + copyIndex) % validResources.size();
-                List<Span> spans = eachSpanGroup.getValue().stream().map(list -> list.get(copyIndexFinal)).collect(Collectors.toList());
+                List<Span.Builder> partialSpans = eachSpanGroup.getValue().stream()
+                        .map(list -> list.get(copyIndexFinal))
+                        .collect(Collectors.toList());
+                List<Span> spans = new ArrayList<>();
+                for (Span.Builder eachPartialSpan: partialSpans) {
+                    Set<String> attributeNames = traceTree.getTreeNodesPostOrder().get(traceTree.getSpansIndexMap()
+                            .get(eachPartialSpan.getName())).getCopyResourceAttributes();
+                    Span newSpan = eachPartialSpan.clone().addAllAttributes(getResourceAttributes(attributeNames,
+                            validResources.get(resourceIndex).getOTelResource())).build();
+                    spans.add(newSpan);
+                }
                 resourceSpans = ResourceSpans.newBuilder()
                         .setResource(validResources.get(resourceIndex).getOTelResource())
                         .addScopeSpans(ScopeSpans.newBuilder()
@@ -94,15 +105,15 @@ public class SpansGenerator {
         return ExportTraceServiceRequest.newBuilder().addAllResourceSpans(resourceSpansList).build();
     }
 
-    private Map<String, List<List<Span>>> getSpanCopiesByResource() {
+    private Map<String, List<List<Span.Builder>>> getSpanCopiesByResource() {
         int[] spanIndices = getSpanIndices();
         log.debug(requestID + ": Preparing " + (spanIndices[1]-spanIndices[0]) + " spans with " + traceTree.getCopyCount() +
                 " copies for " + groupName);
-        Map<String, List<List<Span>>> spanCopiesByResource = new HashMap<>();
+        Map<String, List<List<Span.Builder>>> spanCopiesByResource = new HashMap<>();
         var spanIndex = spanIndices[0];
         int spanErrorCode = getSpanStatusCode(spanIndex);
         SpanDefinition spanDefinition;
-        Span singleSpan;
+        Span.Builder singleSpan;
         while (spanIndex < spanIndices[1] && spanErrorCode != 2) {
             spanDefinition = traceTree.getTreeNodesPostOrder().get(spanIndex);
             spanCopiesByResource.putIfAbsent(spanDefinition.getReportingResource(), new ArrayList<>());
@@ -117,10 +128,11 @@ public class SpansGenerator {
             //If the previous loop ended before reaching the last span, it means we encountered an error span and the trace tree
             //is configured to end the complete trace if an error span is encountered. In such a case, we get the current span
             //and recursively get all parents of that span and mark them as error spans also to complete the trace in error.
-            Map<String, List<List<Span>>> errorSpansByResource = getRecursiveErrorSpans(traceTree.getTreeNodesPostOrder().get(spanIndex));
+            Map<String, List<List<Span.Builder>>> errorSpansByResource =
+                    getRecursiveErrorSpans(traceTree.getTreeNodesPostOrder().get(spanIndex));
             //We reset the current tree part also
             currentTreePart = 0;
-            for (Map.Entry<String, List<List<Span>>> errorSpan: errorSpansByResource.entrySet()) {
+            for (Map.Entry<String, List<List<Span.Builder>>> errorSpan: errorSpansByResource.entrySet()) {
                 if (!spanCopiesByResource.containsKey(errorSpan.getKey())) {
                     spanCopiesByResource.put(errorSpan.getKey(), errorSpan.getValue());
                 } else {
@@ -161,7 +173,7 @@ public class SpansGenerator {
         return indices;
     }
 
-    private Span getSingleSpan(SpanDefinition spanDefinition, int spanIndex, boolean isErrorNode) {
+    private Span.Builder getSingleSpan(SpanDefinition spanDefinition, int spanIndex, boolean isErrorNode) {
         Map<String, Object> modifiedAttrs = new HashMap<>();
         for (Map.Entry<String, Object> eachAttr: spanDefinition.getAttributes().entrySet()) {
             String modifiedExpression = eachAttr.getValue().toString()
@@ -173,34 +185,33 @@ public class SpansGenerator {
                 .setKind(spanDefinition.getSpanKind())
                 .setStartTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(startTimes[spanIndex]))
                 .setEndTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(endTimes[spanIndex]))
-                .addAllAttributes(GeneratorUtils.getEvaluatedAttributes(jelProcessor, modifiedAttrs))
+                .addAllAttributes(getEvaluatedAttributes(jelProcessor, modifiedAttrs))
                 .setStatus(Status.newBuilder().setCode(isErrorNode ?
-                        Status.StatusCode.STATUS_CODE_ERROR : Status.StatusCode.STATUS_CODE_OK).build())
-                .build();
+                        Status.StatusCode.STATUS_CODE_ERROR : Status.StatusCode.STATUS_CODE_OK).build());
     }
 
-    private List<Span> getSpanCopies(Span span, SpanDefinition spanDefinition) {
-        List<Span> spanCopies = new ArrayList<>();
+    private List<Span.Builder> getSpanCopies(Span.Builder span, SpanDefinition spanDefinition) {
+        List<Span.Builder> spanCopies = new ArrayList<>();
         Span.Builder eachCopy;
         int spanIndex = traceTree.getSpansIndexMap().get(spanDefinition.getName());
         int parentNodeIndex = spanDefinition.getParentNodes().containsKey(traceTree.getName()) ?
                 traceTree.getSpansIndexMap().get(spanDefinition.getParentNodes().get(traceTree.getName()).getName()) : -1;
         for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
-            eachCopy = Span.newBuilder(span)
+            eachCopy = span
                     .setTraceId(traceIds[copyIndex])
                     .setSpanId(spanIds[spanIndex][copyIndex]);
             if (parentNodeIndex != -1) {
                 eachCopy.setParentSpanId(spanIds[parentNodeIndex][copyIndex]);
             }
-            spanCopies.add(eachCopy.build());
+            spanCopies.add(eachCopy);
         }
         return spanCopies;
     }
 
-    private Map<String, List<List<Span>>> getRecursiveErrorSpans(SpanDefinition errorNode) {
-        Map<String, List<List<Span>>> errorSpansByResource = new HashMap<>();
+    private Map<String, List<List<Span.Builder>>> getRecursiveErrorSpans(SpanDefinition errorNode) {
+        Map<String, List<List<Span.Builder>>> errorSpansByResource = new HashMap<>();
         SpanDefinition currentNode = errorNode;
-        Span singleErrorSpan;
+        Span.Builder singleErrorSpan;
         while (currentNode != null) {
             errorSpansByResource.putIfAbsent(currentNode.getReportingResource(), new ArrayList<>());
             singleErrorSpan = getSingleSpan(currentNode, traceTree.getSpansIndexMap().get(currentNode.getName()), true);

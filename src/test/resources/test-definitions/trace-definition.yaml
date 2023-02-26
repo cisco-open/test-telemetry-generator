@@ -19,6 +19,7 @@ rootSpans:
   - name: "healthCheck"
     spanKind: SPAN_KIND_SERVER
     reportingResource: http_backend
+    copyResourceAttributes: ["http_port"]
     attributes:
       type: 'roundRobin(["REST"])'
       url: 'roundRobin(["/healthcheck"])'
@@ -55,6 +56,7 @@ rootSpans:
   - name: "createNewAccount"
     spanKind: SPAN_KIND_SERVER
     reportingResource: request
+    copyResourceAttributes: ["type"]
     childSpans: ["createAccountHTTPRequest", "createAccountProcessing", "validateAccountDetails"]
     payloadCount: 10
     copyCount: 70
@@ -119,6 +121,7 @@ childSpans:
   - name: "deleteAccountHTTPRequest"
     spanKind: SPAN_KIND_SERVER
     reportingResource: http_backend
+    copyResourceAttributes: ["http_port"]
     spanStartTimePct: 5
     spanEndTimePct: 130
     attributes:
@@ -139,6 +142,7 @@ childSpans:
   - name: "deleteAccountQuery"
     spanKind: SPAN_KIND_INTERNAL
     reportingResource: database_backend
+    copyResourceAttributes: ["database.type", "name"]
     spanStartTimePct: 50
     spanEndTimePct: 75
   - name: "deleteAccountQueue"

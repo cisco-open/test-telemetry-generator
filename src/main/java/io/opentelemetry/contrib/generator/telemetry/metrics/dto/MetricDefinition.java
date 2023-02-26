@@ -40,6 +40,7 @@ public class MetricDefinition implements Cloneable {
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
     private Set<String> reportingResources;
+    private Set<String> copyResourceAttributes;
     private Map<String, Object> attributes;
 
     public void validate(String requestID, Set<String> allResourceTypes, Integer globalPayloadFrequency, Integer globalPayloadCount) {
@@ -52,6 +53,9 @@ public class MetricDefinition implements Cloneable {
         }
         if (isMonotonic == null) {
             isMonotonic = false;
+        }
+        if (copyResourceAttributes == null) {
+            copyResourceAttributes = new HashSet<>();
         }
     }
 

@@ -38,6 +38,7 @@ public class SpanDefinition {
     private String reportingResource;
     private Integer spanStartTimePct;
     private Integer spanEndTimePct;
+    private Set<String> copyResourceAttributes;
     private Map<String, Object> attributes;
     @JsonIgnore
     private List<SpanDefinition> childSpanNodes;
@@ -62,6 +63,9 @@ public class SpanDefinition {
         }
         if (errorFrequency == null) {
             errorFrequency = 0;
+        }
+        if (copyResourceAttributes == null) {
+            copyResourceAttributes = new HashSet<>();
         }
         parentNodes = new HashMap<>();
     }
