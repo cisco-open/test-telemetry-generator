@@ -21,7 +21,11 @@ rootSpans:
     reportingResource: frontend_instance
     attributes:
       http.method: '"POST"'
-      http.url: '"/checkout/".concat(UUIDFromStringCounter("checkout"))'
+      http.target: '"/checkout/".concat(UUIDFromStringCounter("checkout"))'
+      user_agent.original: '"openid-client/5.4.0 (https://github.com/panva/node-openid-client)"'
+      http.client_ip: IPv4Sequence("10.134.1.101")
+      http.scheme: '"https"'
+      net.host.name: '"opentelemetry-demo.frontend-svc"'
     childSpans: ["doCheckout"]
     payloadCount: 10
     copyCount: 5
@@ -33,17 +37,29 @@ childSpans:
     childSpans: ["sendEmail", "convertCurrency"]
     attributes:
       http.method: '"POST"'
-      http.url: '"/api/v1/checkout/".concat(UUIDFromStringCounter("checkout"))'
+      http.target: '"/api/v1/checkout/".concat(UUIDFromStringCounter("checkout"))'
+      user_agent.original: '"openid-client/5.4.0 (https://github.com/panva/node-openid-client)"'
+      http.client_ip: IPv4Sequence("10.134.1.101")
+      http.scheme: '"https"'
+      net.host.name: '"opentelemetry-demo.checkout-svc"'
   - name: sendEmail
     reportingResource: email_instance
     spanKind: SPAN_KIND_SERVER
     attributes:
       http.method: '"POST"'
-      http.url: '"/sendEmail"'
+      http.target: '"/sendEmail"'
+      user_agent.original: '"openid-client/5.4.0 (https://github.com/panva/node-openid-client)"'
+      http.client_ip: IPv4Sequence("10.134.1.101")
+      http.scheme: '"https"'
+      net.host.name: '"opentelemetry-demo.email-svc"'
   - name: convertCurrency
     errorFrequency: 7
     reportingResource: currency_instance
     spanKind: SPAN_KIND_SERVER
     attributes:
       http.method: '"GET"'
-      http.url: '"/currency/convert/".concat(roundRobin(["YEN","BZR"])).concat("/").concat(roundRobin(["EUR", "USD"]))'
+      http.target: '"/currency/convert/".concat(roundRobin(["YEN","BZR"])).concat("/").concat(roundRobin(["EUR", "USD"]))'
+      user_agent.original: '"openid-client/5.4.0 (https://github.com/panva/node-openid-client)"'
+      http.client_ip: IPv4Sequence("10.134.1.101")
+      http.scheme: '"https"'
+      net.host.name: '"opentelemetry-demo.currency-svc"'
