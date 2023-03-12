@@ -182,10 +182,10 @@ public class CLIProcessor {
                 restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getMetricsPath());
             }
             if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getLogsPath()).isBlank()) {
-                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getLogsPath());
+                restPayloadHandler.setLogsURL(targetEnvironmentDetails.getRestURL().getLogsPath());
             }
             if (!StringUtils.defaultString(targetEnvironmentDetails.getRestURL().getTracesPath()).isBlank()) {
-                restPayloadHandler.setMetricsURL(targetEnvironmentDetails.getRestURL().getTracesPath());
+                restPayloadHandler.setTracesURL(targetEnvironmentDetails.getRestURL().getTracesPath());
             }
             return restPayloadHandler;
         }
