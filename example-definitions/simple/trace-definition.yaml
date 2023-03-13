@@ -21,7 +21,10 @@ rootSpans:
     reportingResource: service_instance
     attributes:
       http.method: roundRobin(["GET", "POST"])
-      http.url: roundRobin(["/entry", "/start"])
+      http.target: roundRobin(["/entry", "/start"])
+      user_agent.original: '"openid-client/5.4.0 (https://github.com/panva/node-openid-client)"'
+      net.host.name: '"foobar.opentelemetry-svc"'
+      http.scheme: '"https"'
     childSpans: ["exit"]
     payloadCount: 10
     copyCount: 5
@@ -34,3 +37,5 @@ childSpans:
       db.system: '"mysql"'
       db.user: '"mysql"'
       db.operation: '"SELECT"'
+      net.peer.ip: IPv4Sequence("10.134.1.101")
+      net.peer.name: "'demo.mysql.svc.cluster.local'"
