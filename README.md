@@ -16,6 +16,8 @@ The test-telemetry-generator tries to solve this requirement by acting like an O
 
 Although we can see that the key users of this tool would be test-engineers but this can be used by developers to perform quick checks on their platform and sales engineers to demo the platforms without having to write a lot of code or setting up OTel exporters on actual infra.
 
+The telemetry is generated using [release 0.18.0 of the OpenTelemetry protos](https://github.com/open-telemetry/opentelemetry-proto/releases/tag/v0.18.0). 
+
 ***
 
 ## How to use
