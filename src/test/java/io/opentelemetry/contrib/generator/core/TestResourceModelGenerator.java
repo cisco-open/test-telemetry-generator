@@ -22,6 +22,7 @@ import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.core.jel.JELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
+import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -65,6 +66,7 @@ public class TestResourceModelGenerator {
         } catch (IOException ioException) {
             log.error("Failed to read resource definition file", ioException);
         }
+        System.setProperty(Constants.ENV_ALPHANUMERIC, "d2gd9W");
         Map<String, ResourceDefinition> resourcesMap = resources.getResources().stream()
                 .collect(Collectors.toMap(ResourceDefinition::getName, Function.identity()));
         Map<String, ResourceDefinition> resourcesMapRuntimeMods = resourcesWithRuntimeMods.getResources().stream()

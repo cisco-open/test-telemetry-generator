@@ -45,7 +45,6 @@ dependencies {
 }
 
 test {
-    environment "ENV_ALPHANUMERIC", "d2gd9W"
     useTestNG()
     finalizedBy jacocoTestReport
 }
