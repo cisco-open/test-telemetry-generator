@@ -2,8 +2,8 @@
 
 We love pull requests from everyone, especially if they are to expand the available functionality or address one of the [open issues](https://github.com/cisco-open/test-telemetry-generator/issues). You will need the following to start with:
 * Github access, obviously
-* JDK 11
-* Gradle 5.6.4 or above
+* JDK 17
+* Gradle 7.5.1 or above
 
 Once you have the above setup:
 * Clone the project
