@@ -40,3 +40,14 @@ logs:
       machine: 4
       container: 150
     copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
+  - severityOrderFunction: 'severityDistributionCount(["Normal", "Warning"], [4, 1])'
+    payloadFrequencySeconds: 10
+    payloadCount: 5
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
+    reportingResourcesCounts:
+      pod: 30
+    attributes:
+      event.name: 'roundRobin(["native_event"])'
+      event.domain: 'roundRobin(["k8s"])'
+      event.reason: 'roundRobin(["Pulling", "Pulled", "Created", "Pulling", "Backoff"])'
+      event.message: 'roundRobin(["Pulling image k8s.gcr.io/echoserver:1.8", "Image downloaded", "Created container", "Pulling image cjknsjc/ccsdc:fff", "Error: ImagePullBackoff"])'

@@ -57,8 +57,9 @@ public class TestAllGeneratorsWithJSONInput {
         int LOG_REPORTING_RESOURCES_COUNT = CONTAINER_COUNT + NODE_COUNT + 2 * POD_COUNT + MACHINE_COUNT;
         int metricPayloadCount = 10;
         int logsPayloadCount = 20;
+        int POD_EVENTS_COUNT = 30 * 5;
         int expectedMetricPackets = METRIC_REPORTING_RESOURCES_COUNT * metricPayloadCount;
-        int expectedLogsPackets = LOG_REPORTING_RESOURCES_COUNT * logsPayloadCount;
+        int expectedLogsPackets = LOG_REPORTING_RESOURCES_COUNT * logsPayloadCount + POD_EVENTS_COUNT;
         int expectedSpanPackets = 11518;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedMetricPackets, "Mismatch in expected metric packets count");
         Assert.assertEquals(testStore.getLogsPacketCount(), expectedLogsPackets, "Mismatch in expected log packets count");
@@ -69,7 +70,7 @@ public class TestAllGeneratorsWithJSONInput {
     public void validateStorageCounts() {
         Assert.assertEquals(transportStorage.getStoredMetricsPayloads().size(), 8,
                 "Mismatch in resource type counts for metric payloads");
-        Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 3,
+        Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 4,
                 "Mismatch in resource type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").size(), 3,
                 "Mismatch in resource type counts for log payloads");
@@ -79,7 +80,7 @@ public class TestAllGeneratorsWithJSONInput {
                 "Mismatch in resource type counts for trace payloads");
         Assert.assertEquals(transportStorage.getMetricsResponses().size(), 8,
                 "Mismatch in resource type counts for metric response statuses");
-        Assert.assertEquals(transportStorage.getLogsResponses().size(), 3,
+        Assert.assertEquals(transportStorage.getLogsResponses().size(), 4,
                 "Mismatch in resource type counts for log response statuses");
         Assert.assertEquals(transportStorage.getTracesResponses().size(), 8,
                 "Mismatch in resource type counts for trace response statuses");
@@ -91,12 +92,11 @@ public class TestAllGeneratorsWithJSONInput {
         }
 
         for (Map.Entry<String, Map<String, List<ExportLogsServiceRequest>>> logCounts: transportStorage.getStoredLogsPayloads().entrySet()) {
+            int expected = logCounts.getKey().equals("log_by_ttg_3") ? 5 : 20;
             Set<String> resourceNames = logCounts.getValue().keySet();
             for(String name : resourceNames){
-                Assert.assertEquals(logCounts.getValue().get(name).size(), 20, "Expected 20 log payloads for resource type: " +
-                        logCounts.getKey());
-                Assert.assertEquals(transportStorage.getLogsResponses().get(logCounts.getKey()).get(name).size(), 20,
-                        "Expected 20 log response statuses for " + "log:resource key: " + logCounts.getKey());
+                Assert.assertEquals(logCounts.getValue().get(name).size(), expected);
+                Assert.assertEquals(transportStorage.getLogsResponses().get(logCounts.getKey()).get(name).size(), expected);
             }
         }
 

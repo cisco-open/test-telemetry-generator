@@ -59,6 +59,20 @@ public class ValidateExampleDefinitionsTest {
     }
 
     @Test
+    public void validateJSONDefinitions() {
+        String resourceDefinitions = Paths.get(DEFINITION_BASE_PATH, "json", "resource-definition.json").toString();
+        String metricDefinitions = Paths.get(DEFINITION_BASE_PATH, "json", "metric-definition.json").toString();
+        String logDefinitions = Paths.get(DEFINITION_BASE_PATH, "json", "log-definition.json").toString();
+        String traceDefinitions = Paths.get(DEFINITION_BASE_PATH, "json", "trace-definition.json").toString();
+        GeneratorInput generatorInput = new GeneratorInput.JSONFilesBuilder(resourceDefinitions)
+                .withMetricDefinitionJSON(metricDefinitions)
+                .withLogDefinitionJSON(logDefinitions)
+                .withTraceDefinitionJSON(traceDefinitions)
+                .build();
+        generatorInput.validate("ValidateJsonExampleDefinitionsTest_All");
+    }
+
+    @Test
     public void validateDemoResourceAndTraceDefinitions() {
         String resourceDefinitions = Paths.get(DEFINITION_BASE_PATH, "demo", "resource-definition.yaml").toString();
         String tracesDefinitions = Paths.get(DEFINITION_BASE_PATH, "demo", "trace-definition.yaml").toString();
