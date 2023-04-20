@@ -19,13 +19,13 @@ package io.opentelemetry.contrib.generator.telemetry;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.MELTAttributeGenerators;
+import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import jakarta.el.ELProcessor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -46,10 +46,10 @@ public class TestMELTAttributeExpressions {
     @Test
     public void testAlphanumericSequenceFromEnv() {
         String randomString = RandomStringUtils.randomAlphanumeric(16);
-        setEnv(randomString);
+        System.setProperty(Constants.ENV_ALPHANUMERIC, randomString);
         String inputExpression = "alphanumericSequenceFromEnv(\"" + requestID + "\", \"log\", \"k8slog\", \"source.name\")";
-        Assert.assertEquals(jelProcessor.eval(inputExpression), System.getenv("ENV_ALPHANUMERIC"));
-        setEnv("d2gd9W");
+        Assert.assertEquals(jelProcessor.eval(inputExpression), System.getProperty(Constants.ENV_ALPHANUMERIC));
+        System.setProperty(Constants.ENV_ALPHANUMERIC, "d2gd9W");
         String inputExpression2 = "alphanumericSequenceFromEnv(\"" + requestID + "\", \"log\", \"k8slog2\", \"source.name\")";
         List<String> outputs2 = Arrays.asList("d2gd9W", "d2gd9X", "d2gd9Y", "d2gd9Z", "d2gda0", "d2gda1", "d2gda2", "d2gda3", "d2gda4", "d2gda5");
         for (int i=0; i<10; i++) {
@@ -207,18 +207,5 @@ public class TestMELTAttributeExpressions {
         String expression = "getBoolean(count(\"" + requestID + "\", \"metric\", \"cpu.used\", \"boolexpr\") % 2)";
         List<Boolean> expectedValues = Arrays.asList(false, true, false, true, false);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));
-    }
-
-    private static void setEnv(String value) {
-        try {
-            Map<String, String> env = System.getenv();
-            Class<?> cl = env.getClass();
-            Field field = cl.getDeclaredField("m");
-            field.setAccessible(true);
-            Map<String, String> writableEnv = (Map<String, String>) field.get(env);
-            writableEnv.put("ENV_ALPHANUMERIC", value);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to set environment variable", e);
-        }
     }
 }

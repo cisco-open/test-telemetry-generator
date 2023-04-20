@@ -38,6 +38,9 @@ public class LogMessageProvider {
     }
 
     public static String getLogMessage(String severity) {
+        if (!severityReasonsMap.containsKey(severity)) {
+            return "";
+        }
         @SuppressWarnings("OptionalGetWithoutIsPresent") List<String> possibleMessages = severityReasonsMap.entrySet().stream()
                 .filter(severityMessages -> severityMessages.getKey().equalsIgnoreCase(severity))
                 .findFirst().get().getValue();

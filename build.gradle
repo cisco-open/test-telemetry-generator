@@ -63,6 +63,7 @@ jacocoTestReport {
 
 task fatJar(type: Jar) {
     classifier("all")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes 'Main-Class': 'io.opentelemetry.contrib.generator.telemetry.cli.CLIProcessor'
     }

@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -67,7 +66,7 @@ public class TestResourceModelGenerator {
         } catch (IOException ioException) {
             log.error("Failed to read resource definition file", ioException);
         }
-        setEnv();
+        System.setProperty(Constants.ENV_ALPHANUMERIC, "d2gd9W");
         Map<String, ResourceDefinition> resourcesMap = resources.getResources().stream()
                 .collect(Collectors.toMap(ResourceDefinition::getName, Function.identity()));
         Map<String, ResourceDefinition> resourcesMapRuntimeMods = resourcesWithRuntimeMods.getResources().stream()
@@ -172,7 +171,7 @@ public class TestResourceModelGenerator {
     public void assertChildrenCountsForRandomParents() {
         for (ResourceDefinition eachResourceType: resources.getResources().stream()
                 .filter(type -> !MapUtils.emptyIfNull(type.getChildrenDistribution()).isEmpty())
-                .collect(Collectors.toList())) {
+                .toList()) {
             int randomIndex = ThreadLocalRandom.current().nextInt(eachResourceType.getCount());
             GeneratorResource randomParent = resourceModel.get(eachResourceType.getName()).get(randomIndex);
             boolean isLastResource = eachResourceType.getCount()-1 == randomIndex;
@@ -231,19 +230,6 @@ public class TestResourceModelGenerator {
         List<String> outputs = Arrays.asList("d2gd9W", "d2gd9X", "d2gd9Y", "d2gd9Z", "d2gda0", "d2gda1", "d2gda2", "d2gda3", "d2gda4", "d2gda5");
         for(int i=0; i<10; i++){
             Assert.assertEquals(getAttributeValue(replicasetResources.get(i), "k8s.replicaset.uid"), outputs.get(i));
-        }
-    }
-
-    private static void setEnv() {
-        try {
-            Map<String, String> env = System.getenv();
-            Class<?> cl = env.getClass();
-            Field field = cl.getDeclaredField("m");
-            field.setAccessible(true);
-            Map<String, String> writableEnv = (Map<String, String>) field.get(env);
-            writableEnv.put(Constants.ENV_ALPHANUMERIC, "d2gd9W");
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to set environment variable", e);
         }
     }
 

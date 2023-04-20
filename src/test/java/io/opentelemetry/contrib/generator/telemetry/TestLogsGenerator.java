@@ -39,9 +39,11 @@ public class TestLogsGenerator {
     private final int MACHINE_COUNT = 4;
     private final int NODE_COUNT = 25;
     private final int POD_COUNT = 10;
+    private final int POD_EVENT_COUNT = 30;
     private final int POST_COUNT_K8S_LOG = 10;
     private final int POST_COUNT_LOG_LOG_1 = 2;
     private final int POST_COUNT_LOG_LOG_2 = 5;
+    private final int POST_COUNT_K8S_EVENT = 5;
 
     @BeforeClass
     public void generateData() {
@@ -55,11 +57,11 @@ public class TestLogsGenerator {
     @Test
     public void testPayloadAndPacketCounts() {
         //Check payload count = Summation of all post counts per log definition
-        int expectedPayloadCount = 2 * POST_COUNT_K8S_LOG + POST_COUNT_LOG_LOG_1 + 2 * POST_COUNT_LOG_LOG_2;
+        int expectedPayloadCount = 2 * POST_COUNT_K8S_LOG + POST_COUNT_LOG_LOG_1 + 2 * POST_COUNT_LOG_LOG_2 + POST_COUNT_K8S_EVENT;
         Assert.assertEquals(testStore.getLogsPayloads().size(), expectedPayloadCount, "Mismatch in payload count");
         //Check packet count = Summation (payload count * number of resources) for every log
         int expectedPacketCount = (CONTAINER_COUNT_K8S + POD_COUNT) * POST_COUNT_K8S_LOG + NODE_COUNT * POST_COUNT_LOG_LOG_1
-                + (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;
+                + (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2 + POD_EVENT_COUNT * POST_COUNT_K8S_EVENT;
         Assert.assertEquals(testStore.getLogsPacketCount(), expectedPacketCount, "Mismatch in resource logs packet count");
         //Check log count for each log = number of reporting resources * number of payloads defined per log definition
     }
@@ -67,10 +69,11 @@ public class TestLogsGenerator {
     @Test
     public void testLogsCounts() {
         //Check total log count for each log = number of reporting resources * number of payloads defined per log definition
-        int k8sEvents_Count = (POD_COUNT + CONTAINER_COUNT_K8S) * POST_COUNT_K8S_LOG;
-        int logEvents1_Count = NODE_COUNT * POST_COUNT_LOG_LOG_1;
-        int logEvents2_Count = (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;
-        Assert.assertEquals(testStore.getLogsPacketCount(), k8sEvents_Count + logEvents1_Count + logEvents2_Count,
+        int k8sLogs_Count = (POD_COUNT + CONTAINER_COUNT_K8S) * POST_COUNT_K8S_LOG;
+        int log1_Count = NODE_COUNT * POST_COUNT_LOG_LOG_1;
+        int log2_Count = (MACHINE_COUNT + CONTAINER_COUNT_LOG) * POST_COUNT_LOG_LOG_2;
+        int k8sEventsCount = POD_EVENT_COUNT * POST_COUNT_K8S_EVENT;
+        Assert.assertEquals(testStore.getLogsPacketCount(), k8sLogs_Count + log1_Count + log2_Count + k8sEventsCount,
                 "Mismatch in logs count");
     }
 }
