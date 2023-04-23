@@ -43,14 +43,18 @@ metrics:
     aggregationTemporality: delta
     isMonotonic: true
     valueFunction: 'arithmeticSequence(0, 1, "/3")'
-    reportingResources: [pod]
+    filteredReportingResources:
+      pod: ["k8s.cluster.name=cluster-aukus"]
     copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
   - name: cpu.used
     unit: "{cores}"
     otelType: gauge
     valueFunction: 'absoluteSineSequence("*50")'
     isDouble: true
-    reportingResources: [node, container, machine, pod]
+    reportingResources: [node, machine, container]
+    filteredReportingResources:
+      pod: []
+      container: ["k8s.node.name=quad.node"]
     copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
     attributes:
       max.cpu.processes: '[counter("app-process-"), roundRobin(["kernel_task", "java", "mds"])]'
@@ -60,7 +64,9 @@ metrics:
     aggregationTemporality: delta
     valueFunction: 'logarithmicSequence(30, 1, "*1024")'
     isDouble: true
-    reportingResources: [disk, aws_rds, aws_ebs, node, container, machine, pod]
+    reportingResources: [disk, aws_rds, aws_ebs, node, container, machine]
+    filteredReportingResources:
+      pod: ["k8s.pod.status=Running", "k8s.cluster.name=cluster-aukus"]
   - name: memory.used
     unit: MBy
     otelType: sum

@@ -21,7 +21,7 @@ resources:
       namespace: 'distribution(3, 0, 0)'
       node: 'distribution(5, 2, 10)'
     attributes:
-      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("skyrim"))'
   - name: namespace
     count: 10
     childrenDistribution:
@@ -142,7 +142,7 @@ resources:
   - name: network
     count: 120
     attributes:
-      clou.network.id: 'alphanumericSequence("IDfr3x").concat(".network")'
+      cloud.network.id: 'alphanumericSequence("IDfr3x").concat(".network")'
     attributeOperations:
       - 'copyFromParent("aws_ec2", "host.id")'
   - name: filesystem

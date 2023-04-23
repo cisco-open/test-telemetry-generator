@@ -95,26 +95,32 @@ public class MetricGeneratorThread implements Runnable {
                     );
                     otelMetrics.add(getMetricWithResourceAttributes(eachPartialMetric, resourceAttrs));
                 }
-                resourceMetric = ResourceMetrics.newBuilder()
-                        .setResource(reportingResource)
-                        .addScopeMetrics(ScopeMetrics.newBuilder()
-                                .setScope(InstrumentationScope.newBuilder()
-                                        .setName(Constants.SELF_NAME)
-                                        .setVersion(Constants.SELF_VERSION)
-                                        .build())
-                                .addAllMetrics(otelMetrics)
-                                .build())
-                        .build();
-                resourceMetricsList.add(resourceMetric);
+                if (!otelMetrics.isEmpty()) {
+                    resourceMetric = ResourceMetrics.newBuilder()
+                            .setResource(reportingResource)
+                            .addScopeMetrics(ScopeMetrics.newBuilder()
+                                    .setScope(InstrumentationScope.newBuilder()
+                                            .setName(Constants.SELF_NAME)
+                                            .setVersion(Constants.SELF_VERSION)
+                                            .build())
+                                    .addAllMetrics(otelMetrics)
+                                    .build())
+                            .build();
+                    resourceMetricsList.add(resourceMetric);
+                }
             }
-            ExportMetricsServiceRequest resourceMetrics = ExportMetricsServiceRequest.newBuilder()
-                    .addAllResourceMetrics(resourceMetricsList)
-                    .build();
-            log.info(requestID + ": Sending payload for: " + groupKey);
-            log.debug(requestID + ": Complete payload for " + groupKey + ": " + resourceMetrics);
-            boolean responseStatus = payloadHandler.postPayload(resourceMetrics);
-            if (metricGeneratorState.getTransportStorage() != null) {
-                metricGeneratorState.getTransportStorage().store(groupKey, resourceMetrics, responseStatus);
+            if (resourceMetricsList.isEmpty()) {
+                log.info("No metrics received from generator for: " + groupKey);
+            } else {
+                ExportMetricsServiceRequest resourceMetrics = ExportMetricsServiceRequest.newBuilder()
+                        .addAllResourceMetrics(resourceMetricsList)
+                        .build();
+                log.info(requestID + ": Sending payload for: " + groupKey);
+                //log.debug(requestID + ": Complete payload for " + groupKey + ": " + resourceMetrics);
+                boolean responseStatus = payloadHandler.postPayload(resourceMetrics);
+                if (metricGeneratorState.getTransportStorage() != null) {
+                    metricGeneratorState.getTransportStorage().store(groupKey, resourceMetrics, responseStatus);
+                }
             }
             currentCount++;
             metricGeneratorState.getThreadPayloadCounts().put(groupKey, currentCount);
@@ -139,21 +145,28 @@ public class MetricGeneratorThread implements Runnable {
                 .get(resourceType).stream()
                 .filter(GeneratorResource::isActive)
                 .toList();
+        int allReportingResourcesCount = allReportingResources.size();
+        log.info("All " + allReportingResourcesCount + " " + resourceType + " resources will report the metrics: " +
+                String.join(", ", metricsWithAllResources));
         List<Set<String>> metricsForEachResource = new ArrayList<>();
-        for (int resourceIndex=0; resourceIndex<allReportingResources.size(); resourceIndex++) {
+        for (int resourceIndex=0; resourceIndex<allReportingResourcesCount; resourceIndex++) {
             metricsForEachResource.add(new HashSet<>(metricsWithAllResources));
         }
         Set<String> metricsWithFilteredResources = new HashSet<>(metrics.keySet());
         metricsWithFilteredResources.removeAll(metricsWithAllResources);
         for (String metricWithFilteredResources: metricsWithFilteredResources) {
-            for (int resourceIndex=0; resourceIndex<allReportingResources.size(); resourceIndex++) {
+            int selectedCount = 0;
+            for (int resourceIndex=0; resourceIndex<allReportingResourcesCount; resourceIndex++) {
                 if (allReportingResources.get(resourceIndex).getEvaluatedAttributes().entrySet().containsAll(
                         metrics.get(metricWithFilteredResources).getParsedFilteredReportingResources()
                                 .get(resourceType).entrySet()
                 )) {
                     metricsForEachResource.get(resourceIndex).add(metricWithFilteredResources);
+                    selectedCount++;
                 }
             }
+            log.debug(selectedCount + " " + resourceType + " resources selected for metric " +
+                    metricWithFilteredResources);
         }
         return Pair.of(allReportingResources.stream().map(GeneratorResource::getOTelResource).toList(),
                 metricsForEachResource);
