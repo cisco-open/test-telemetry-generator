@@ -120,7 +120,7 @@ public class ResourceModelGenerator {
         int count = 0;
         for (RuntimeModification eachModification: CollectionUtils.emptyIfNull(runtimeModifications).stream()
                 .filter(modification -> !modification.getResourceModificationType().equals(ResourceModificationType.REMOVE))
-                .collect(Collectors.toList())) {
+                .toList()) {
             int newCount = ((eachModification.getEndAfterMinutes() - eachModification.getStartAfterMinutes())
                     / eachModification.getModificationFrequencyMinutes()) * eachModification.getModificationQuantity();
             count = count + newCount;
@@ -135,7 +135,7 @@ public class ResourceModelGenerator {
         //We will do this only for resources that have some children defined
         for (ResourceDefinition parentType: allResources.values().stream()
                 .filter(resource -> !MapUtils.emptyIfNull(resource.getChildrenDistribution()).isEmpty())
-                .collect(Collectors.toList())) {
+                .toList()) {
             setParentToChildrenTypes(parentType.getName(), parentType.getChildrenDistribution().keySet());
             //For each childType-distribution expression pair
             for (Map.Entry<String, String> eachChildTypeExpr: parentType.getChildrenDistribution().entrySet()) {
@@ -192,6 +192,8 @@ public class ResourceModelGenerator {
                         jelProcessor.eval(expression);
                     }
                 }));
+        //We also want to set the evaluated attributes at this stage
+        resourceModel.values().forEach(resourceList -> resourceList.forEach(GeneratorResource::setEvaluatedAttributes));
     }
 
     private void setParentToChildrenTypes(String parentType, Set<String> childTypes) {
@@ -265,14 +267,15 @@ public class ResourceModelGenerator {
      */
     @SuppressWarnings("unused")
     public static void copyFromParent(String parentType, String attribute) {
-        for (GeneratorResource eachResource: resourceModel.get(ResourceModelExpressions.expressionsGlobalKey.split(":")[1]).stream()
+        for (GeneratorResource eachResource: resourceModel
+                .get(ResourceModelExpressions.expressionsGlobalKey.split(":")[1]).stream()
                 .filter(resource -> resource.getParentsByType()!=null)
                 .filter(resource -> resource.getParentsByType().containsKey(parentType))
-                .collect(Collectors.toList())) {
+                .toList()) {
             Optional<KeyValue> parentAttribute = eachResource.getParentsByType().get(parentType).get(0)
                     .getOTelResource().getAttributesList().stream()
                     .filter(attrKV -> attrKV.getKey().equals(attribute)).findAny();
-            String attributeValue = parentAttribute.isEmpty() ? "" : parentAttribute.get().getValue().getStringValue();
+            String attributeValue = parentAttribute.map(keyValue -> keyValue.getValue().getStringValue()).orElse("");
             eachResource.getOTelResourceBuilder().addAttributes(KeyValue.newBuilder()
                     .setKey(attribute)
                     .setValue(CommonUtils.buildAnyValue(attributeValue))
@@ -292,11 +295,12 @@ public class ResourceModelGenerator {
      */
     @SuppressWarnings("unused")
     public static void modifyFromParent(String parentType, String sourceAttribute, String targetAttribute, String suffixExpression) {
-        for (GeneratorResource eachResource: resourceModel.get(ResourceModelExpressions.expressionsGlobalKey.split(":")[1])) {
+        for (GeneratorResource eachResource: resourceModel.get(ResourceModelExpressions
+                .expressionsGlobalKey.split(":")[1])) {
             Optional<KeyValue> parentAttribute = eachResource.getParentsByType().get(parentType).get(0)
                     .getOTelResource().getAttributesList().stream()
                     .filter(attrKV -> attrKV.getKey().equals(sourceAttribute)).findAny();
-            String attributeValue = parentAttribute.isEmpty() ? "" : parentAttribute.get().getValue().getStringValue();
+            String attributeValue = parentAttribute.map(keyValue -> keyValue.getValue().getStringValue()).orElse("");
             if (suffixExpression.length() > 0) {
                 attributeValue = attributeValue + jelProcessor.eval(suffixExpression);
             }

@@ -42,4 +42,7 @@ public class Constants {
     public static final String TRACES_DEFINITION_YAML = "TRACES_DEFINITION_YAML";
 
     public static final String ENV_ALPHANUMERIC = "ENV_ALPHANUMERIC";
+    public static final String SELF_NAME = "@opentelemetry/test-telemetry-generator";
+    public static final String SELF_VERSION = "23.4.0";
+
 }
