@@ -18,9 +18,9 @@
       "aggregationTemporality": "delta",
       "valueFunction": "arithmeticSequence(1, 0, \"\")",
       "isMonotonic": true,
-      "reportingResources": [
-        "pod"
-      ]
+      "filteredReportingResources": {
+        "pod": ["k8s.cluster.name=cluster-skyrim"]
+      }
     },
     {
       "name": "cpu.allocatable",
@@ -47,9 +47,9 @@
         0,
         1
       ],
-      "reportingResources": [
-        "pod"
-      ]
+      "filteredReportingResources": {
+        "pod": ["k8s.pod.status=Running", "k8s.cluster.name=cluster-skyrim"]
+      }
     },
     {
       "name": "system.filesystem.mountpoint.limit",
@@ -117,9 +117,11 @@
         1
       ],
       "reportingResources": [
-        "managed_replicaset",
-        "unmanaged_replicaset"
-      ]
+        "managed_replicaset"
+      ],
+      "filteredReportingResources": {
+        "unmanaged_replicaset": ["k8s.workload.kind=unmanaged_replicaset"]
+      }
     },
     {
       "name": "calls_min",

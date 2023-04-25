@@ -69,14 +69,12 @@ public class RuntimeModificationsThread implements Runnable {
                     && minsElapsed > eachModification.getStartAfterMinutes()
                     && minsElapsed <= eachModification.getEndAfterMinutes()) {
                 switch (eachModification.getResourceModificationType()) {
-                    case ADD:
-                        executeAddModification(eachModification.getResourceType(), eachModification.getModificationQuantity());
-                        break;
-                    case REMOVE:
-                        executeRemoveModification(eachModification.getResourceType(), eachModification.getModificationQuantity());
-                        break;
-                    case CHURN:
-                        executeChurnModification(eachModification.getResourceType(), eachModification.getModificationQuantity());
+                    case ADD ->
+                            executeAddModification(eachModification.getResourceType(), eachModification.getModificationQuantity());
+                    case REMOVE ->
+                            executeRemoveModification(eachModification.getResourceType(), eachModification.getModificationQuantity());
+                    case CHURN ->
+                            executeChurnModification(eachModification.getResourceType(), eachModification.getModificationQuantity());
                 }
                 modificationsUpdateTimestamps.put(eachModification.getModificationId(), currTime);
             }

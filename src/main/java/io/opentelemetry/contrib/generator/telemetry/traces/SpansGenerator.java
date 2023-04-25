@@ -19,6 +19,7 @@ package io.opentelemetry.contrib.generator.telemetry.traces;
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
+import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.RootSpanDefinition;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.SpanDefinition;
 import com.google.protobuf.ByteString;
@@ -76,11 +77,11 @@ public class SpansGenerator {
             for (var copyIndex=0; copyIndex<traceTree.getCopyCount(); copyIndex++) {
                 var copyIndexFinal = copyIndex;
                 List<GeneratorResource> validResources = resourceModel.get(eachSpanGroup.getKey()).stream()
-                        .filter(GeneratorResource::isActive).collect(Collectors.toList());
+                        .filter(GeneratorResource::isActive).toList();
                 int resourceIndex = (currentPostCount + copyIndex) % validResources.size();
                 List<Span.Builder> partialSpans = eachSpanGroup.getValue().stream()
                         .map(list -> list.get(copyIndexFinal))
-                        .collect(Collectors.toList());
+                        .toList();
                 List<Span> spans = new ArrayList<>();
                 for (Span.Builder eachPartialSpan: partialSpans) {
                     Set<String> attributeNames = traceTree.getTreeNodesPostOrder().get(traceTree.getSpansIndexMap()
@@ -93,8 +94,8 @@ public class SpansGenerator {
                         .setResource(validResources.get(resourceIndex).getOTelResource())
                         .addScopeSpans(ScopeSpans.newBuilder()
                                 .setScope(InstrumentationScope.newBuilder()
-                                        .setName("@opentelemetry/test-telemetry-generator")
-                                        .setVersion("22.10.0")
+                                        .setName(Constants.SELF_NAME)
+                                        .setVersion(Constants.SELF_VERSION)
                                         .build())
                                 .addAllSpans(spans)
                                 .build())

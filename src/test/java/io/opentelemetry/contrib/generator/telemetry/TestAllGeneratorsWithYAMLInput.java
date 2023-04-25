@@ -61,21 +61,8 @@ public class TestAllGeneratorsWithYAMLInput {
 
     @Test
     public void validatePacketCounts() {
-        int NETWORK_INTERFACE_COUNT = 120;
-        int CONTAINER_COUNT = 150;
-        int MACHINE_COUNT = 80;
-        int NODE_COUNT = 25;
-        int POD_COUNT = 75;
-        int DISK_COUNT = 100;
-        int AWS_RDS_COUNT = 50;
-        int AWS_EBS_COUNT = 50;
-        int METRIC_REPORTING_RESOURCES_COUNT = NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT + NODE_COUNT +
-                POD_COUNT + DISK_COUNT + AWS_EBS_COUNT + AWS_RDS_COUNT;
-        int LOG_REPORTING_RESOURCES_COUNT = CONTAINER_COUNT + NODE_COUNT + 2 * POD_COUNT + MACHINE_COUNT;
-        int metricPayloadCount = 10;
-        int logsPayloadCount = 20;
-        int expectedMetricPackets = METRIC_REPORTING_RESOURCES_COUNT * metricPayloadCount;
-        int expectedLogsPackets = LOG_REPORTING_RESOURCES_COUNT * logsPayloadCount;
+        int expectedMetricPackets = 6500;
+        int expectedLogsPackets = 8100;
         int expectedSpanPackets = 11518;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedMetricPackets, "Mismatch in expected metric packets count");
         Assert.assertEquals(testStore.getLogsPacketCount(), expectedLogsPackets, "Mismatch in expected log packets count");

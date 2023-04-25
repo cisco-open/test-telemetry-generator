@@ -22,6 +22,7 @@ import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.logs.dto.LogDefinition;
+import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.common.v1.AnyValue;
@@ -82,8 +83,8 @@ public class LogGeneratorThread implements Runnable {
                             .setResource(eachResource)
                             .addScopeLogs(ScopeLogs.newBuilder()
                                     .setScope(InstrumentationScope.newBuilder()
-                                            .setName("@opentelemetry/vodka-exporter")
-                                            .setVersion("22.10.0")
+                                            .setName(Constants.SELF_NAME)
+                                            .setVersion(Constants.SELF_VERSION)
                                             .build())
                                     .addAllLogRecords(otelLogs)
                                     .build())
@@ -120,7 +121,7 @@ public class LogGeneratorThread implements Runnable {
         //resourceEndIndex is exclusive
         int resourceEndIndex;
         List<GeneratorResource> resourcesInResourceModel = ResourceModelProvider.getResourceModel(requestID).get(resourceName).stream()
-                .filter(GeneratorResource::isActive).collect(Collectors.toList());
+                .filter(GeneratorResource::isActive).toList();
         if (resourceCount >= resourcesInResourceModel.size()) {
             resourceEndIndex = resourcesInResourceModel.size();
         } else {

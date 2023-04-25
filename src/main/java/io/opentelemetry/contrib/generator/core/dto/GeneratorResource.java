@@ -41,6 +41,7 @@ public class GeneratorResource {
     private String type; //type of this resource. There can be multiple resources of this type.
     private boolean isActive; //if this resource is currently reporting any MELT data
     private Resource.Builder otelResource; //OTel representation of the resource
+    private Map<String, String> evaluatedAttributes;
     private Map<String, List<GeneratorResource>> childrenByType; //list of all the child resources of this resource, grouped by type
     private Map<String, List<GeneratorResource>> parentsByType; //list of all the parent resources of this resource, grouped by type
 
@@ -64,6 +65,13 @@ public class GeneratorResource {
         MapUtils.emptyIfNull(parentsByType)
                 .forEach((key, value) -> parentTypeCounts.put(key, CollectionUtils.emptyIfNull(value).size()));
         return parentTypeCounts;
+    }
+
+    public void setEvaluatedAttributes() {
+        evaluatedAttributes = new HashMap<>();
+        for (KeyValue eachKv: CollectionUtils.emptyIfNull(otelResource.getAttributesList())) {
+            evaluatedAttributes.put(eachKv.getKey(), CommonUtils.anyValueToString(eachKv.getValue()));
+        }
     }
 
     @Override
@@ -102,10 +110,9 @@ public class GeneratorResource {
 
     @Override
     public boolean equals(Object generatorResource) {
-        if (!(generatorResource instanceof GeneratorResource)) {
+        if (!(generatorResource instanceof GeneratorResource compareResource)) {
             return false;
         }
-        GeneratorResource compareResource = (GeneratorResource) generatorResource;
         if (!Objects.equals(this.type, compareResource.type)) {
             return false;
         }

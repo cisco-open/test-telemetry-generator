@@ -39,6 +39,8 @@ public class TestMetricsGenerator {
     private final int MACHINE_COUNT = 80;
     private final int NODE_COUNT = 25;
     private final int POD_COUNT = 75;
+    private final int POD_RESTARTS_POD_COUNT = 15;
+    private final int FS_USED_POD_COUNT = 4;
     private final int DISK_COUNT = 100;
     private final int AWS_RDS_COUNT = 50;
     private final int AWS_EBS_COUNT = 50;
@@ -70,16 +72,18 @@ public class TestMetricsGenerator {
     public void testMetricCounts() {
         int systemNetworkInKbSec_Count = (NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
         int systemNetworkOutKbSec_Count = (NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
-        int podRestarts_Count = POD_COUNT * PAYLOAD_COUNT;
+        int podRestarts_Count = POD_RESTARTS_POD_COUNT * PAYLOAD_COUNT;
         int cpuUsed_Count = (NODE_COUNT + CONTAINER_COUNT + POD_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
-        int filesystemUsed_Count = (REPORTING_RESOURCES_COUNT - NETWORK_INTERFACE_COUNT) * PAYLOAD_COUNT;
+        int filesystemUsed_Count = (DISK_COUNT + AWS_RDS_COUNT + AWS_EBS_COUNT + NODE_COUNT + CONTAINER_COUNT +
+                MACHINE_COUNT + FS_USED_POD_COUNT) * PAYLOAD_COUNT;
         int memoryUsed_Count = (AWS_RDS_COUNT + NODE_COUNT + CONTAINER_COUNT + POD_COUNT + MACHINE_COUNT) * PAYLOAD_COUNT;
+        Assert.assertEquals(testStore.getMetricsCount().get("pod.restarts").get(), podRestarts_Count,
+                "Mismatch in metrics count for metric pod.restarts");
         Assert.assertEquals(testStore.getMetricsCount().get("system.network.in.kb.sec").get(), systemNetworkInKbSec_Count,
                 "Mismatch in metrics count for metric system.network.in.kb.sec");
         Assert.assertEquals(testStore.getMetricsCount().get("system.network.out.kb.sec").get(), systemNetworkOutKbSec_Count,
                 "Mismatch in metrics count for metric system.network.out.kb.sec");
-        Assert.assertEquals(testStore.getMetricsCount().get("pod.restarts").get(), podRestarts_Count,
-                "Mismatch in metrics count for metric pod.restarts");
+
         Assert.assertEquals(testStore.getMetricsCount().get("cpu.used").get(), cpuUsed_Count,
                 "Mismatch in metrics count for metric cpu.used");
         Assert.assertEquals(testStore.getMetricsCount().get("filesystem.used").get(), filesystemUsed_Count,

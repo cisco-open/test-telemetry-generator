@@ -23,6 +23,8 @@ import io.opentelemetry.contrib.generator.telemetry.transport.TransportStorage;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.Metrics;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,7 +45,8 @@ public class MetricsGenerator {
 
     private GeneratorState<MetricGeneratorThread> generatorState;
 
-    public MetricsGenerator(Metrics metrics, PayloadHandler payloadHandler, String requestID, TransportStorage transportStorage) {
+    public MetricsGenerator(Metrics metrics, PayloadHandler payloadHandler, String requestID,
+                            TransportStorage transportStorage) {
         this.metrics = metrics;
         this.payloadHandler = payloadHandler;
         this.requestID = requestID;
@@ -81,7 +84,7 @@ public class MetricsGenerator {
      * which is obtained as - reportingResourceType::payloadFrequency::payloadCount. <p>
      * After the grouping, we need to add the group key to expression method parameters to identify each group uniquely
      * when processing the value expressions.
-     * @return list of metrics grouped by group key
+     * @return Map of metrics grouped by group key
      */
     private Map<String, List<MetricDefinition>> getMetricThreadGroups() {
         Set<String> expressionsFilter = new HashSet<>(Arrays.asList("arithmeticSequence", "geometricSequence",
@@ -91,7 +94,8 @@ public class MetricsGenerator {
                 "absoluteCosineSequenceSummary", "absoluteTangentSequence", "absoluteTangentSequenceSummary"));
         Map<String, List<MetricDefinition>> metricThreadGroups = new HashMap<>();
         for (MetricDefinition eachMetric: metrics.getMetrics()) {
-            Set<String> groupKeys = eachMetric.getReportingResources();
+            Set<String> groupKeys = new HashSet<>(CollectionUtils.emptyIfNull(eachMetric.getReportingResources()));
+            groupKeys.addAll(MapUtils.emptyIfNull(eachMetric.getFilteredReportingResources()).keySet());
             groupKeys.forEach(eachKey -> {
                 eachKey = eachKey + "::" + eachMetric.getPayloadFrequencySeconds() + "::" + eachMetric.getPayloadCount();
                 MetricDefinition metricDefinition = getMetricWithModifiedExpression(eachKey, eachMetric, expressionsFilter);

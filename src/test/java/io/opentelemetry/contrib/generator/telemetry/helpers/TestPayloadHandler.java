@@ -21,7 +21,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
-import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
+import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
@@ -55,29 +55,25 @@ public class TestPayloadHandler implements PayloadHandler {
 
     @Override
     public boolean postPayload(GeneratedMessageV3 message) {
-        if (message instanceof ExportMetricsServiceRequest) {
-            ExportMetricsServiceRequest payload = (ExportMetricsServiceRequest) message;
+        if (message instanceof ExportMetricsServiceRequest payload) {
             metricPayloads.add(payload);
             int resourceMetricsCount = payload.getResourceMetricsCount();
             metricsPacketCount.addAndGet(resourceMetricsCount);
-            payload.getResourceMetrics(0)
-                    .getScopeMetrics(0)
-                    .getMetricsList()
-                    .forEach(metric -> {
-                        if (!metricsCount.containsKey(metric.getName())) {
-                            synchronized (metricsCount) {
-                                metricsCount.putIfAbsent(metric.getName(), new AtomicInteger(0));
-                            }
+            for (ResourceMetrics eachRM: payload.getResourceMetricsList()) {
+                eachRM.getScopeMetrics(0).getMetricsList().forEach(metric -> {
+                    if (!metricsCount.containsKey(metric.getName())) {
+                        synchronized (metricsCount) {
+                            metricsCount.putIfAbsent(metric.getName(), new AtomicInteger(0));
                         }
-                        metricsCount.get(metric.getName()).addAndGet(resourceMetricsCount);
-                    });
-        } else if (message instanceof ExportLogsServiceRequest) {
-            ExportLogsServiceRequest payload = (ExportLogsServiceRequest) message;
+                    }
+                    metricsCount.get(metric.getName()).addAndGet(1);
+                });
+            }
+        } else if (message instanceof ExportLogsServiceRequest payload) {
             logsPayloads.add(payload);
             int resourceLogsCount = payload.getResourceLogsCount();
             logsPacketCount.addAndGet(resourceLogsCount);
-        } else if (message instanceof ExportTraceServiceRequest) {
-            ExportTraceServiceRequest payload = (ExportTraceServiceRequest) message;
+        } else if (message instanceof ExportTraceServiceRequest payload) {
             tracePayloads.add(payload);
             int spanPacketCount = payload.getResourceSpansCount();
             spansPacketCount.addAndGet(spanPacketCount);
