@@ -18,6 +18,7 @@ package io.opentelemetry.contrib.generator.telemetry.metrics;
 
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
+import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorExceptionHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.TransportStorage;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
@@ -29,6 +30,7 @@ import org.apache.commons.collections4.MapUtils;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,7 +72,14 @@ public class MetricsGenerator {
     }
 
     private void initGeneratorState() {
-        generatorState = new GeneratorState<>(Executors.newScheduledThreadPool(metricThreadGroups.size()));
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(
+                metricThreadGroups.size(),
+                runnable -> {
+                    Thread t = Executors.defaultThreadFactory().newThread(runnable);
+                    t.setUncaughtExceptionHandler(new GeneratorExceptionHandler());
+                    return t;
+                });
+        generatorState = new GeneratorState<>(executorService);
         generatorState.setThreadPayloadCounts(new ConcurrentHashMap<>());
         if (transportStorage != null) {
             transportStorage.initMetricResponseMaps();

@@ -18,6 +18,7 @@ package io.opentelemetry.contrib.generator.telemetry.traces;
 
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
+import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorExceptionHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.transport.TransportStorage;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.RootSpanDefinition;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,7 +68,14 @@ public class TracesGenerator {
     }
 
     private void initGeneratorState() {
-        generatorState = new GeneratorState<>(Executors.newScheduledThreadPool(traceGroups.size()));
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(
+                traceGroups.size(),
+                runnable -> {
+                    Thread t = Executors.defaultThreadFactory().newThread(runnable);
+                    t.setUncaughtExceptionHandler(new GeneratorExceptionHandler());
+                    return t;
+                });
+        generatorState = new GeneratorState<>(executorService);
         generatorState.setThreadPayloadCounts(new ConcurrentHashMap<>());
         if (transportStorage != null) {
             transportStorage.initTraceResponseMaps();
