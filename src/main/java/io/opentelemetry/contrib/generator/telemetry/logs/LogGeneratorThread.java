@@ -34,6 +34,7 @@ import io.opentelemetry.proto.logs.v1.LogRecord;
 import jakarta.el.ELProcessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 
 import static io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils.*;
 
@@ -72,10 +73,21 @@ public class LogGeneratorThread implements Runnable {
             List<ResourceLogs> resourceLogsList = new ArrayList<>();
             ResourceLogs resourceLog;
             LogRecord.Builder partialLogRecord = getLog(logDefinition);
-            for (Map.Entry<String, Integer> reportingResource : logDefinition.getReportingResourcesCounts().entrySet()) {
-                List<Resource> postToResources = getResourceSubsetByPostCount(reportingResource.getKey(), reportingResource.getValue());
-                log.debug(requestID + ": Preparing " + postToResources.size() + " resource logs packets for " + reportingResource);
-                for (Resource eachResource: postToResources) {
+            Map<String, List<Resource>> reportingResourcesByType = new HashMap<>();
+            for (Map.Entry<String, Integer> resourceTypeWithCount:
+                    MapUtils.emptyIfNull(logDefinition.getReportingResourcesCounts()).entrySet()) {
+                reportingResourcesByType.put(resourceTypeWithCount.getKey(),
+                        getResourceSubsetByPostCount(resourceTypeWithCount.getKey(), resourceTypeWithCount.getValue()));
+            }
+            for (Map.Entry<String, Map<String, String>> resourceTypeWithFilter:
+                    MapUtils.emptyIfNull(logDefinition.getParsedFilteredReportingResources()).entrySet()) {
+                reportingResourcesByType.put(resourceTypeWithFilter.getKey(),
+                        getFilteredResources(resourceTypeWithFilter.getKey(), resourceTypeWithFilter.getValue()));
+            }
+            for (Map.Entry<String, List<Resource>> reportingResourceByType : reportingResourcesByType.entrySet()) {
+                log.debug(requestID + ": Preparing " + reportingResourceByType.getValue().size() +
+                        " resource logs packets for " + reportingResourceByType.getKey());
+                for (Resource eachResource: reportingResourceByType.getValue()) {
                     LogRecord logRecord = partialLogRecord.clone().addAllAttributes(getResourceAttributes(logDefinition
                             .getCopyResourceAttributes(), eachResource)).build();
                     List<LogRecord> otelLogs = Collections.nCopies(logDefinition.getCopyCount(), logRecord);
@@ -91,13 +103,15 @@ public class LogGeneratorThread implements Runnable {
                             .build();
                     resourceLogsList.add(resourceLog);
                 }
-                log.info(requestID + ": Sending payload for: " + reportingResource);
+                log.info(requestID + ": Sending payload for: " + reportingResourceByType.getKey());
                 ExportLogsServiceRequest resourceLogs = ExportLogsServiceRequest.newBuilder().addAllResourceLogs(resourceLogsList).build();
                 boolean responseStatus = payloadHandler.postPayload(resourceLogs);
                 if (logGeneratorState.getTransportStorage() != null) {
-                    logGeneratorState.getTransportStorage().store(logDefinition.getId(), reportingResource.getKey(), resourceLogs, responseStatus);
+                    logGeneratorState.getTransportStorage().store(logDefinition.getId(),
+                            reportingResourceByType.getKey(), resourceLogs, responseStatus);
                 }
-                log.debug(requestID + ": Complete payload for resource: " + reportingResource + " in log Definition" + logDefinition.getId() + ": " + resourceLogs);
+                log.debug(requestID + ": Complete payload for resource: " + reportingResourceByType.getKey() +
+                        " in log Definition" + logDefinition.getId() + ": " + resourceLogs);
                 resourceLogsList.clear();
             }
             currentPayloadCount++;
@@ -130,5 +144,19 @@ public class LogGeneratorThread implements Runnable {
         }
         return resourcesInResourceModel.subList(resourceStartIndex, resourceEndIndex)
                 .stream().map(GeneratorResource::getOTelResource).collect(Collectors.toList());
+    }
+
+    private List<Resource> getFilteredResources(String resourceName, Map<String, String> filters) {
+        List<Resource> filteredResources = new ArrayList<>();
+        List<GeneratorResource> allResources = ResourceModelProvider.getResourceModel(requestID)
+                .get(resourceName).stream()
+                .filter(GeneratorResource::isActive)
+                .toList();
+        for (GeneratorResource eachResource: allResources) {
+            if (eachResource.getEvaluatedAttributes().entrySet().containsAll(filters.entrySet())) {
+                filteredResources.add(eachResource.getOTelResource());
+            }
+        }
+        return filteredResources;
     }
 }
