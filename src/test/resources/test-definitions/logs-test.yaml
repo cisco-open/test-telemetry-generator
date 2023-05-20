@@ -55,5 +55,6 @@ logs:
     payloadFrequencySeconds: 20
     payloadCount: 2
     copyCount: 10
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
     filteredReportingResources:
       node: ["k8s.cluster.name=cluster-aukus"]
