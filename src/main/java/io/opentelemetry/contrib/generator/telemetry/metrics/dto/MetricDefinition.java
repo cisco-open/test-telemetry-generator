@@ -16,6 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry.metrics.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
@@ -46,6 +47,7 @@ public class MetricDefinition implements Cloneable {
     private Map<String, Set<String>> filteredReportingResources;
     private Set<String> copyResourceAttributes;
     private Map<String, Object> attributes;
+    @JsonIgnore
     private Map<String, Map<String, String>> parsedFilteredReportingResources;
 
     public void validate(String requestID, Set<String> allResourceTypes, Integer globalPayloadFrequency,

@@ -41,6 +41,13 @@
         "event.reason": "roundRobin([\"Pulling\", \"Pulled\", \"Created\", \"Pulling\", \"Backoff\"])",
         "event.message": "roundRobin([\"Pulling image k8s.gcr.io/echoserver:1.8\", \"Image downloaded\", \"Created container\", \"Pulling image cjknsjc/ccsdc:fff\", \"Error: ImagePullBackoff\"])"
       }
+    },
+    {
+      "payloadCount": 20,
+      "severityOrderFunction": "severityDistributionCount([\"INFO\", \"ERROR\", \"WARN\", \"DEBUG\"], [5, 1, 1, 4])",
+      "filteredReportingResources": {
+        "node": ["k8s.cluster.name=cluster-aukus"]
+      }
     }
   ]
 }

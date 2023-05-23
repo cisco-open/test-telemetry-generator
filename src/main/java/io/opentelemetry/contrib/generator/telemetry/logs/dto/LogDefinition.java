@@ -33,6 +33,7 @@ public class LogDefinition {
 
     private String severityOrderFunction;
     private Map<String, Integer> reportingResourcesCounts;
+    private Map<String, Set<String>> filteredReportingResources;
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
     private Integer copyCount;
@@ -40,6 +41,8 @@ public class LogDefinition {
     private Map<String, Object> attributes;
     @JsonIgnore
     private String id;
+    @JsonIgnore
+    private Map<String, Map<String, String>> parsedFilteredReportingResources;
 
     public long validate(String requestID, Set<String> allResourceTypes, Integer globalPayloadFrequencySeconds, int logIndex) {
         id = "log_by_ttg_" + logIndex;
@@ -50,7 +53,8 @@ public class LogDefinition {
             copyResourceAttributes = new HashSet<>();
         }
         validateMandatoryFields();
-        validateResourceTypesCount(allResourceTypes);
+        validateResourceTypes(allResourceTypes);
+        parseFilteredReportingResources();
         addRequestIDAndLogNameToValueFunction(requestID);
         attributes = GeneratorUtils.addArgsToAttributeExpressions(requestID, "log", id, attributes);
         return validatePayloadFrequency(globalPayloadFrequencySeconds);
@@ -60,8 +64,10 @@ public class LogDefinition {
         if (payloadCount == null || payloadCount < 1) {
             throw new GeneratorException("Payload count cannot be less than 1. Update the value in log " + this);
         }
-        if (MapUtils.emptyIfNull(reportingResourcesCounts).isEmpty()) {
-            throw new GeneratorException("Mandatory field 'reportingResourcesCount' not provided in log definition YAML for log " + this);
+        if (MapUtils.emptyIfNull(reportingResourcesCounts).isEmpty() &&
+                MapUtils.emptyIfNull(filteredReportingResources).isEmpty()) {
+            throw new GeneratorException("At least one resource type must be specified in either reportingResources" +
+                    " or filteredReportingResources for" + this);
         }
         if (StringUtils.defaultString(severityOrderFunction).isBlank()) {
             throw new GeneratorException("Mandatory field 'severityFrequency' not provided in log definition YAML for log " + this);
@@ -107,7 +113,13 @@ public class LogDefinition {
         attributes = GeneratorUtils.validateAttributes(attributes);
     }
 
-    private void validateResourceTypesCount(Set<String> allResourceTypes) {
+    private void validateResourceTypes(Set<String> allResourceTypes) {
+        Set<String> resourcesInCounts = MapUtils.emptyIfNull(reportingResourcesCounts).keySet();
+        Set<String> resourcesInFilteredResources = MapUtils.emptyIfNull(filteredReportingResources).keySet();
+        if (!Collections.disjoint(resourcesInCounts, resourcesInFilteredResources)) {
+            throw new GeneratorException("'reportingResourcesCounts' and 'filteredReportingResources' cannot have " +
+                    "the same resource type for log " + this);
+        }
         Map<String, Integer> resourceCount = new HashMap<>();
         for (Map.Entry<String, Integer> eachResource : MapUtils.emptyIfNull(reportingResourcesCounts).entrySet()) {
             if (eachResource.getKey().trim().length() == 0) {
@@ -124,6 +136,32 @@ public class LogDefinition {
             else resourceCount.put(eachResource.getKey().trim(), eachResource.getValue());
         }
         reportingResourcesCounts = resourceCount;
+        for (String resourceType: MapUtils.emptyIfNull(filteredReportingResources).keySet()) {
+            if (!allResourceTypes.contains(resourceType)) {
+                throw new GeneratorException("Invalid resource type (" + resourceType + ") found in " +
+                        "'filteredReportingResources' for log " + this);
+            }
+        }
+    }
+
+    private void parseFilteredReportingResources() {
+        if (!MapUtils.emptyIfNull(filteredReportingResources).isEmpty()) {
+            parsedFilteredReportingResources = new HashMap<>();
+            for (Map.Entry<String, Set<String>> eachFilteredReportingResource: filteredReportingResources.entrySet()) {
+                String resourceType = eachFilteredReportingResource.getKey();
+                parsedFilteredReportingResources.put(resourceType, new HashMap<>());
+                for (String attributeFilter : eachFilteredReportingResource.getValue()) {
+                    String[] filterTokens = attributeFilter.split("=");
+                    if (filterTokens.length != 2) {
+                        log.warn("Attribute filter " + attributeFilter + " provided for resource type " +
+                                resourceType + " in the log definition YAML for log " + this + " is not valid. " +
+                                "Must contain a single '='");
+                        continue;
+                    }
+                    parsedFilteredReportingResources.get(resourceType).put(filterTokens[0], filterTokens[1]);
+                }
+            }
+        }
     }
 
     private void addRequestIDAndLogNameToValueFunction(String requestID) {

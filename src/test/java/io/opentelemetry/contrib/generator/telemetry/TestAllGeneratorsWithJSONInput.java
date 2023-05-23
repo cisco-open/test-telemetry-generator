@@ -55,11 +55,14 @@ public class TestAllGeneratorsWithJSONInput {
         int METRIC_REPORTING_RESOURCES_COUNT = NETWORK_INTERFACE_COUNT + CONTAINER_COUNT + MACHINE_COUNT + NODE_COUNT +
                 POD_COUNT + DISK_COUNT + AWS_EBS_COUNT + AWS_RDS_COUNT;
         int LOG_REPORTING_RESOURCES_COUNT = CONTAINER_COUNT + NODE_COUNT + 2 * POD_COUNT + MACHINE_COUNT;
+        int LOG_FILTERED_RESOURCES = 5;
+        int LOG_FILTERED_PAYLOADS = 20;
         int metricPayloadCount = 10;
         int logsPayloadCount = 20;
         int POD_EVENTS_COUNT = 30 * 5;
         int expectedMetricPackets = METRIC_REPORTING_RESOURCES_COUNT * metricPayloadCount;
-        int expectedLogsPackets = LOG_REPORTING_RESOURCES_COUNT * logsPayloadCount + POD_EVENTS_COUNT;
+        int expectedLogsPackets = LOG_REPORTING_RESOURCES_COUNT * logsPayloadCount + POD_EVENTS_COUNT +
+                (LOG_FILTERED_RESOURCES * LOG_FILTERED_PAYLOADS);
         int expectedSpanPackets = 11518;
         Assert.assertEquals(testStore.getMetricsPacketCount(), expectedMetricPackets, "Mismatch in expected metric packets count");
         Assert.assertEquals(testStore.getLogsPacketCount(), expectedLogsPackets, "Mismatch in expected log packets count");
@@ -70,7 +73,7 @@ public class TestAllGeneratorsWithJSONInput {
     public void validateStorageCounts() {
         Assert.assertEquals(transportStorage.getStoredMetricsPayloads().size(), 8,
                 "Mismatch in resource type counts for metric payloads");
-        Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 4,
+        Assert.assertEquals(transportStorage.getStoredLogsPayloads().size(), 5,
                 "Mismatch in resource type counts for log payloads");
         Assert.assertEquals(transportStorage.getStoredLogsPayloads().get("log_by_ttg_0").size(), 3,
                 "Mismatch in resource type counts for log payloads");
@@ -80,7 +83,7 @@ public class TestAllGeneratorsWithJSONInput {
                 "Mismatch in resource type counts for trace payloads");
         Assert.assertEquals(transportStorage.getMetricsResponses().size(), 8,
                 "Mismatch in resource type counts for metric response statuses");
-        Assert.assertEquals(transportStorage.getLogsResponses().size(), 4,
+        Assert.assertEquals(transportStorage.getLogsResponses().size(), 5,
                 "Mismatch in resource type counts for log response statuses");
         Assert.assertEquals(transportStorage.getTracesResponses().size(), 8,
                 "Mismatch in resource type counts for trace response statuses");

@@ -51,3 +51,10 @@ logs:
       event.domain: 'roundRobin(["k8s"])'
       event.reason: 'roundRobin(["Pulling", "Pulled", "Created", "Pulling", "Backoff"])'
       event.message: 'roundRobin(["Pulling image k8s.gcr.io/echoserver:1.8", "Image downloaded", "Created container", "Pulling image cjknsjc/ccsdc:fff", "Error: ImagePullBackoff"])'
+  - severityOrderFunction: 'severityDistributionCount(["ERROR", "WARN", "DEBUG"], [1, 1, 4])'
+    payloadFrequencySeconds: 20
+    payloadCount: 2
+    copyCount: 10
+    copyResourceAttributes: ["k8s.pod.ip", "k8s.node.ip.internal"]
+    filteredReportingResources:
+      node: ["k8s.cluster.name=cluster-aukus"]
