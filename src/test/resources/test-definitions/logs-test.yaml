@@ -18,6 +18,7 @@ globalPayloadFrequencySeconds: 30
 logs:
   - attributes:
       log.labels: '{"generator": roundRobin(["Telemetry-Generator", "Telemetry-Generator-v2"]), "type": "k8s"}'
+      type: 'log'
     severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "DEBUG"], [1, 2, 3])'
     payloadFrequencySeconds: 20
     payloadCount: 10
