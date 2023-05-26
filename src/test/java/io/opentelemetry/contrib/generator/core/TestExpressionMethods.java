@@ -16,9 +16,9 @@
 
 package io.opentelemetry.contrib.generator.core;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.jel.JELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
-import jakarta.el.ELProcessor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 
 public class TestExpressionMethods {
 
-    private final ELProcessor jelProcessor = JELProvider.getJelProcessor();
+    private final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
 
     @Test
     public void testCounter() {
@@ -199,5 +199,11 @@ public class TestExpressionMethods {
             Assert.assertEquals(jelProcessor.eval(expression3), outputs3.get(i), "Mismatch at index " + i);
             Assert.assertEquals(jelProcessor.eval(expression4), outputs4.get(i), "Mismatch at index " + i);
         }
+    }
+
+    @Test
+    public void testExpressionlessString() {
+        String stringVal = "testValue";
+        Assert.assertEquals(jelProcessor.eval(stringVal), stringVal);
     }
 }

@@ -16,6 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry.jel.methods;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import jakarta.el.ELProcessor;
 
@@ -35,7 +36,7 @@ import java.util.stream.IntStream;
 @SuppressWarnings("unused")
 public class MetricValueGenerators {
 
-    private static final ELProcessor jelProcessor = new ELProcessor();
+    private static final ExpressionProcessor jelProcessor = new ExpressionProcessor();
     private static final ConcurrentMap<String, Double> controlledRandom = new ConcurrentHashMap<>();
     private static final DecimalFormat formatter = new DecimalFormat("##.##");
 

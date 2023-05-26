@@ -17,12 +17,12 @@
 package io.opentelemetry.contrib.generator.telemetry.misc;
 
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
 
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.resource.v1.Resource;
-import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 
@@ -86,7 +86,7 @@ public class GeneratorUtils {
         return attrs;
     }
 
-    public static List<KeyValue> getEvaluatedAttributes(ELProcessor jelProcessor, Map<String, Object> attributesDefinitions) {
+    public static List<KeyValue> getEvaluatedAttributes(ExpressionProcessor jelProcessor, Map<String, Object> attributesDefinitions) {
         List<KeyValue> attributes = new ArrayList<>();
         KeyValue eachAttribute;
         for (Map.Entry<String, Object> definedAttributes: MapUtils.emptyIfNull(attributesDefinitions).entrySet()) {

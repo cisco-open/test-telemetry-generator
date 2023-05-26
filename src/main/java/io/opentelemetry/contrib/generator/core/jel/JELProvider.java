@@ -17,7 +17,6 @@
 package io.opentelemetry.contrib.generator.core.jel;
 
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
-import jakarta.el.ELProcessor;
 
 import java.util.Arrays;    
 import java.util.List;
@@ -27,13 +26,13 @@ import java.util.List;
  */
 public class JELProvider {
 
-    private static ELProcessor jelProcessor;
+    private static ExpressionProcessor jelProcessor;
 
     private JELProvider() {}
 
-    public static ELProcessor getJelProcessor() {
+    public static ExpressionProcessor getJelProcessor() {
         if (jelProcessor == null) {
-            jelProcessor = new ELProcessor();
+            jelProcessor = new ExpressionProcessor();
             var expressionsClass = "io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions";
             List<String> methods = Arrays.asList("counter", "UUIDFromStringCounter", "roundRobin", "alphanumericSequenceFromEnv",
                     "alphanumericSequence", "IPv4Sequence", "distribution", "count", "getLong", "getDouble", "getBoolean");

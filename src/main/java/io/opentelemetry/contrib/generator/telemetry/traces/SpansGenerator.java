@@ -17,6 +17,7 @@
 package io.opentelemetry.contrib.generator.telemetry.traces;
 
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
@@ -27,7 +28,6 @@ import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.*;
 import io.opentelemetry.sdk.trace.IdGenerator;
-import jakarta.el.ELProcessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,6 @@ import static io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils.*
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -44,7 +43,7 @@ public class SpansGenerator {
     private final RootSpanDefinition traceTree;
     private final String groupName;
     private final String requestID;
-    private final ELProcessor jelProcessor;
+    private final ExpressionProcessor jelProcessor;
     private ByteString[] traceIds;
     private long[] startTimes;
     private long[] endTimes;

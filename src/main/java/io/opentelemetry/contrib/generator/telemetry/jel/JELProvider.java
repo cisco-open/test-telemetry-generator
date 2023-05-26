@@ -17,10 +17,10 @@
 package io.opentelemetry.contrib.generator.telemetry.jel;
 
 import io.opentelemetry.contrib.generator.core.exception.GeneratorException;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.LogSeverityGenerator;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.MetricValueGenerators;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.MELTAttributeGenerators;
-import jakarta.el.ELProcessor;
 
 import java.util.List;
 
@@ -29,13 +29,13 @@ import java.util.List;
  */
 public class JELProvider {
 
-    private static ELProcessor jelProcessor;
+    private static ExpressionProcessor jelProcessor;
 
     private JELProvider() {}
 
-    public static ELProcessor getJelProcessor() {
+    public static ExpressionProcessor getJelProcessor() {
         if (jelProcessor == null) {
-            jelProcessor = new ELProcessor();
+            jelProcessor = new ExpressionProcessor();
             defineMetricFunction("arithmeticSequence", String.class, String.class, double.class, double.class, String.class);
             defineMetricFunction("arithmeticSequenceSummary", String.class, String.class, double.class, double.class, String.class, int.class);
             defineMetricFunction("geometricSequence", String.class, String.class, double.class, double.class, String.class);

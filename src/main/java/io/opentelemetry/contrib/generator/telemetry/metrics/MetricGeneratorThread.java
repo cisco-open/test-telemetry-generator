@@ -17,6 +17,7 @@
 package io.opentelemetry.contrib.generator.telemetry.metrics;
 
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
@@ -30,7 +31,6 @@ import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.*;
 import io.opentelemetry.proto.resource.v1.Resource;
-import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -62,7 +62,7 @@ public class MetricGeneratorThread implements Runnable {
         this.metrics = metrics.stream().collect(Collectors.toMap(MetricDefinition::getName, Function.identity()));
         this.payloadHandler = payloadHandler;
         this.metricGeneratorState = GeneratorsStateProvider.getMetricGeneratorState(requestID);
-        ELProcessor jelProcessor = JELProvider.getJelProcessor();
+        ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
         gaugeGenerator = new GaugeGenerator(jelProcessor);
         sumGenerator = new SumGenerator(requestID, jelProcessor);
         summaryGenerator = new SummaryGenerator(jelProcessor);

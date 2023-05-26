@@ -16,12 +16,12 @@
 
 package io.opentelemetry.contrib.generator.telemetry.metrics;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.proto.metrics.v1.Metric;
 import io.opentelemetry.proto.metrics.v1.Summary;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
-import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SummaryGenerator {
 
-    private final ELProcessor jelProcessor;
+    private final ExpressionProcessor jelProcessor;
 
-    public SummaryGenerator(ELProcessor jelProcessor) {
+    public SummaryGenerator(ExpressionProcessor jelProcessor) {
         this.jelProcessor = jelProcessor;
     }
 

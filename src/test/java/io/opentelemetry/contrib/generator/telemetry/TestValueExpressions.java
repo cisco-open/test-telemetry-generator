@@ -16,13 +16,13 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.helpers.TestPayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.logs.LogGeneratorThread;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.logs.dto.LogDefinition;
 import io.opentelemetry.contrib.generator.telemetry.metrics.MetricGeneratorThread;
-import jakarta.el.ELProcessor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
 
 public class TestValueExpressions {
 
-    private final ELProcessor jelProcessor = JELProvider.getJelProcessor();
+    private final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
     private final int[] VALUES_TO_CHECK = new int[]{0, 3, 6, 10, 13};
     private static final DecimalFormat doubleFormatter = new DecimalFormat("0.00");
     private final String GENERATOR_KEY = "ExpressionsTest";
@@ -297,4 +297,6 @@ public class TestValueExpressions {
             Assert.assertEquals(actual, expected.get(i));
         }
     }
+
+
 }

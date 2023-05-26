@@ -17,6 +17,7 @@
 package io.opentelemetry.contrib.generator.telemetry.logs;
 
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
@@ -31,7 +32,6 @@ import io.opentelemetry.proto.logs.v1.ResourceLogs;
 import io.opentelemetry.proto.logs.v1.ScopeLogs;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.logs.v1.LogRecord;
-import jakarta.el.ELProcessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -53,7 +53,7 @@ public class LogGeneratorThread implements Runnable {
     private final LogDefinition logDefinition;
     private final PayloadHandler payloadHandler;
     private final GeneratorState<LogGeneratorThread> logGeneratorState;
-    private final ELProcessor jelProcessor;
+    private final ExpressionProcessor jelProcessor;
     private int currentPayloadCount;
 
     public LogGeneratorThread(LogDefinition logDefinition, PayloadHandler payloadHandler, String requestID) {
