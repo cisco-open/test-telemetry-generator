@@ -78,6 +78,7 @@ resources:
     childrenDistribution:
       container: 'distribution(2, 0, 0)'
     attributes:
+      k8s.resource.type: 'k8s.pod'
       k8s.pod.ip: 'IPv4Sequence("133.29.54.1")'
       k8s.pod.status: 'roundRobin(["Pending","Running","Succeeded","Unknown"])'
       k8s.pod.labels: '{"app": alphanumericSequence("gnrtrx").concat("-service"), "ip": IPv4Sequence("133.45.54.2"), "version": roundRobin(["latest", "22.5.0-142"])}'

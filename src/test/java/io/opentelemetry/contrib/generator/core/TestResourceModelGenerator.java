@@ -19,6 +19,7 @@ package io.opentelemetry.contrib.generator.core;
 import io.opentelemetry.contrib.generator.core.dto.Resources;
 import io.opentelemetry.contrib.generator.core.dto.ResourceDefinition;
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.jel.JELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
@@ -26,7 +27,6 @@ import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.opentelemetry.proto.common.v1.KeyValue;
-import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -51,7 +51,7 @@ public class TestResourceModelGenerator {
 
     private Resources resources, resourcesWithRuntimeMods;
     private Map<String, List<GeneratorResource>> resourceModel, resourceModelRuntimeMods;
-    private final ELProcessor jelProcessor = JELProvider.getJelProcessor();
+    private final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
 
     @BeforeClass
     public void generateModel() {

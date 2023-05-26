@@ -16,12 +16,12 @@
 
 package io.opentelemetry.contrib.generator.telemetry.metrics;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.proto.metrics.v1.Gauge;
 import io.opentelemetry.proto.metrics.v1.Metric;
 import io.opentelemetry.proto.metrics.v1.NumberDataPoint;
-import jakarta.el.ELProcessor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,9 +30,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class GaugeGenerator {
 
-    private final ELProcessor jelProcessor;
+    private final ExpressionProcessor jelProcessor;
 
-    public GaugeGenerator(ELProcessor jelProcessor) {
+    public GaugeGenerator(ExpressionProcessor jelProcessor) {
         this.jelProcessor = jelProcessor;
     }
 

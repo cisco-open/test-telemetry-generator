@@ -16,6 +16,7 @@
 
 package io.opentelemetry.contrib.generator.core.jel.methods;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.jel.JELProvider;
 import io.opentelemetry.contrib.generator.core.jel.helpers.AlphanumericHelper;
 import io.opentelemetry.contrib.generator.core.jel.helpers.IPHelper;
@@ -40,7 +41,7 @@ public class ResourceModelExpressions {
     private static final ConcurrentHashMap<String, Integer> counters = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Double> doubleCounters = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> stringCounters = new ConcurrentHashMap<>();
-    private static final ELProcessor jelProcessor = JELProvider.getJelProcessor();
+    private static final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
     public static String expressionsGlobalKey = ""; //Modified by the resource model generator every time a new resource/attribute is being processed
 
     private ResourceModelExpressions() {}

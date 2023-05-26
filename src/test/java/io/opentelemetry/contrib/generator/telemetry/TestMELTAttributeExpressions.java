@@ -16,11 +16,11 @@
 
 package io.opentelemetry.contrib.generator.telemetry;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.MELTAttributeGenerators;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
-import jakarta.el.ELProcessor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 
 public class TestMELTAttributeExpressions {
 
-    private final ELProcessor jelProcessor = JELProvider.getJelProcessor();
+    private final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
     private final String requestID = UUID.randomUUID().toString();
 
     @Test
@@ -207,5 +207,11 @@ public class TestMELTAttributeExpressions {
         String expression = "getBoolean(count(\"" + requestID + "\", \"metric\", \"cpu.used\", \"boolexpr\") % 2)";
         List<Boolean> expectedValues = Arrays.asList(false, true, false, true, false);
         IntStream.range(0, 5).forEach(i -> Assert.assertEquals(jelProcessor.eval(expression), expectedValues.get(i)));
+    }
+
+    @Test
+    public void testString() {
+        String stringVal = "testString";
+        Assert.assertEquals(jelProcessor.eval(stringVal), stringVal);
     }
 }

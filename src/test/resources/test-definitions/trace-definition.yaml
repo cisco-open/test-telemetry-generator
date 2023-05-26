@@ -21,7 +21,7 @@ rootSpans:
     reportingResource: http_backend
     copyResourceAttributes: ["http_port"]
     attributes:
-      type: 'roundRobin(["REST"])'
+      type: 'REST'
       url: 'roundRobin(["/healthcheck"])'
     payloadCount: 10
     copyCount: 20

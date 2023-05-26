@@ -17,12 +17,12 @@
 package io.opentelemetry.contrib.generator.core;
 
 import io.opentelemetry.contrib.generator.core.dto.*;
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.jel.JELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.resource.v1.Resource;
-import jakarta.el.ELProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -47,7 +47,7 @@ public class ResourceModelGenerator {
 
     private final Map<String, ResourceDefinition> allResources; //input resource definitions
     private final String requestID;
-    private static final ELProcessor jelProcessor = JELProvider.getJelProcessor();
+    private static final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
     private static Map<String, List<GeneratorResource>> resourceModel; //output resource model
     private Map<String, ResourceType> typeMappings; //stores parent & child types for each resource type
 
@@ -145,7 +145,7 @@ public class ResourceModelGenerator {
                 var nextChildIndex = 0;
                 //For each resource of the parent type
                 for (var parentCounter = 0; parentCounter < parentType.getCountWithRuntimeModifications(); parentCounter++) {
-                    int count = (int) jelProcessor.eval(eachChildTypeExpr.getValue());
+                    int count = jelProcessor.eval(eachChildTypeExpr.getValue());
                     int childEndIndex = nextChildIndex + count;
                     if (childEndIndex > childrenSize) {
                         childEndIndex = childrenSize;

@@ -16,6 +16,7 @@
 
 package io.opentelemetry.contrib.generator.telemetry.metrics;
 
+import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
@@ -23,7 +24,6 @@ import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
 import io.opentelemetry.proto.metrics.v1.Metric;
 import io.opentelemetry.proto.metrics.v1.NumberDataPoint;
 import io.opentelemetry.proto.metrics.v1.Sum;
-import jakarta.el.ELProcessor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 public class SumGenerator {
 
     private final String requestID;
-    private final ELProcessor jelProcessor;
+    private final ExpressionProcessor jelProcessor;
 
-    public SumGenerator(String requestID, ELProcessor jelProcessor) {
+    public SumGenerator(String requestID, ExpressionProcessor jelProcessor) {
         this.requestID = requestID;
         this.jelProcessor = jelProcessor;
     }
