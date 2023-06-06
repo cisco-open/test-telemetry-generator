@@ -1,0 +1,32 @@
+globalPayloadFrequencySeconds: 15
+logs:
+  - attributes:
+      event.labels: '{"generator": roundRobin(["TelemetryGenerator", "TelemetryGenerator-v2"]), "type": "k8s"}'
+      appd.isevent: '"true"'
+      appd.event.type: '"k8s:native_event"'
+      event.name: '"native_event"'
+    severityOrderFunction: 'severityDistributionCount(["Normal", "Severe", "Warning"], [1, 2, 3])'
+    payloadCount: 100
+    reportingResourcesCounts:
+      pod: 75
+      container: 50
+  - attributes:
+      appd.isevent: '"true"'
+      appd.event.type: '"k8s:native_event"'
+    severityOrderFunction: 'severityDistributionCount(["Normal", "Severe", "Warning"], [1, 2, 3])'
+    payloadCount: 100
+    reportingResourcesCounts:
+      pod: 75
+      container: 50
+  - attributes:
+      appd.isevent: '"false"'
+      appd.event.type: '"common:log"'
+      _message_parser.pattern: '"%-5p [%t]: %m%n"'
+      _message_parser.type: '"log4j2"'
+    severityOrderFunction: 'severityDistributionCount(["INFO", "ERROR", "WARN", "DEBUG"], [1, 1, 1, 4])'
+    payloadCount: 100
+    copyCount: 7
+    reportingResourcesCounts:
+      filesystem: 80
+      pod: 75
+      container: 50

@@ -1,0 +1,31 @@
+traceCompletionTimeoutSecs: 120
+rootSpans:
+  - name: "healthCheck"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: service_instance
+    attributes:
+      type: 'roundRobin(["REST"])'
+      url: 'roundRobin(["/healthcheck"])'
+    payloadCount: 100
+    copyCount: 10
+    payloadFrequencySeconds: 15
+  - name: "getAccountDetails"
+    spanKind: SPAN_KIND_SERVER
+    reportingResource: service_instance
+    attributes:
+      type: '"REST"'
+      url: '"/getAccount"'
+    childSpans: ["getAccountDetailsProcessing"]
+    payloadCount: 100
+childSpans:
+  - name: "getAccountDetailsProcessing"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    childSpans: ["checkAccountDetailsCache", "getAccountDetailsQuery"]
+  - name: "checkAccountDetailsCache"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+  - name: "getAccountDetailsQuery"
+    spanKind: SPAN_KIND_INTERNAL
+    reportingResource: service_instance
+    errorFrequency: 4

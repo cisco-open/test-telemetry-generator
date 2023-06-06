@@ -1,0 +1,256 @@
+resources:
+  - name: cluster
+    count: 3
+    childrenDistribution:
+      namespace: 'distribution(3, 0, 0)'
+      node: 'distribution(5, 2, 10)'
+      cluster_kafka: 'distribution(1, 0, 0)'
+    attributes:
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.cluster.id: '"clusterid-".concat(alphanumericSequence("dpp1"))'
+      telemetry.sdk.name: '"infra-agent"'
+  - name: namespace
+    count: 10
+    childrenDistribution:
+      resource_quota: 'distribution(2, 2, 1)'
+      replicaset: 'distribution(2, 0, 0)'
+      workload: 'distribution(3, 5, 5)'
+      service_k8s: 'distribution(1, 0, 0)'
+    attributes:
+      k8s.namespace.uid: 'alphanumericSequence("remodel").concat(".namespace")'
+      k8s.namespace.name: 'counter("namesxace")'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("cluster", "k8s.cluster.name")'
+      - 'copyFromParent("cluster", "k8s.cluster.id")'
+  - name: node
+    count: 25
+    childrenDistribution:
+      host: 'distribution(1, 0, 0)'
+      pod: 'distribution(3, 0, 0)'
+    attributes:
+      k8s.node.uid: 'alphanumericSequence("remodel").concat(".node")'
+      k8s.node.name: 'alphanumericSequence("amzc").concat(".node")'
+      cloud.provider: 'roundRobin(["AWS"])'
+      k8s.node.system.uuid: 'UUIDFromStringCounter("node")'
+      cloud.host.instance.id: 'alphanumericSequence("io1").concat("-").concat(alphanumericSequence("taylbee"))'
+      k8s.node.ip.internal: 'IPv4Sequence("10.134.1.101")'
+      k8s.node.role: 'roundRobin(["master", "worker"])'
+      k8s.node.labels: '{"app": ["tintin-service-label1","tintin-service-label2","tintin-service-label3"]}'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("cluster", "k8s.cluster.name")'
+      - 'copyFromParent("cluster", "k8s.cluster.id")'
+      - 'copyFromParent("host", "host.id")'
+  - name: resource_quota
+    count: 25
+    attributes:
+      k8s.rq.name: 'alphanumericSequence("uoi").concat(".resource_quota")'
+      k8s.resource_quota.uid: 'alphanumericSequence("remodel").concat(".resource_quota")'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("namespace", "k8s.cluster.name")'
+      - 'copyFromParent("namespace", "k8s.namespace.name")'
+      - 'copyFromParent("namespace", "k8s.cluster.id")'
+  - name: workload
+    count: 50
+    childrenDistribution:
+      pod: 'distribution(1, 10, 5)'
+    attributes:
+      k8s.workload.name: 'alphanumericSequence("craps").concat(".workload")'
+      appd.workload.subtype: 'roundRobin(["statefulset", "daemonset"])'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("namespace", "k8s.cluster.name")'
+      - 'copyFromParent("namespace", "k8s.namespace.name")'
+      - 'copyFromParent("namespace", "k8s.cluster.id")'
+  - name: pod
+    count: 75
+    childrenDistribution:
+      container: 'distribution(2, 0, 0)'
+      network_interface: 'distribution(1, 0, 0)'
+    attributes:
+      k8s.pod.ip: 'IPv4Sequence("153.29.54.1")'
+      k8s.pod.status: 'roundRobin(["Running"])'
+      k8s.pod.uid: 'alphanumericSequence("new.model").concat(".pod")'
+      k8s.pod.name: 'alphanumericSequence("newz").concat(".pod")'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("replicaset", "k8s.cluster.name")'
+      - 'copyFromParent("replicaset", "k8s.cluster.id")'
+      - 'copyFromParent("deployment", "k8s.deployment.name")'
+      - 'copyFromParent("replicaset", "k8s.namespace.name")'
+      - 'copyFromParent("node", "k8s.node.uid")'
+      - 'copyFromParent("node", "k8s.node.name")'
+      - 'copyFromParent("node", "k8s.node.ip.internal")'
+      - 'modifyFromParent("replicaset", "k8s.replicaset.name", "k8s.pod.owner.name", "")'
+      - 'modifyFromParent("replicaset", "k8s.workload.kind", "k8s.pod.owner.kind", "")'
+  - name: newPodEntityInEveryIteration
+    count: 1
+    attributes:
+      k8s.pod.uid: 'alphanumericSequenceFromEnv().concat(".pod")'
+      k8s.pod.name: 'alphanumericSequence("Nex").concat(".pod")'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("newPodInEveryIteration "))'
+      k8s.cluster.id: '"clusterid-".concat(alphanumericSequence("newPodInEveryIterationId"))'
+      k8s.namespace.name: 'counter("new-pod-")'
+      telemetry.sdk.name: '"infra-agent"'
+  - name: service_k8s
+    count: 75
+    attributes:
+      k8s.service.uid: '"service-k8s".concat(alphanumericSequence("alpha"))'
+      k8s.pod.uid: 'alphanumericSequence("new.model").concat(".pod")'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("namespace", "k8s.cluster.name")'
+      - 'copyFromParent("namespace", "k8s.cluster.id")'
+  - name: replicaset
+    count: 20
+    childrenDistribution:
+      pod: 'distribution(3, 15, 15)'
+    attributes:
+      k8s.replicaset.uid: 'alphanumericSequence("remodel").concat(".replicaset")'
+      k8s.replicaset.name: 'alphanumericSequence("nrec").concat(".replicaset")'
+      k8s.workload.kind: 'roundRobin(["managed_replicaset"])'
+      appd.workload.subtype: 'roundRobin(["statefulset", "daemonset"])'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("deployment", "k8s.namespace.name")'
+      - 'copyFromParent("deployment", "k8s.cluster.name")'
+      - 'copyFromParent("deployment", "k8s.cluster.id")'
+      - 'modifyFromParent("deployment", "k8s.deployment.name", "k8s.replicaset.owner.name", "")'
+  - name: deployment
+    count: 12
+    childrenDistribution:
+      replicaset: 'distribution(1, 3, 2)'
+      pod: 'distribution(3, 0, 0)'
+    attributes:
+      k8s.deployment.uid: 'alphanumericSequence("remodel").concat(".deployment")'
+      k8s.deployment.name: 'alphanumericSequence("nrec").concat(".deployment")'
+      k8s.namespace.name: 'counter("namesxace")'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.cluster.id: '"clusterid-".concat(alphanumericSequence("dpp1"))'
+      telemetry.sdk.name: '"infra-agent"'
+  - name: host
+    count: 80
+    childrenDistribution:
+      container: 'distribution(1, 2, 1)'
+      filesystem: 'distribution(1, 0, 0)'
+      ec2: 'distribution(1, 0, 0)'
+      network_interface: 'distribution(1, 0, 0)'
+    attributes:
+      host.id: 'alphanumericSequence("iaf3").concat("-").concat(alphanumericSequence("sacep"))'
+      host.name: 'alphanumericSequence("xcc").concat(".host")'
+      telemetry.sdk.name: '"infra-agent"'
+  - name: filesystem
+    count: 80
+    attributes:
+      filesystem.mount_point: 'counter("/dev/sdb")'
+      filesystem.type: 'roundRobin(["ext2", "ext3", "ext4", "xfs"])'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("host", "host.id")'
+  - name: container
+    count: 150
+    attributes:
+      container.id: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("i5q")).concat("container")'
+      container.id.short: 'alphanumericSequence("iz1").concat("xr1f79").concat(alphanumericSequence("i5q"))'
+      container.name: 'alphanumericSequence("omat").concat(".container")'
+      container.image.name: '"dtr.corp.appdynamics.com/".concat(roundRobin(["cps", "dpp", "dis", "fmm"])).concat("/").concat(alphanumericSequence("a1sat34x"))'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("host", "host.name")'
+      - 'copyFromParent("pod", "k8s.pod.name")'
+      - 'copyFromParent("pod", "k8s.namespace.name")'
+  - name: network_interface
+    count: 10
+    attributes:
+      network_interface.name: 'alphanumericSequence("tweet").concat(".network_interface")'
+      container.image.name: '"dtr.corp.appdynamics.com/".concat(roundRobin(["cps", "dpp", "dis", "fmm"])).concat("/").concat(alphanumericSequence("a1sat34x"))'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'copyFromParent("pod", "k8s.pod.uid")'
+      - 'copyFromParent("pod", "k8s.cluster.name")'
+      - 'copyFromParent("pod", "k8s.cluster.id")'
+      - 'copyFromParent("host", "host.id")'
+      - 'copyFromParent("pod", "k8s.pod.name")'
+      - 'copyFromParent("pod", "k8s.namespace.name")'
+  - name: service
+    count: 1
+    childrenDistribution:
+      service_instance: 'distribution(1, 0, 0)'
+    attributes:
+      service.name: '"service-".concat(alphanumericSequence("alerting-test"))'
+      service.namespace: 'counter("svcnamespace")'
+      telemetry.sdk.name: '"apm-agent"'
+  - name: service_instance
+    count: 1
+    attributes:
+      service.instance.id: 'alphanumericSequenceFromEnv()'
+      telemetry.sdk.name: '"apm-agent"'
+    attributeOperations:
+      - 'copyFromParent("service", "service.namespace")'
+      - 'copyFromParent("service", "service.name")'
+  - name: ec2
+    count: 80
+    attributes:
+      cloud.platform: 'roundRobin(["aws_ec2"])'
+      telemetry.sdk.name: '"aws-agent"'
+    attributeOperations:
+      - 'copyFromParent("host", "host.id")'
+  - name: classic_lb
+    count: 4
+    childrenDistribution:
+      ingress: 'distribution(1, 0, 0)'
+    attributes:
+      cloud.load_balancer.id: 'alphanumericSequence("claasico").concat(".lb")'
+      cloud.region: 'roundRobin(["us-west-1", "us-west-2", "us-east-1", "us-east-2"])'
+      cloud.account.id: 'alphanumericSequence("accountID").concat("-").concat(alphanumericSequence("thak"))'
+      cloud.network.id: 'alphanumericSequence("networkID").concat("-").concat(alphanumericSequence("tqanh"))'
+      cloud.platform: 'roundRobin(["aws_classic_load_balancer"])'
+      telemetry.sdk.name: '"aws-agent"'
+  - name: ingress
+    count: 4
+    attributes:
+      k8s.ingress.uid: 'alphanumericSequence("rtcs").concat(".ingress")'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.cluster.id: '"clusterid-".concat(alphanumericSequence("dpp1"))'
+      telemetry.sdk.name: '"infra-agent"'
+    attributeOperations:
+      - 'modifyFromParent("classic_lb", "cloud.load_balancer.id", "load_balancer.dnsname", "")'
+  - name: redis_instance
+    count: 5
+    attributes:
+      service.instance.id: '"redis-".concat(alphanumericSequence("instance1"))'
+      k8s.cluster.name: '"cluster-".concat(alphanumericSequence("dppteam"))'
+      k8s.cluster.id: '"clusterid-".concat(alphanumericSequence("dpp1"))'
+      prometheus.exporter_type: 'roundRobin(["redis"])'
+      telemetry.sdk.name: '"prometheus"'
+  - name: cluster_kafka
+    count: 3
+    childrenDistribution:
+      topic: 'distribution(3, 10, 10)'
+    attributes:
+      kafka.cluster.name: 'counter("kafka-cluster")'
+      prometheus.exporter_type: '"kafka"'
+      k8s.cluster.name: '"prometheus-cluster"'
+      k8s.cluster.id: '"prometheus-cluster-id"'
+      net.host.name: 'IPv4Sequence("10.10.111.1")'
+      service.instance.id: 'counter("instance-")'
+      service.name: 'counter("prometheus-exporter")'
+      k8s.container.name: '"kafka"'
+      k8s.pod.uid: '"118c146c-eb5c-41ee-8620-e2dcfe"'
+      k8s.statefulset.name: 'alphanumericSequence("kafka").concat("tintin")'
+      k8s.node.name: 'counter("instance-node")'
+      net.host.port: '"8080"'
+      http.scheme: '"http"'
+      telemetry.sdk.name: '"prometheus"'
+  - name: topic
+    count: 10
+    attributes:
+      kafka.topic: 'counter("kafka-topic-")'
+      telemetry.sdk.name: '"prometheus"'
+    attributeOperations:
+      - 'copyFromParent("cluster_kafka", "k8s.cluster.name")'
+      - 'copyFromParent("cluster_kafka", "k8s.cluster.id")'
+      - 'copyFromParent("cluster_kafka", "kafka.cluster.name")'
+      - 'copyFromParent("cluster_kafka", "prometheus.exporter_type")'
