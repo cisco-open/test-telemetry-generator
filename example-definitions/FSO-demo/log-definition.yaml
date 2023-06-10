@@ -5,6 +5,7 @@ logs:
       appd.isevent: '"true"'
       appd.event.type: '"k8s:native_event"'
       event.name: '"native_event"'
+      event.domain: '"k8s"'
     severityOrderFunction: 'severityDistributionCount(["Normal", "Severe", "Warning"], [1, 2, 3])'
     payloadCount: 100
     reportingResourcesCounts:
@@ -13,6 +14,8 @@ logs:
   - attributes:
       appd.isevent: '"true"'
       appd.event.type: '"k8s:native_event"'
+      event.name: '"native_event"'
+      event.domain: '"k8s"'
     severityOrderFunction: 'severityDistributionCount(["Normal", "Severe", "Warning"], [1, 2, 3])'
     payloadCount: 100
     reportingResourcesCounts:
@@ -27,6 +30,5 @@ logs:
     payloadCount: 100
     copyCount: 7
     reportingResourcesCounts:
-      filesystem: 80
       pod: 75
       container: 50

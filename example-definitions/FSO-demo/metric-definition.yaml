@@ -1,140 +1,31 @@
 payloadFrequencySeconds: 60
 payloadCount: 50
 metrics:
-  - name: pods.allocatable
-    unit: "{pods}"
-    otelType: gauge
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [node]
   - name: pod.restarts
     unit: "{restarts}"
     otelType: sum
     aggregationTemporality: delta
     valueFunction: 'arithmeticSequence(1, 0, "")'
     isMonotonic: true
-    reportingResources: [ pod ]
-  - name: cpu.allocatable
+    reportingResources: [pod]
+  - name: cpu.limits
     unit: "{cores}"
     otelType: summary
-    valueFunction: 'arithmeticSequenceSummary(1, 2, "", 5)'
+    valueFunction: 'arithmeticSequence(64, 0, "")'
     isDouble: true
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    reportingResources: [ node ]
-  - name: memory.allocatable
-    unit: "By"
-    otelType: summary
-    valueFunction: 'arithmeticSequenceSummary(1, 2, "", 5)'
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    reportingResources: [ node, cluster ]
-  - name: memory.usage
-    unit: "By"
-    otelType: summary
-    valueFunction: 'arithmeticSequenceSummary(1, 2, "", 5)'
-    quantiles: [ 0, 1 ]
-    reportingResources: [ pod ]
-  - name: system.filesystem.mountpoint.limit
-    unit: "By"
-    otelType: summary
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    quantiles: [0, 1]
-    reportingResources: [filesystem]
-  - name: replicas.ready
-    unit: "{replicas}"
-    otelType: gauge
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [replicaset]
-  - name: resource_quota.storage.requests.usage
-    unit: By
-    otelType: summary
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [resource_quota]
-  - name: container.cpu.used.utilization
-    unit: "%"
-    otelType: summary
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    isDouble: true
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    reportingResources: [ container ]
+    quantiles: [0, 0.5, 0.75, 1]
+    reportingResources: [pod]
   - name: cpu.usage
     unit: "{cores}"
     otelType: summary
-    valueFunction: 'arithmeticSequenceSummary(1, 2, "", 5)'
+    valueFunction: 'logarithmicSequenceSummary(2, 1, "", 3)'
     isDouble: true
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    reportingResources: [ pod, namespace]
-  - name: container.cpu.throttled_count
-    unit: "{periods}"
-    otelType: gauge
-    valueFunction: 'arithmeticSequence(1, 2, "")'
+    quantiles: [0, 0.5, 0.75, 1]
+    reportingResources: [pod]
+  - name: container.cpu.system.utilization
+    unit: "%"
+    otelType: summary
+    valueFunction: 'logarithmicSequenceSummary(1, 2, "", 3)'
+    isDouble: true
+    quantiles: [0, 0.5, 0.75, 1]
     reportingResources: [container]
-  - name: http.server.active_requests
-    unit: "{requests}"
-    otelType: summary
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [ingress]
-  - name: calls_min
-    unit: "{calls}/min"
-    otelType: summary
-    quantiles: [ 0, 0.5, 0.75, 1 ]
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [service_instance]
-  - name: system.network.transmit.dropped_sec
-    unit: "{packets}/s"
-    otelType: sum
-    aggregationTemporality: delta
-    valueFunction: 'arithmeticSequence(1, 0, "")'
-    reportingResources: [ ec2 ]
-  - name: memory.pressure
-    unit: "1"
-    otelType: summary
-    valueFunction: 'arithmeticSequence(1, 2, "*200")'
-    quantiles: [ 0.5, 0.75 ]
-    reportingResources: [ node ]
-  - name: container.cpu.throttled_time
-    unit: "{random}"
-    otelType: gauge
-    valueFunction: 'arithmeticSequence(65536, 0, "")'
-    reportingResources: [ container, pod ]
-  - name: container.filesystem.limit
-    unit: "By"
-    otelType: summary
-    aggregationTemporality: cumulative
-    valueFunction: 'arithmeticSequence(1, 2, "*200")'
-    quantiles: [ 0.5, 0.75, 1 ]
-    reportingResources: [ container ]
-  - name: redis_commands_duration_seconds_total
-    unit: "{duration}/min"
-    otelType: sum
-    aggregationTemporality: cumulative
-    isDouble: true
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    isMonotonic: true
-    reportingResources: [ redis_instance ]
-  - name: system.network.device.receive.errors_min
-    unit: "{errors}/min"
-    otelType: sum
-    aggregationTemporality: delta
-    valueFunction: 'arithmeticSequence(1, 0, "")'
-    reportingResources: [ network_interface ]
-  - name: kafka_topic_partition_replicas
-    unit: "{replicas}"
-    otelType: gauge
-    attributes:
-      topic: '"kafka-topic-toBePromoted"'
-      kafka_cluster_name: '"kafka-cluster-toBePromoted"'
-      k8s.cluster.name: '"prometheus-cluster-toBePromoted"'
-    isDouble: true
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [topic]
-  - name: kafka_topic_partitions
-    unit: "{partitions}"
-    otelType: gauge
-    isDouble: true
-    attributes:
-      topic: '"kafka-topic-toBePromoted"'
-      kafka_cluster_name: '"kafka-cluster-toBePromoted"'
-      k8s.cluster.name: '"prometheus-cluster-toBePromoted"'
-    valueFunction: 'arithmeticSequence(1, 2, "")'
-    reportingResources: [topic]
