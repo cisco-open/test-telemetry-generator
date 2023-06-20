@@ -26,7 +26,9 @@ public class Constants {
     public static final String SUM = "sum";
     public static final String GAUGE = "gauge";
     public static final String SUMMARY = "summary";
-    public static final List<String> validMetricTypes = Arrays.asList(SUM, GAUGE, SUMMARY);
+    public static final String HISTOGRAM = "histogram";
+    public static final String EXP_HISTOGRAM = "exponential-histogram";
+    public static final List<String> validMetricTypes = Arrays.asList(SUM, GAUGE, SUMMARY, HISTOGRAM, EXP_HISTOGRAM);
     public static final String CUMULATIVE = "cumulative";
     public static final String DELTA = "delta";
 

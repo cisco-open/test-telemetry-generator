@@ -28,6 +28,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Data
 @Slf4j
@@ -40,6 +41,7 @@ public class MetricDefinition implements Cloneable {
     private Boolean isMonotonic;
     private Boolean isDouble;
     private List<Double> quantiles;
+    private List<Double> bounds;
     private String valueFunction;
     private Integer payloadFrequencySeconds;
     private Integer payloadCount;
@@ -93,14 +95,15 @@ public class MetricDefinition implements Cloneable {
             throw new GeneratorException("Invalid OTeltype '" + otelType + "' found for metric " + name  + " ." +
                     "Valid types are " + StringUtils.join(Constants.validMetricTypes));
         }
-        validateAggregationTemporalityForSum();
+        validateAggregationTemporality();
     }
 
-    private void validateAggregationTemporalityForSum() {
-        if (otelType.equalsIgnoreCase(Constants.SUM)) {
+    private void validateAggregationTemporality() {
+        if (otelType.equals(Constants.SUM) || otelType.equals(Constants.HISTOGRAM) ||
+                otelType.equals(Constants.EXP_HISTOGRAM)) {
             if (aggregationTemporality==null || aggregationTemporality.isBlank()) {
-                throw new GeneratorException("OTel type for metric " + name + " is of 'sum' type but Aggregation " +
-                        "temporality not provided");
+                throw new GeneratorException("OTel type for metric " + name + " is of '" + otelType + "' type but " +
+                        "Aggregation temporality not provided");
             }
             //Check aggregation temporality is valid
             if (!(aggregationTemporality.equalsIgnoreCase(Constants.CUMULATIVE) ||
@@ -109,11 +112,48 @@ public class MetricDefinition implements Cloneable {
                         " specified for metric " + name + ". Valid types are (Cumulative, Delta)");
             }
         }
+        validateQuantiles();
+    }
+
+    private void validateQuantiles() {
+        if (otelType.equals(Constants.SUMMARY)) {
+            if (quantiles == null || quantiles.isEmpty()) {
+                throw new GeneratorException("OTel metric " + name + " of type summary does not have any quantiles " +
+                        "specified.");
+            }
+        }
+        validateBounds();
+    }
+
+    private void validateBounds() {
+        if (otelType.equals(Constants.HISTOGRAM)) {
+            if (bounds == null || bounds.isEmpty()) {
+                throw new GeneratorException("OTel metric " + name + " of type histogram does not have any bounds " +
+                        "specified.");
+            }
+            if (bounds.size() > 1 && IntStream.range(0, bounds.size()-1)
+                    .anyMatch(idx -> bounds.get(idx) >= bounds.get(idx + 1))) {
+                throw new GeneratorException("Invalid bounds provided for metric " + name + ". Bound values must be " +
+                        "in strictly ascending order");
+            }
+        }
         validateAttributes();
     }
 
     private void validateAttributes() {
         attributes = GeneratorUtils.validateAttributes(attributes);
+        checkValueFunction();
+    }
+
+    private void checkValueFunction() {
+        if ((otelType.equals(Constants.SUMMARY) || otelType.equals(Constants.HISTOGRAM) ||
+                otelType.equals(Constants.EXP_HISTOGRAM)) && (!valueFunction.contains("Summary"))) {
+            log.warn("Metric " + name + " should be using a summary variant of the value expression");
+        }
+        if ((otelType.equals(Constants.SUM) || otelType.equals(Constants.GAUGE)) &&
+                (valueFunction.contains("Summary"))) {
+            log.warn("Metric " + name + " should not be using the summary variant of the value expression");
+        }
     }
 
     private void validateResourceTypes(Set<String> allResourceTypes) {
