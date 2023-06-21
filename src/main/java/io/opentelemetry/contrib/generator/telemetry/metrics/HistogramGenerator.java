@@ -1,6 +1,7 @@
 package io.opentelemetry.contrib.generator.telemetry.metrics;
 
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
+import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.proto.metrics.v1.*;
@@ -17,9 +18,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HistogramGenerator {
 
+    private final String requestID;
     private final ExpressionProcessor jelProcessor;
 
-    public HistogramGenerator(ExpressionProcessor jelProcessor) {
+    public HistogramGenerator(String requestID, ExpressionProcessor jelProcessor) {
+        this.requestID = requestID;
         this.jelProcessor = jelProcessor;
     }
 
@@ -32,8 +35,7 @@ public class HistogramGenerator {
     }
 
     private Histogram getHistogramDataPoint(MetricDefinition metricDefinition) {
-        long[] times = GeneratorUtils.normalizeTimestamp(TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis()),
-                metricDefinition.getPayloadFrequencySeconds());
+        long[] times = getTimes(metricDefinition);
         List<Double> values = getCountValues(metricDefinition);
         double sum = values.stream().mapToDouble(Double::doubleValue).sum();
         int count = (values.size());
@@ -49,6 +51,18 @@ public class HistogramGenerator {
                         .addAllAttributes(GeneratorUtils.getEvaluatedAttributes(jelProcessor, metricDefinition.getAttributes()))
                         .build())
                 .build();
+    }
+
+    private long[] getTimes(MetricDefinition metricDefinition) {
+        long[] times = GeneratorUtils.normalizeTimestamp(TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis()),
+                metricDefinition.getPayloadFrequencySeconds());
+        if (metricDefinition.getAggregationTemporality() == AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE) {
+            if (GeneratorsStateProvider.getMetricGeneratorState(requestID).getFixedStartTime() == 0) {
+                GeneratorsStateProvider.getMetricGeneratorState(requestID).setFixedStartTime(times[0]);
+            }
+            times[0] = GeneratorsStateProvider.getMetricGeneratorState(requestID).getFixedStartTime();
+        }
+        return times;
     }
 
     private List<Double> getCountValues(MetricDefinition metricDefinition) {
