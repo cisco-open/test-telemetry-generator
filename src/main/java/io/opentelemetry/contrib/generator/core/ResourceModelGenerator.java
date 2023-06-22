@@ -160,7 +160,7 @@ public class ResourceModelGenerator {
                     }
                 }
                 //Map any remaining child resource to the last parent resource
-                if (nextChildIndex < childrenSize-1) {
+                if (nextChildIndex < childrenSize) {
                     log.debug("Remaining children of type '" + childType + "' mapped to the last parent of type '" + parentType +
                             "' at index " + (parentType.getCountWithRuntimeModifications()-1));
                     setParentToChildren(resourceModel.get(parentType.getName()).get(parentType.getCountWithRuntimeModifications()-1), childType,
