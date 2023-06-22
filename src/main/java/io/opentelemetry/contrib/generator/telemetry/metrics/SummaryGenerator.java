@@ -90,7 +90,7 @@ public class SummaryGenerator {
             normalizedQuantile = eachQuantile > 1 ? eachQuantile/100 : eachQuantile;
             double valueAtQuantile = getValueAtPercentile(normalizedQuantile, vals);
             quantiles.add(SummaryDataPoint.ValueAtQuantile.newBuilder()
-                    .setQuantile(metricDefinition.getIsDouble() ? normalizedQuantile : eachQuantile)
+                    .setQuantile(normalizedQuantile)
                     .setValue(valueAtQuantile)
                     .build());
         }
