@@ -91,14 +91,16 @@
     {
       "name": "container.cpu.used.utilization",
       "unit": "%",
-      "otelType": "summary",
-      "valueFunction": "arithmeticSequenceSummary(1, 2, \"\", 7)",
+      "otelType": "histogram",
+      "aggregationTemporality": "delta",
+      "valueFunction": "arithmeticSequenceSummary(5, 2, \"\", 7)",
       "isDouble": true,
-      "quantiles": [
-        0,
-        0.5,
-        0.75,
-        1
+      "bounds": [
+        10,
+        30,
+        50,
+        70,
+        90
       ],
       "reportingResources": [
         "container"

@@ -52,6 +52,7 @@ public class MetricGeneratorThread implements Runnable {
     private final GeneratorState<MetricGeneratorThread> metricGeneratorState;
     private final GaugeGenerator gaugeGenerator;
     private final SumGenerator sumGenerator;
+    private final HistogramGenerator histogramGenerator;
     private final SummaryGenerator summaryGenerator;
     private int currentCount;
 
@@ -65,6 +66,7 @@ public class MetricGeneratorThread implements Runnable {
         ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
         gaugeGenerator = new GaugeGenerator(jelProcessor);
         sumGenerator = new SumGenerator(requestID, jelProcessor);
+        histogramGenerator = new HistogramGenerator(requestID, jelProcessor);
         summaryGenerator = new SummaryGenerator(jelProcessor);
         currentCount = 0;
     }
@@ -116,7 +118,7 @@ public class MetricGeneratorThread implements Runnable {
                         .addAllResourceMetrics(resourceMetricsList)
                         .build();
                 log.info(requestID + ": Sending payload for: " + groupKey);
-                //log.debug(requestID + ": Complete payload for " + groupKey + ": " + resourceMetrics);
+                log.debug(requestID + ": Complete payload for " + groupKey + ": " + resourceMetrics);
                 boolean responseStatus = payloadHandler.postPayload(resourceMetrics);
                 if (metricGeneratorState.getTransportStorage() != null) {
                     metricGeneratorState.getTransportStorage().store(groupKey, resourceMetrics, responseStatus);
@@ -131,6 +133,7 @@ public class MetricGeneratorThread implements Runnable {
         return switch (metricDefinition.getOtelType()) {
             case Constants.GAUGE -> gaugeGenerator.getOTelMetric(metricDefinition);
             case Constants.SUM -> sumGenerator.getOTelMetric(metricDefinition);
+            case Constants.HISTOGRAM -> histogramGenerator.getOTelMetric(metricDefinition);
             default -> summaryGenerator.getOTelMetric(metricDefinition);
         };
     }
@@ -195,10 +198,6 @@ public class MetricGeneratorThread implements Runnable {
                     .map(NumberDataPoint::toBuilder)
                     .map(bdp -> bdp.addAllAttributes(resourceAttributes).build())
                     .toList();
-            partialMetric.getSum().toBuilder()
-                    .clearDataPoints()
-                    .addAllDataPoints(dataPointsWAttrs)
-                    .build();
             Sum newSum = partialMetric.getSum().toBuilder()
                     .clearDataPoints()
                     .addAllDataPoints(dataPointsWAttrs)
@@ -207,6 +206,21 @@ public class MetricGeneratorThread implements Runnable {
                     .setName(partialMetric.getName())
                     .setUnit(partialMetric.getUnit())
                     .setSum(newSum)
+                    .build();
+        } else if (metricType.equals(Metric.DataCase.HISTOGRAM)) {
+            List<HistogramDataPoint> dataPoints = partialMetric.getHistogram().getDataPointsList();
+            List<HistogramDataPoint> dataPointsWAttrs = dataPoints.stream()
+                    .map(HistogramDataPoint::toBuilder)
+                    .map(bdp -> bdp.addAllAttributes(resourceAttributes).build())
+                    .toList();
+            Histogram newHistogram = partialMetric.getHistogram().toBuilder()
+                    .clearDataPoints()
+                    .addAllDataPoints(dataPointsWAttrs)
+                    .build();
+            return Metric.newBuilder()
+                    .setName(partialMetric.getName())
+                    .setUnit(partialMetric.getUnit())
+                    .setHistogram(newHistogram)
                     .build();
         } else {
             List<SummaryDataPoint> dataPoints = partialMetric.getSummary().getDataPointsList();
