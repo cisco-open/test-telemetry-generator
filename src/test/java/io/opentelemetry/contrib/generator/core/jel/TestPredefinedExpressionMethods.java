@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.core;
+package io.opentelemetry.contrib.generator.core.jel;
 
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
-import io.opentelemetry.contrib.generator.core.jel.JELProvider;
+import io.opentelemetry.contrib.generator.core.jel.ResourceExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,9 +27,9 @@ import org.testng.annotations.Test;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class TestExpressionMethods {
+public class TestPredefinedExpressionMethods {
 
-    private final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
+    private final ExpressionProcessor jelProcessor = ResourceExpressionsJELProvider.getJelProcessor();
 
     @Test
     public void testCounter() {

@@ -18,7 +18,7 @@ package io.opentelemetry.contrib.generator.core;
 
 import io.opentelemetry.contrib.generator.core.dto.*;
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
-import io.opentelemetry.contrib.generator.core.jel.JELProvider;
+import io.opentelemetry.contrib.generator.core.jel.ResourceExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -47,7 +47,7 @@ public class ResourceModelGenerator {
 
     private final Map<String, ResourceDefinition> allResources; //input resource definitions
     private final String requestID;
-    private static final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
+    private static final ExpressionProcessor jelProcessor = ResourceExpressionsJELProvider.getJelProcessor();
     private static Map<String, List<GeneratorResource>> resourceModel; //output resource model
     private Map<String, ResourceType> typeMappings; //stores parent & child types for each resource type
 

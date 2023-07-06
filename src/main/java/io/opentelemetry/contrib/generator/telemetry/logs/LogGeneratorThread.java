@@ -21,7 +21,7 @@ import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
 import io.opentelemetry.contrib.generator.telemetry.GeneratorsStateProvider;
 import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
-import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
+import io.opentelemetry.contrib.generator.telemetry.jel.MELTExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.telemetry.logs.dto.LogDefinition;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
@@ -61,7 +61,7 @@ public class LogGeneratorThread implements Runnable {
         this.logDefinition = logDefinition;
         this.payloadHandler = payloadHandler;
         this.logGeneratorState = GeneratorsStateProvider.getLogGeneratorState(requestID);
-        jelProcessor = JELProvider.getJelProcessor();
+        jelProcessor = MELTExpressionsJELProvider.getJelProcessor();
         currentPayloadCount = 0;
     }
 
