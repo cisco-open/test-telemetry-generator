@@ -145,6 +145,9 @@ public class ResourceModelGenerator {
                 var nextChildIndex = 0;
                 //For each resource of the parent type
                 for (var parentCounter = 0; parentCounter < parentType.getCountWithRuntimeModifications(); parentCounter++) {
+                    if (nextChildIndex >= childrenSize) {
+                        nextChildIndex = 0;
+                    }
                     int count = jelProcessor.eval(eachChildTypeExpr.getValue());
                     int childEndIndex = nextChildIndex + count;
                     if (childEndIndex > childrenSize) {
@@ -155,14 +158,12 @@ public class ResourceModelGenerator {
                     setParentToChildren(resourceModel.get(parentType.getName()).get(parentCounter), childType,
                             nextChildIndex, childEndIndex);
                     nextChildIndex = nextChildIndex + count;
-                    if (nextChildIndex >= childrenSize) {
-                        nextChildIndex = 0;
-                    }
                 }
                 //Map any remaining child resource to the last parent resource
                 if (nextChildIndex < childrenSize) {
-                    log.debug("Remaining children of type '" + childType + "' mapped to the last parent of type '" + parentType +
-                            "' at index " + (parentType.getCountWithRuntimeModifications()-1));
+                    log.debug("Remaining children of type '" + childType + "' from index " + nextChildIndex +
+                            " mapped to the last parent of type '" + parentType + "' at index " +
+                            (parentType.getCountWithRuntimeModifications()-1));
                     setParentToChildren(resourceModel.get(parentType.getName()).get(parentType.getCountWithRuntimeModifications()-1), childType,
                             nextChildIndex, childrenSize);
                 }

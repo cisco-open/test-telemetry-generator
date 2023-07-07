@@ -1,0 +1,11 @@
+payloadFrequencySeconds: 10
+payloadCount: 5
+metrics:
+  - name: custom-expr-metric
+    unit: kBy/s
+    otelType: gauge
+    valueFunction: 'increaseByXDecreaseByY("custom-expr-metric", 10, 7, 100)'
+    reportingResources: [ parent_resource, child_resource_1, child_resource_2 ]
+    copyResourceAttributes: [ "resource.name", "resource.ip", "resource.id" ]
+    attributes:
+      internal.ip: 'randomIPv6()'

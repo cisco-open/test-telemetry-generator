@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.opentelemetry.contrib.generator.telemetry;
+package io.opentelemetry.contrib.generator.telemetry.jel;
 
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
-import io.opentelemetry.contrib.generator.telemetry.jel.MELTExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.telemetry.jel.methods.MELTAttributeGenerators;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,7 +28,7 @@ import org.testng.annotations.Test;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class TestMELTAttributeExpressions {
+public class TestPredefinedMELTAttributeExpressions {
 
     private final ExpressionProcessor jelProcessor = MELTExpressionsJELProvider.getJelProcessor();
     private final String requestID = UUID.randomUUID().toString();
