@@ -20,7 +20,7 @@ import io.opentelemetry.contrib.generator.core.dto.Resources;
 import io.opentelemetry.contrib.generator.core.dto.ResourceDefinition;
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
-import io.opentelemetry.contrib.generator.core.jel.JELProvider;
+import io.opentelemetry.contrib.generator.core.jel.ResourceExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
@@ -51,7 +51,7 @@ public class TestResourceModelGenerator {
 
     private Resources resources, resourcesWithRuntimeMods;
     private Map<String, List<GeneratorResource>> resourceModel, resourceModelRuntimeMods;
-    private final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
+    private final ExpressionProcessor jelProcessor = ResourceExpressionsJELProvider.getJelProcessor();
 
     @BeforeClass
     public void generateModel() {

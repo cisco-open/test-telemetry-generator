@@ -19,7 +19,7 @@ package io.opentelemetry.contrib.generator.telemetry.traces;
 import io.opentelemetry.contrib.generator.core.dto.GeneratorResource;
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
-import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
+import io.opentelemetry.contrib.generator.telemetry.jel.MELTExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.RootSpanDefinition;
 import io.opentelemetry.contrib.generator.telemetry.traces.dto.SpanDefinition;
@@ -57,7 +57,7 @@ public class SpansGenerator {
         this.traceTree = traceTree;
         this.groupName = groupName;
         this.requestID = requestID;
-        jelProcessor = JELProvider.getJelProcessor();
+        jelProcessor = MELTExpressionsJELProvider.getJelProcessor();
         currentPostCount = 0;
         currentTreePart = 0;
     }

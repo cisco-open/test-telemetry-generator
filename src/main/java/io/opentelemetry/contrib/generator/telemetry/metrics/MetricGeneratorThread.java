@@ -23,7 +23,7 @@ import io.opentelemetry.contrib.generator.telemetry.dto.GeneratorState;
 import io.opentelemetry.contrib.generator.telemetry.misc.GeneratorUtils;
 import io.opentelemetry.contrib.generator.telemetry.transport.PayloadHandler;
 import io.opentelemetry.contrib.generator.telemetry.ResourceModelProvider;
-import io.opentelemetry.contrib.generator.telemetry.jel.JELProvider;
+import io.opentelemetry.contrib.generator.telemetry.jel.MELTExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.telemetry.misc.Constants;
 import io.opentelemetry.contrib.generator.telemetry.metrics.dto.MetricDefinition;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
@@ -63,7 +63,7 @@ public class MetricGeneratorThread implements Runnable {
         this.metrics = metrics.stream().collect(Collectors.toMap(MetricDefinition::getName, Function.identity()));
         this.payloadHandler = payloadHandler;
         this.metricGeneratorState = GeneratorsStateProvider.getMetricGeneratorState(requestID);
-        ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
+        ExpressionProcessor jelProcessor = MELTExpressionsJELProvider.getJelProcessor();
         gaugeGenerator = new GaugeGenerator(jelProcessor);
         sumGenerator = new SumGenerator(requestID, jelProcessor);
         histogramGenerator = new HistogramGenerator(requestID, jelProcessor);

@@ -18,7 +18,7 @@ package io.opentelemetry.contrib.generator.core;
 
 import io.opentelemetry.contrib.generator.core.dto.*;
 import io.opentelemetry.contrib.generator.core.jel.ExpressionProcessor;
-import io.opentelemetry.contrib.generator.core.jel.JELProvider;
+import io.opentelemetry.contrib.generator.core.jel.ResourceExpressionsJELProvider;
 import io.opentelemetry.contrib.generator.core.jel.methods.ResourceModelExpressions;
 import io.opentelemetry.contrib.generator.core.utils.CommonUtils;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -47,7 +47,7 @@ public class ResourceModelGenerator {
 
     private final Map<String, ResourceDefinition> allResources; //input resource definitions
     private final String requestID;
-    private static final ExpressionProcessor jelProcessor = JELProvider.getJelProcessor();
+    private static final ExpressionProcessor jelProcessor = ResourceExpressionsJELProvider.getJelProcessor();
     private static Map<String, List<GeneratorResource>> resourceModel; //output resource model
     private Map<String, ResourceType> typeMappings; //stores parent & child types for each resource type
 
@@ -145,6 +145,9 @@ public class ResourceModelGenerator {
                 var nextChildIndex = 0;
                 //For each resource of the parent type
                 for (var parentCounter = 0; parentCounter < parentType.getCountWithRuntimeModifications(); parentCounter++) {
+                    if (nextChildIndex >= childrenSize) {
+                        nextChildIndex = 0;
+                    }
                     int count = jelProcessor.eval(eachChildTypeExpr.getValue());
                     int childEndIndex = nextChildIndex + count;
                     if (childEndIndex > childrenSize) {
@@ -155,14 +158,12 @@ public class ResourceModelGenerator {
                     setParentToChildren(resourceModel.get(parentType.getName()).get(parentCounter), childType,
                             nextChildIndex, childEndIndex);
                     nextChildIndex = nextChildIndex + count;
-                    if (nextChildIndex >= childrenSize) {
-                        nextChildIndex = 0;
-                    }
                 }
                 //Map any remaining child resource to the last parent resource
                 if (nextChildIndex < childrenSize) {
-                    log.debug("Remaining children of type '" + childType + "' mapped to the last parent of type '" + parentType +
-                            "' at index " + (parentType.getCountWithRuntimeModifications()-1));
+                    log.debug("Remaining children of type '" + childType + "' from index " + nextChildIndex +
+                            " mapped to the last parent of type '" + parentType + "' at index " +
+                            (parentType.getCountWithRuntimeModifications()-1));
                     setParentToChildren(resourceModel.get(parentType.getName()).get(parentType.getCountWithRuntimeModifications()-1), childType,
                             nextChildIndex, childrenSize);
                 }
