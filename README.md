@@ -35,7 +35,8 @@ You can do all of that in the command line using [curl](https://curl.se/) like t
 ```shell
 mkdir my-test-telemetry
 cd my-test-telemetry
-curl -O -L https://github.com/cisco-open/test-telemetry-generator/releases/latest/download/test-telemetry-generator-otel-proto-0.18.0-fatjar.jar
+version=v23.7.0
+curl -O -L https://github.com/cisco-open/test-telemetry-generator/releases/download/${version}/test-telemetry-generator-otel-proto-${version}-fatjar.jar
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/simple/resource-definition.yaml
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/simple/trace-definition.yaml
 curl -O https://raw.githubusercontent.com/cisco-open/test-telemetry-generator/master/example-definitions/cli-target-rest.yaml
