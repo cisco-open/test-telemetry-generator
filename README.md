@@ -87,8 +87,7 @@ You now have a working setup from which you can build your own telemetry test en
 # Clone the repo and from the repo root
 # Build fat JAR
 ./gradlew clean build fatJar -x test
-# Create a new directory 'definitions'
-# Prepare definition YAML/JSON files and store them in the definitions directory
+# Prepare definition YAML/JSON files and store them in the ./definitions directory
 # Build docker file
 docker build . -t test_telemetry_generator:local
 # Run the container
