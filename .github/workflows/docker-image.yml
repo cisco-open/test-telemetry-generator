@@ -5,16 +5,17 @@ on:
     branches: [ "**" ]
 
 jobs:
+  docker-image-ci:
+    needs: build-jar
+    build:
 
-  build:
+      runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: test-telemetry-generator-all.jar
-          path: build/libs
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag test-telemetry-generator:$(date +%s)
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/download-artifact@v3
+          with:
+            name: test-telemetry-generator-all.jar
+            path: build/libs
+        - name: Build the Docker image
+          run: docker build . --file Dockerfile --tag test-telemetry-generator:$(date +%s)
