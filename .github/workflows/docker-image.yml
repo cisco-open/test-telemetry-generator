@@ -6,7 +6,7 @@ on:
 
 jobs:
   docker-image-ci:
-  needs: build-jar
+    needs: build-jar
   build:
     runs-on: ubuntu-latest
     steps:
