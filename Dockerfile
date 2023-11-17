@@ -22,11 +22,13 @@ COPY --from=builder /opt/jre-minimal /opt/jre-minimal
 ENV JAVA_HOME=/opt/jre-minimal
 ENV PATH="$PATH:$JAVA_HOME/bin"
 
-WORKDIR /home
+WORKDIR /
 
-ARG jarFile
-ENV JARFILE=${jarFile}
+COPY build/libs/test-telemetry-generator-all.jar /
+RUN mkdir /definitions/
+COPY definitions/* /definitions/
 
-COPY $jarFile /home
-COPY *.yaml /home
-ENTRYPOINT java -jar ${JARFILE} -r resource-definition.yaml -s trace-definition.yaml -t cli-target-rest.yaml 
+
+COPY tools/start.sh /
+RUN chmod +x start.sh test-telemetry-generator-all.jar
+CMD ["./start.sh"]

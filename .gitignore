@@ -5,3 +5,4 @@ build
 /logs
 bin
 gradle/wrapper/gradle-wrapper.jar
+definitions

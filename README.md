@@ -84,12 +84,15 @@ You now have a working setup from which you can build your own telemetry test en
 
 ## Docker image
 ```text
-# Download the files
-# Update the .yaml manifests
-# build
-jarFile=$(ls -1 *.jar)
-imageName="otel-test-image"
-docker build -t ${imageName} --build-arg jarFile=${jarFile} .
+# Clone the repo and from the repo root
+# Build fat JAR
+./gradlew clean build fatJar -x test
+# Create a new directory 'definitions'
+# Prepare definition YAML/JSON files and store them in the definitions directory
+# Build docker file
+docker build . -t test_telemetry_generator:local
+# Run the container
+docker run test_telemetry_generator:local
 ```
 
 ## Support
