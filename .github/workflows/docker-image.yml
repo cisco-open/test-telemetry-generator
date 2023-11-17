@@ -25,7 +25,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: test-telemetry-generator-all.jar
-          path: build/libs/build/libs/test-telemetry-generator-all.jar
+          path: build/libs/test-telemetry-generator-all.jar
   docker-image-ci:
     needs: build-jar
     runs-on: ubuntu-latest
