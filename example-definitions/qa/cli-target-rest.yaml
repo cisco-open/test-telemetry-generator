@@ -1,9 +1,0 @@
-authMode: "none"
-# Set authmode to 'basic' and uncomment username & password if you need authentication
-# username: "your-username"
-# password: "your-password"
-restURL:
-  baseURL: "http://localhost:4318"
-  metricsPath: "/v1/metrics"
-  logsPath: "/v1/logs"
-  tracesPath: "/v1/traces"
