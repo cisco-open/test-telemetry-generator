@@ -25,9 +25,6 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 WORKDIR /
 
 COPY build/libs/test-telemetry-generator-all.jar /
-RUN mkdir /definitions/
-COPY definitions/* /definitions/
-
 
 COPY tools/start.sh /
 RUN chmod +x start.sh test-telemetry-generator-all.jar
