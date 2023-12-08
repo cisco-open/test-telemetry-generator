@@ -83,6 +83,18 @@ You now have a working setup from which you can build your own telemetry test en
 
 ***
 
+## Docker image
+```text
+# Clone the repo and from the repo root
+# Build fat JAR
+./gradlew clean build fatJar -x test
+# Prepare definition YAML/JSON files and store them in the ./definitions directory
+# Build docker file
+docker build . -t test_telemetry_generator:local
+# Run the container
+docker run test_telemetry_generator:local -v HOST_DEFINITIONS_PATH:/definitions
+```
+
 ## Support
 
 We are continuously improving the tool and adding more feature support. Please see the [open issues](https://github.com/cisco-open/test-telemetry-generator/issues) to see the list of planned items and feel free to open a new issue in case something that you'd like to see is missing.
