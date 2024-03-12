@@ -92,7 +92,7 @@ You now have a working setup from which you can build your own telemetry test en
 # Build docker file
 docker build . -t test_telemetry_generator:local
 # Run the container
-docker run test_telemetry_generator:local -v HOST_DEFINITIONS_PATH:/definitions
+docker run -v HOST_DEFINITIONS_PATH:/definitions test_telemetry_generator:local
 ```
 
 ## Support
