@@ -4,6 +4,12 @@ plugins {
     id 'java-library'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 sourceSets {
     main {
         resources {
@@ -22,12 +28,12 @@ dependencies {
     api group: 'jakarta.el', name: 'jakarta.el-api', version: '5.0.1'
     api group: 'org.glassfish', name: 'jakarta.el', version: '4.0.2'
     api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.6'
-    api group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.5'
+    api group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.27'
     api group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
     api group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.14.2'
     api group: 'io.opentelemetry.proto', name: 'opentelemetry-proto', version: '0.18.0-alpha'
     api group: 'io.opentelemetry', name: 'opentelemetry-sdk-trace', version: '1.17.0'
-    api group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+    api group: 'com.google.guava', name: 'guava', version: '33.5.0-jre'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     api group: 'commons-cli', name: 'commons-cli', version: '1.5.0'
@@ -36,12 +42,12 @@ dependencies {
     api group: 'io.grpc', name: 'grpc-protobuf', version: '1.53.0'
     api group: 'io.grpc', name: 'grpc-stub', version: '1.53.0'
     api group: 'io.grpc', name: 'grpc-netty', version: '1.53.0'
-    api group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.59.Final'
-    api group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.20.0'
+    api group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.66.Final'
+    api group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.25.2'
 
-    implementation group: 'org.testng', name: 'testng', version: '7.7.1'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
-    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
+    implementation group: 'org.testng', name: 'testng', version: '7.11.0'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
 }
 
 test {
@@ -54,15 +60,15 @@ jacocoTestReport {
     sourceDirectories.from = files(sourceSets.main.allSource.srcDirs)
     classDirectories.from = files(sourceSets.main.output)
     reports {
-        html.enabled = true
-        xml.enabled = true
-        xml.destination = file("${buildDir}/jacoco/test.xml")
-        csv.enabled = false
+        html.required.set(true)
+        xml.required.set(true)
+        xml.outputLocation.set(file("${buildDir}/jacoco/test.xml"))
+        csv.required.set(false)
     }
 }
 
 task fatJar(type: Jar) {
-    classifier("all")
+    archiveClassifier.set("all")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes 'Main-Class': 'io.opentelemetry.contrib.generator.telemetry.cli.CLIProcessor'
