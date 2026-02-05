@@ -1,4 +1,4 @@
-FROM openjdk:17-oraclelinux8 as builder
+FROM eclipse-temurin:21-ubi10-minimal AS builder
 
 USER root
 
